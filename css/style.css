@@ -563,3 +563,20 @@ input:focus, select:focus, textarea:focus{
   .about-services{ grid-template-columns:1fr; }
   .about-sub{ font-size:14px; }
 }
+
+/* ===== Subtle icon glow (About page cards) ===== */
+
+.service-icon,
+.stat-icon{
+  filter: drop-shadow(0 0 10px rgba(255,255,255,.18));
+}
+
+.service-card:hover .service-icon,
+.stat-card:hover .stat-icon{
+  filter: drop-shadow(0 0 14px rgba(255,255,255,.28));
+}
+
+/* Optional: slightly more premium number glow */
+.stat-number{
+  text-shadow: 0 0 18px rgba(255,255,255,.10);
+}
