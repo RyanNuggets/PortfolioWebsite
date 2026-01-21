@@ -14,7 +14,12 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files (css, images, js, and html files)
 app.use(express.static(__dirname, { extensions: ["html"] }));
 
-// ===== API: list images that start with "work-" from /images =====
+// ======================= API =======================
+
+// Health (optional but useful)
+app.get("/api/health", (req, res) => res.json({ ok: true }));
+
+// List images that start with "work-" from /images
 app.get("/api/past-work", (req, res) => {
   try {
     const imagesDir = path.join(__dirname, "images");
@@ -38,12 +43,12 @@ app.get("/api/past-work", (req, res) => {
   }
 });
 
-// ===== API: contact form -> Discord webhook =====
+// Contact form -> Discord webhook
 app.post("/api/contact", async (req, res) => {
   try {
     const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
     if (!webhookUrl) {
-      console.error("Missing DISCORD_WEBHOOK_URL in Railway Variables");
+      console.error("❌ Missing DISCORD_WEBHOOK_URL in Railway Variables");
       return res.status(500).json({ ok: false, error: "Server not configured." });
     }
 
@@ -79,26 +84,32 @@ app.post("/api/contact", async (req, res) => {
 
     if (!resp.ok) {
       const text = await resp.text().catch(() => "");
-      console.error("Discord webhook failed:", resp.status, text);
-      return res.status(500).json({ ok: false, error: "Webhook failed." });
+      console.error("❌ Discord webhook failed:", resp.status, text);
+      return res.status(500).json({ ok: false, error: `Webhook failed (${resp.status}).` });
     }
 
     return res.json({ ok: true });
   } catch (err) {
-    console.error("Contact API error:", err);
+    console.error("❌ Contact API error:", err);
     return res.status(500).json({ ok: false, error: "Server error." });
   }
 });
 
-// Pretty URLs -> serve the correct HTML files
+// ✅ API 404 always returns JSON (prevents frontend JSON parse failures)
+app.use("/api", (req, res) => {
+  res.status(404).json({ ok: false, error: "API route not found." });
+});
+
+// ======================= PAGES =======================
+
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
 app.get("/about", (req, res) => res.sendFile(path.join(__dirname, "about.html")));
 app.get("/clients", (req, res) => res.sendFile(path.join(__dirname, "clients.html")));
+app.get("/contact", (req, res) => res.sendFile(path.join(__dirname, "contact.html")));
 app.get("/past-work", (req, res) => res.sendFile(path.join(__dirname, "past-work.html")));
 app.get("/past-work/:workId", (req, res) => res.sendFile(path.join(__dirname, "past-work.html")));
-app.get("/contact", (req, res) => res.sendFile(path.join(__dirname, "contact.html")));
 
-// (Optional) simple 404 page instead of serving homepage for unknown routes
+// Non-api 404 (optional): send index or a 404 page
 app.use((req, res) => {
   res.status(404).sendFile(path.join(__dirname, "index.html"));
 });
