@@ -36,8 +36,8 @@ body{
   background:linear-gradient(180deg,#1a1a1a,#000000);
   box-shadow:
   0 12px 28px rgba(0,0,0,.75),
-  inset 0 2px 4px rgba(255,255,255,.08),
-  inset 0 -2px 4px rgba(225,225,225,.08);
+  inset 0 2px 4px rgba(255,255,255,.12),
+  inset 0 -2px 4px rgba(225,225,225,.10);
 
   overflow:hidden;
   z-index:9999;
