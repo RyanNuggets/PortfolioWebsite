@@ -35,7 +35,7 @@
       <h1 class="about-title">About us</h1>
       <p class="about-sub">
         Nuggets Customs is a commission-based design shop focused on clean, high-impact graphics for creators,
-        communities, and game brands — from banners and branding kits to custom logos and polished promo visuals.
+        communities, and game brands — from banners and Discord panels to uniforms, embeds, and polished promo visuals.
         We keep it fast, professional, and consistent so your server looks premium everywhere.
       </p>
 
@@ -43,16 +43,16 @@
       <div class="about-stats">
         <div class="stat-card">
           <div class="stat-icon" aria-hidden="true">◻</div>
-          <div class="stat-number">600+</div>
+          <div class="stat-number count-up" data-to="600" data-suffix="+">0</div>
           <div class="stat-label">orders completed</div>
-          <div class="stat-mini">Reliable delivery with quality control</div>
+          <div class="stat-mini">Consistent delivery with quality control</div>
         </div>
 
         <div class="stat-card">
           <div class="stat-icon" aria-hidden="true">★</div>
-          <div class="stat-number">99%</div>
+          <div class="stat-number count-up" data-to="99" data-suffix="%">0</div>
           <div class="stat-label">client satisfaction</div>
-          <div class="stat-mini">Repeat clients and long-term partnerships</div>
+          <div class="stat-mini">Built on repeat clients and trust</div>
         </div>
       </div>
 
@@ -60,18 +60,18 @@
       <div class="about-services">
         <div class="service-card">
           <div class="service-top">
-            <span class="service-icon" aria-hidden="true">🚓</span>
-            <h3 class="service-title">Liveries & server graphics</h3>
+            <span class="service-icon" aria-hidden="true">🖼️</span>
+            <h3 class="service-title">Banners & headers</h3>
           </div>
-          <p class="service-text">High-detail designs built for ER:LC and Discord note-worthy presentation.</p>
+          <p class="service-text">Premium banners for Discord, YouTube, and socials — designed to pop.</p>
         </div>
 
         <div class="service-card">
           <div class="service-top">
-            <span class="service-icon" aria-hidden="true">🎨</span>
-            <h3 class="service-title">Custom logos</h3>
+            <span class="service-icon" aria-hidden="true">💬</span>
+            <h3 class="service-title">Discord embeds & panels</h3>
           </div>
-          <p class="service-text">Clean, readable logos that scale well for icons, banners, and uniforms.</p>
+          <p class="service-text">Clean embeds, rules/info panels, and layouts that match your brand.</p>
         </div>
 
         <div class="service-card">
@@ -79,15 +79,15 @@
             <span class="service-icon" aria-hidden="true">👕</span>
             <h3 class="service-title">Uniforms & clothing</h3>
           </div>
-          <p class="service-text">Professional uniforms with consistent branding for departments and teams.</p>
+          <p class="service-text">Quality uniform/clothing graphics with consistent department branding.</p>
         </div>
 
         <div class="service-card">
           <div class="service-top">
             <span class="service-icon" aria-hidden="true">⚡</span>
-            <h3 class="service-title">ELS, promo & more</h3>
+            <h3 class="service-title">Graphics packs & extras</h3>
           </div>
-          <p class="service-text">Extra polish for your launch — visuals that look premium in screenshots & ads.</p>
+          <p class="service-text">Launch-ready packs: icons, promo assets, templates, and more.</p>
         </div>
       </div>
     </section>
@@ -101,5 +101,39 @@
       <p class="footer-text">Copyright © 2026 Nuggets Customs. All rights reserved.</p>
     </div>
   </footer>
+
+  <!-- COUNT-UP ANIMATION -->
+  <script>
+    const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+    function animateCount(el, to, duration = 900, suffix = "") {
+      const start = performance.now();
+
+      function frame(now) {
+        const p = Math.min(1, (now - start) / duration);
+        const value = Math.round(to * easeOutCubic(p));
+        el.textContent = value + suffix;
+        if (p < 1) requestAnimationFrame(frame);
+      }
+
+      requestAnimationFrame(frame);
+    }
+
+    const counters = document.querySelectorAll(".count-up");
+
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+
+        const el = entry.target;
+        if (el.dataset.done === "1") return;
+
+        el.dataset.done = "1";
+        animateCount(el, Number(el.dataset.to || 0), 950, el.dataset.suffix || "");
+      });
+    }, { threshold: 0.35 });
+
+    counters.forEach((c) => io.observe(c));
+  </script>
 </body>
 </html>
