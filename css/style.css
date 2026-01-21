@@ -587,12 +587,10 @@ input:focus, select:focus, textarea:focus{
   width:100%;
 }
 
-/* ✅ bigger / longer module so it fills the page nicer */
+/* bigger / longer module */
 .clients-shell{
   width:min(1180px, calc(100vw - 40px));
   margin:0 auto;
-
-  /* was: padding:26px 22px 22px; */
   padding:44px 26px 28px;
 
   border-radius:26px;
@@ -605,8 +603,7 @@ input:focus, select:focus, textarea:focus{
   border:1px solid rgba(255,255,255,.07);
   position:relative;
 
-  /* ✅ makes the whole block taller */
-  min-height:70vh;
+  min-height:75vh; /* module fills the page nicely */
 }
 
 .clients-icon{
@@ -642,12 +639,10 @@ input:focus, select:focus, textarea:focus{
   font-size:14px;
 }
 
-/* Carousel */
+/* Carousel viewport */
 .reviews-viewport{
-  margin-top:16px;
-
-  /* was: padding:8px 6px 10px; */
-  padding:18px 10px 18px; /* ✅ taller carousel area */
+  margin-top:18px;
+  padding:18px 10px 18px;
 
   overflow-x:auto;
   overflow-y:hidden;
@@ -655,7 +650,6 @@ input:focus, select:focus, textarea:focus{
   scroll-behavior:smooth;
   -webkit-overflow-scrolling:touch;
 
-  /* keep it clean */
   scrollbar-width:none;
 }
 .reviews-viewport::-webkit-scrollbar{ height:0; }
@@ -663,14 +657,18 @@ input:focus, select:focus, textarea:focus{
 .reviews-track{
   display:flex;
   gap:16px;
-  align-items:stretch;
+  align-items:stretch; /* makes all cards same height */
   width:max-content;
 }
 
-/* Review card */
+/* ✅ Review cards: full-height, meta pinned bottom */
 .review-card{
-  width:320px;
-  min-width:320px;
+  width:340px;
+  min-width:340px;
+
+  height:340px;              /* 🔑 makes boxes go all the way down */
+  display:flex;              /* 🔑 column layout */
+  flex-direction:column;
 
   border-radius:18px;
   padding:18px 18px 16px;
@@ -704,11 +702,20 @@ input:focus, select:focus, textarea:focus{
     inset 0 -2px 4px rgba(255,255,255,.07);
 }
 
+/* ✅ quote takes the available vertical space */
 .review-quote{
   margin:0;
   font-size:14px;
   line-height:1.6;
   opacity:.85;
+
+  flex:1;                    /* 🔑 fills space above the bottom meta */
+  overflow:hidden;
+
+  /* tasteful clamp so long reviews don't break the box */
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:8;
 }
 
 .review-em{
@@ -717,17 +724,24 @@ input:focus, select:focus, textarea:focus{
   text-shadow:0 0 14px rgba(255,255,255,.10);
 }
 
+/* divider sits above pinned meta */
 .review-divider{
   height:1px;
   margin:16px 0 12px;
   background:rgba(255,255,255,.10);
 }
 
-.review-meta{ text-align:left; }
+/* ✅ Meta stays at bottom always */
+.review-meta{
+  margin-top:auto;  /* 🔑 pins to bottom */
+  text-align:left;
+}
+
 .review-name{ font-size:14px; font-weight:700; opacity:.92; }
 .review-role{ font-size:12px; opacity:.65; margin-top:4px; }
 
-/* Modal */
+/* ================= MODAL ================= */
+
 .review-modal{
   position:fixed;
   inset:0;
@@ -750,8 +764,7 @@ input:focus, select:focus, textarea:focus{
 
   border-radius:22px;
 
-  /* was: padding:22px 22px 18px; */
-  padding:54px 22px 22px; /* ✅ extra top padding so the X never crowds */
+  padding:54px 22px 22px; /* 🔑 more space so X never overlaps */
 
   background:linear-gradient(180deg,#141414,#000);
   border:1px solid rgba(255,255,255,.10);
@@ -764,8 +777,6 @@ input:focus, select:focus, textarea:focus{
 
 .review-modal-close{
   position:absolute;
-
-  /* was: top:12px; right:12px; */
   top:16px;
   right:16px;
 
@@ -783,8 +794,7 @@ input:focus, select:focus, textarea:focus{
 .review-modal-close:hover{ opacity:1; }
 
 .review-modal-quote{
-  /* was: margin-top:10px; */
-  margin-top:4px; /* ✅ keeps text away from the close button area */
+  margin-top:4px;
   font-size:16px;
   line-height:1.7;
   opacity:.9;
@@ -802,5 +812,12 @@ input:focus, select:focus, textarea:focus{
 /* Responsive */
 @media (max-width:520px){
   .clients-title{ font-size:28px; }
-  .review-card{ width:280px; min-width:280px; }
+  .review-card{
+    width:290px;
+    min-width:290px;
+    height:320px;
+  }
+  .review-quote{
+    -webkit-line-clamp:9;
+  }
 }
