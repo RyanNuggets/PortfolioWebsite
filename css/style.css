@@ -124,15 +124,17 @@ p{
   display:flex;
   gap:16px;
   justify-content:center;
-  align-items:center;
+  align-items:stretch; /* ensures same height */
 }
 
 .cta{
-  display:inline-block;
+  flex:1;                 /* 🔑 forces equal width */
+  min-width:190px;        /* keeps buttons from shrinking too much */
+  text-align:center;      /* centers text */
+
   padding:12px 38px;
   border-radius:20px;
 
-  /* SAME COLOR SYSTEM AS NAVBAR */
   background:linear-gradient(180deg,#f6a9c3,#e37aa3);
 
   box-shadow:
@@ -178,5 +180,9 @@ p{
   .cta-group{
     flex-direction:column;
     gap:12px;
+  }
+
+  .cta{
+    width:100%; /* full width when stacked */
   }
 }
