@@ -8,11 +8,11 @@
 </head>
 <body class="page-layout">
 
-  <nav class="navbar">
+  <nav class="navbar fade-in">
     <div class="nav-inner">
       <a href="/" class="nav-home">
-  <img src="images/logo2.png" alt="Navbar Logo" class="nav-logo">
-</a>
+        <img src="images/logo2.png" alt="Navbar Logo" class="nav-logo">
+      </a>
 
       <span class="divider"></span>
       <a href="/about" class="nav-link">About</a>
@@ -28,18 +28,106 @@
     </div>
   </nav>
 
-  <main class="page-content">
+  <main class="page-content fade-in">
     <h1>Contact</h1>
-    <p>This page will be customized later.</p>
+    <p>Tell us what you need — we’ll get back to you.</p>
+
+    <div class="contact-wrap">
+      <form id="contactForm" class="contact-card">
+        <div class="row">
+          <div class="field">
+            <label for="name">Name *</label>
+            <input id="name" name="name" type="text" placeholder="Your name" required />
+          </div>
+
+          <div class="field">
+            <label for="email">Email *</label>
+            <input id="email" name="email" type="email" placeholder="you@email.com" required />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="service">Service</label>
+            <select id="service" name="service">
+              <option value="">Select one</option>
+              <option>Banner / Header</option>
+              <option>Logo</option>
+              <option>Branding</option>
+              <option>Thumbnail / Post</option>
+              <option>Other</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="budget">Budget</label>
+            <input id="budget" name="budget" type="text" placeholder="$ (optional)" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="message">Message *</label>
+          <textarea id="message" name="message" rows="6" placeholder="Describe what you want..." required></textarea>
+        </div>
+
+        <div class="contact-actions">
+          <button type="submit" class="cta contact-submit">Send Message</button>
+          <a class="cta secondary contact-discord"
+             href="https://discord.gg/6UUnKtmUas"
+             target="_blank" rel="noopener">
+            Join Discord
+          </a>
+        </div>
+
+        <div id="formStatus" class="form-status" aria-live="polite"></div>
+      </form>
+    </div>
   </main>
 
   <footer class="footer-strip">
     <div class="footer-divider"></div>
     <div class="footer-inner">
-      <img src="images/logo2.png" class="footer-logo">
+      <img src="images/logo2.png" class="footer-logo" alt="Footer Logo">
       <p class="footer-text">Copyright © 2026 Nuggets Customs. All rights reserved.</p>
     </div>
   </footer>
 
+  <script>
+    const form = document.getElementById("contactForm");
+    const statusEl = document.getElementById("formStatus");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      statusEl.textContent = "Sending…";
+
+      const payload = {
+        name: form.name.value,
+        email: form.email.value,
+        service: form.service.value,
+        budget: form.budget.value,
+        message: form.message.value
+      };
+
+      try {
+        const res = await fetch("/api/contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok || !data.ok) {
+          statusEl.textContent = "Could not send. Please try again.";
+          return;
+        }
+
+        statusEl.textContent = "Sent! We’ll reach out soon.";
+        form.reset();
+      } catch {
+        statusEl.textContent = "Network error. Please try again.";
+      }
+    });
+  </script>
 </body>
 </html>
