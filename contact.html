@@ -8,6 +8,7 @@
 </head>
 <body class="page-layout">
 
+  <!-- NAVBAR -->
   <nav class="navbar fade-in">
     <div class="nav-inner">
       <a href="/" class="nav-home">
@@ -28,6 +29,7 @@
     </div>
   </nav>
 
+  <!-- CONTENT -->
   <main class="page-content fade-in">
     <h1>Contact</h1>
     <p>Tell us what you need — we’ll get back to you.</p>
@@ -36,13 +38,36 @@
       <form id="contactForm" class="contact-card">
         <div class="row">
           <div class="field">
-            <label for="name">Name *</label>
-            <input id="name" name="name" type="text" placeholder="Your name" required />
+            <label for="discordUsername">Discord Username *</label>
+            <input
+              id="discordUsername"
+              name="discordUsername"
+              type="text"
+              placeholder="username (or username#0000)"
+              required
+            />
           </div>
 
           <div class="field">
-            <label for="email">Email *</label>
-            <input id="email" name="email" type="email" placeholder="you@email.com" required />
+            <label class="label-with-help" for="discordId">
+              Discord ID *
+              <a
+                href="YOUR_YOUTUBE_LINK_HERE"
+                target="_blank"
+                rel="noopener"
+                class="help-icon"
+                title="How to get your Discord ID"
+                aria-label="How to get your Discord ID"
+              >?</a>
+            </label>
+            <input
+              id="discordId"
+              name="discordId"
+              type="text"
+              inputmode="numeric"
+              placeholder="123456789012345678"
+              required
+            />
           </div>
         </div>
 
@@ -72,9 +97,13 @@
 
         <div class="contact-actions">
           <button type="submit" class="cta contact-submit">Send Message</button>
-          <a class="cta secondary contact-discord"
-             href="https://discord.gg/6UUnKtmUas"
-             target="_blank" rel="noopener">
+
+          <a
+            class="cta secondary contact-discord"
+            href="YOUR_DISCORD_INVITE_LINK_HERE"
+            target="_blank"
+            rel="noopener"
+          >
             Join Discord
           </a>
         </div>
@@ -84,6 +113,7 @@
     </div>
   </main>
 
+  <!-- FOOTER -->
   <footer class="footer-strip">
     <div class="footer-divider"></div>
     <div class="footer-inner">
@@ -101,8 +131,8 @@
       statusEl.textContent = "Sending…";
 
       const payload = {
-        name: form.name.value,
-        email: form.email.value,
+        discordUsername: form.discordUsername.value,
+        discordId: form.discordId.value,
         service: form.service.value,
         budget: form.budget.value,
         message: form.message.value
