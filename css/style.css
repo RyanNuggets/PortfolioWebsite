@@ -288,7 +288,7 @@ p{
   .cta{ width:100%; }
 }
 
-/* ================= CONTACT PAGE ================= */
+/* ================= CONTACT PAGE (ADD-ON) ================= */
 
 .contact-wrap{
   width:min(820px, calc(100vw - 40px));
@@ -360,6 +360,40 @@ input:focus, select:focus, textarea:focus{
   font-size:13px;
   opacity:.75;
   text-align:center;
+}
+
+/* ===== Discord ID help icon ===== */
+
+.label-with-help{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.help-icon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+
+  width:16px;
+  height:16px;
+  border-radius:50%;
+
+  font-size:12px;
+  font-weight:700;
+  line-height:1;
+
+  color:#000;
+  background:#fff;
+  text-decoration:none;
+
+  opacity:.75;
+  transition:opacity .15s ease, transform .15s ease;
+}
+
+.help-icon:hover{
+  opacity:1;
+  transform:scale(1.1);
 }
 
 @media (max-width:520px){
