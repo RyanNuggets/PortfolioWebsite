@@ -129,7 +129,7 @@ p{
 
 .cta{
   flex:1;                 /* 🔑 forces equal width */
-  min-width:190px;        /* keeps buttons from shrinking too much */
+  min-width:90px;        /* keeps buttons from shrinking too much */
   text-align:center;      /* centers text */
 
   padding:12px 38px;
