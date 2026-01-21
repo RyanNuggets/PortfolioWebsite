@@ -197,7 +197,7 @@ p{
 /* ================= FOOTER STRIP ================= */
 
 .footer-strip{
-  padding:80px 20px 40px;
+  padding:40px 20px 30px;
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -209,12 +209,7 @@ p{
   width:70%;
   max-width:900px;
   height:1px;
-  background:linear-gradient(
-    90deg,
-    transparent,
-    rgba(255,255,255,.35),
-    transparent
-  );
+  background:rgba(255,255,255,.35);
   margin-bottom:40px;
 }
 
