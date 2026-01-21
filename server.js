@@ -7,19 +7,43 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ✅ REQUIRED for contact form JSON body
-app.use(express.json({ limit: "200kb" }));
-app.use(express.urlencoded({ extended: true }));
+// Parse JSON bodies (for contact form)
+app.use(express.json());
 
-// Serve static files (css, images, js, and html files)
+// Serve static files (css, images, js, html)
 app.use(express.static(__dirname, { extensions: ["html"] }));
 
-// ======================= API =======================
+// ================= PAGE ROUTES =================
 
-// Health (optional but useful)
-app.get("/api/health", (req, res) => res.json({ ok: true }));
+app.get("/", (req, res) =>
+  res.sendFile(path.join(__dirname, "index.html"))
+);
 
-// List images that start with "work-" from /images
+app.get("/about", (req, res) =>
+  res.sendFile(path.join(__dirname, "about.html"))
+);
+
+app.get("/clients", (req, res) =>
+  res.sendFile(path.join(__dirname, "clients.html"))
+);
+
+app.get("/past-work", (req, res) =>
+  res.sendFile(path.join(__dirname, "past-work.html"))
+);
+
+// ✅ Past work detail URL (still serves same HTML; client JS focuses the matching item)
+app.get("/past-work/:workId", (req, res) =>
+  res.sendFile(path.join(__dirname, "past-work.html"))
+);
+
+app.get("/contact", (req, res) =>
+  res.sendFile(path.join(__dirname, "contact.html"))
+);
+
+// ================= PAST WORK API (ADDED) =================
+
+// Lists files in /images that start with "work-" so past-work.html can auto-render.
+// Example filenames: work-1.png, work-abc.jpg, work-banner.webp
 app.get("/api/past-work", (req, res) => {
   try {
     const imagesDir = path.join(__dirname, "images");
@@ -29,7 +53,7 @@ app.get("/api/past-work", (req, res) => {
       .filter((f) => /^work-.+\.(png|jpg|jpeg|webp|gif)$/i.test(f))
       .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 
-    res.json({
+    return res.json({
       ok: true,
       items: workFiles.map((f) => ({
         file: f,
@@ -38,81 +62,85 @@ app.get("/api/past-work", (req, res) => {
       })),
     });
   } catch (err) {
-    console.error("past-work scan error:", err);
-    res.status(500).json({ ok: false, error: "Failed to read images folder." });
+    console.error(err);
+    return res.status(500).json({
+      ok: false,
+      error: "Failed to read images folder."
+    });
   }
 });
 
-// Contact form -> Discord webhook
+// ================= CONTACT FORM API =================
+
 app.post("/api/contact", async (req, res) => {
   try {
     const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
     if (!webhookUrl) {
-      console.error("❌ Missing DISCORD_WEBHOOK_URL in Railway Variables");
-      return res.status(500).json({ ok: false, error: "Server not configured." });
+      return res.status(500).json({
+        ok: false,
+        error: "DISCORD_WEBHOOK_URL not set"
+      });
     }
 
-    const { discordUsername = "", discordId = "", requestType = "", details = "" } = req.body || {};
+    const { discordUsername, discordId, service, budget, message } = req.body || {};
 
-    if (!discordUsername.trim() || !details.trim()) {
-      return res.status(400).json({ ok: false, error: "Missing required fields." });
+    // Basic validation
+    if (!discordUsername || !discordId || !message) {
+      return res.status(400).json({
+        ok: false,
+        error: "Discord Username, Discord ID, and message are required"
+      });
     }
 
-    const safe = (s, max) => String(s || "").slice(0, max);
+    const safe = (v, max = 1024) => String(v ?? "").trim().slice(0, max);
 
     const payload = {
+      username: "Nuggets Customs • Contact",
       embeds: [
         {
-          title: "New Commission Request",
+          title: "New Contact Form Submission",
           color: 0x111111,
           fields: [
-            { name: "Discord Username", value: safe(discordUsername, 256) || "—", inline: true },
-            { name: "Discord ID", value: safe(discordId, 64) || "—", inline: true },
-            { name: "Request Type", value: safe(requestType, 256) || "—", inline: false },
-            { name: "Details", value: safe(details, 1800) || "—", inline: false },
+            { name: "Discord Username", value: safe(discordUsername, 256), inline: true },
+            { name: "Discord ID", value: safe(discordId, 256), inline: true },
+            { name: "Service", value: safe(service, 256) || "—", inline: true },
+            { name: "Budget", value: safe(budget, 256) || "—", inline: true },
+            { name: "Message", value: safe(message, 1500), inline: false }
           ],
-          timestamp: new Date().toISOString(),
-        },
-      ],
+          footer: { text: "Nuggets Customs Website" },
+          timestamp: new Date().toISOString()
+        }
+      ]
     };
 
-    const resp = await fetch(webhookUrl, {
+    const discordRes = await fetch(webhookUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     });
 
-    if (!resp.ok) {
-      const text = await resp.text().catch(() => "");
-      console.error("❌ Discord webhook failed:", resp.status, text);
-      return res.status(500).json({ ok: false, error: `Webhook failed (${resp.status}).` });
+    if (!discordRes.ok) {
+      const text = await discordRes.text().catch(() => "");
+      return res.status(502).json({
+        ok: false,
+        error: "Discord webhook failed",
+        details: text.slice(0, 300)
+      });
     }
 
     return res.json({ ok: true });
   } catch (err) {
-    console.error("❌ Contact API error:", err);
-    return res.status(500).json({ ok: false, error: "Server error." });
+    console.error(err);
+    return res.status(500).json({
+      ok: false,
+      error: "Server error"
+    });
   }
 });
 
-// ✅ API 404 always returns JSON (prevents frontend JSON parse failures)
-app.use("/api", (req, res) => {
-  res.status(404).json({ ok: false, error: "API route not found." });
-});
-
-// ======================= PAGES =======================
-
-app.get("/", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
-app.get("/about", (req, res) => res.sendFile(path.join(__dirname, "about.html")));
-app.get("/clients", (req, res) => res.sendFile(path.join(__dirname, "clients.html")));
-app.get("/contact", (req, res) => res.sendFile(path.join(__dirname, "contact.html")));
-app.get("/past-work", (req, res) => res.sendFile(path.join(__dirname, "past-work.html")));
-app.get("/past-work/:workId", (req, res) => res.sendFile(path.join(__dirname, "past-work.html")));
-
-// Non-api 404 (optional): send index or a 404 page
-app.use((req, res) => {
-  res.status(404).sendFile(path.join(__dirname, "index.html"));
-});
+// ================= START SERVER =================
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log("Running on", port));
+app.listen(port, () => {
+  console.log("Server running on port", port);
+});
