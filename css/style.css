@@ -71,7 +71,10 @@ body{
   z-index:1;
 }
 
-.nav-logo{ height:40px; }
+.nav-logo{
+  height:28px;      /* smaller */
+  width:auto;
+}
 
 .divider{
   width:1px;
