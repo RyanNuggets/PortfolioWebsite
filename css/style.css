@@ -581,13 +581,11 @@ input:focus, select:focus, textarea:focus{
   text-shadow: 0 0 18px rgba(255,255,255,.10);
 }
 
-/* ================= CLIENTS PAGE ================= */
+/* ================= CLIENTS PAGE (FULL UPDATED) ================= */
 
-.clients{
-  width:100%;
-}
+.clients{ width:100%; }
 
-/* bigger / longer module */
+/* module */
 .clients-shell{
   width:min(1180px, calc(100vw - 40px));
   margin:0 auto;
@@ -603,26 +601,7 @@ input:focus, select:focus, textarea:focus{
   border:1px solid rgba(255,255,255,.07);
   position:relative;
 
-  min-height:75vh; /* module fills the page nicely */
-}
-
-.clients-icon{
-  position:absolute;
-  top:18px;
-  left:18px;
-  width:34px;
-  height:34px;
-  border-radius:12px;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  background:rgba(255,255,255,.06);
-  border:1px solid rgba(255,255,255,.10);
-
-  opacity:.85;
-  filter:drop-shadow(0 0 14px rgba(255,255,255,.12));
+  min-height:75vh;
 }
 
 .clients-title{
@@ -639,7 +618,7 @@ input:focus, select:focus, textarea:focus{
   font-size:14px;
 }
 
-/* Carousel viewport */
+/* Carousel */
 .reviews-viewport{
   margin-top:18px;
   padding:18px 10px 18px;
@@ -649,7 +628,6 @@ input:focus, select:focus, textarea:focus{
 
   scroll-behavior:smooth;
   -webkit-overflow-scrolling:touch;
-
   scrollbar-width:none;
 }
 .reviews-viewport::-webkit-scrollbar{ height:0; }
@@ -657,18 +635,14 @@ input:focus, select:focus, textarea:focus{
 .reviews-track{
   display:flex;
   gap:16px;
-  align-items:stretch; /* makes all cards same height */
+  align-items:flex-start; /* ✅ cards can be different heights */
   width:max-content;
 }
 
-/* ✅ Review cards: full-height, meta pinned bottom */
+/* ✅ Review card variable height */
 .review-card{
   width:340px;
   min-width:340px;
-
-  height:340px;              /* 🔑 makes boxes go all the way down */
-  display:flex;              /* 🔑 column layout */
-  flex-direction:column;
 
   border-radius:18px;
   padding:18px 18px 16px;
@@ -702,20 +676,11 @@ input:focus, select:focus, textarea:focus{
     inset 0 -2px 4px rgba(255,255,255,.07);
 }
 
-/* ✅ quote takes the available vertical space */
 .review-quote{
   margin:0;
   font-size:14px;
   line-height:1.6;
   opacity:.85;
-
-  flex:1;                    /* 🔑 fills space above the bottom meta */
-  overflow:hidden;
-
-  /* tasteful clamp so long reviews don't break the box */
-  display:-webkit-box;
-  -webkit-box-orient:vertical;
-  -webkit-line-clamp:8;
 }
 
 .review-em{
@@ -724,24 +689,17 @@ input:focus, select:focus, textarea:focus{
   text-shadow:0 0 14px rgba(255,255,255,.10);
 }
 
-/* divider sits above pinned meta */
 .review-divider{
   height:1px;
   margin:16px 0 12px;
   background:rgba(255,255,255,.10);
 }
 
-/* ✅ Meta stays at bottom always */
-.review-meta{
-  margin-top:auto;  /* 🔑 pins to bottom */
-  text-align:left;
-}
-
+.review-meta{ text-align:left; }
 .review-name{ font-size:14px; font-weight:700; opacity:.92; }
 .review-role{ font-size:12px; opacity:.65; margin-top:4px; }
 
-/* ================= MODAL ================= */
-
+/* Modal */
 .review-modal{
   position:fixed;
   inset:0;
@@ -764,7 +722,7 @@ input:focus, select:focus, textarea:focus{
 
   border-radius:22px;
 
-  padding:54px 22px 22px; /* 🔑 more space so X never overlaps */
+  padding:54px 22px 22px;
 
   background:linear-gradient(180deg,#141414,#000);
   border:1px solid rgba(255,255,255,.10);
@@ -779,7 +737,6 @@ input:focus, select:focus, textarea:focus{
   position:absolute;
   top:16px;
   right:16px;
-
   width:36px;
   height:36px;
   border-radius:14px;
@@ -790,7 +747,6 @@ input:focus, select:focus, textarea:focus{
   cursor:pointer;
   opacity:.9;
 }
-
 .review-modal-close:hover{ opacity:1; }
 
 .review-modal-quote{
@@ -812,12 +768,5 @@ input:focus, select:focus, textarea:focus{
 /* Responsive */
 @media (max-width:520px){
   .clients-title{ font-size:28px; }
-  .review-card{
-    width:290px;
-    min-width:290px;
-    height:320px;
-  }
-  .review-quote{
-    -webkit-line-clamp:9;
-  }
+  .review-card{ width:290px; min-width:290px; }
 }
