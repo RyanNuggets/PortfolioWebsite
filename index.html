@@ -1,29 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>StudioName</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StudioName</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
+  <!-- background texture image is optional; we keep filename for swapping -->
+  <div class="bg" aria-hidden="true"></div>
 
-<nav class="navbar">
-  <div class="nav-logo">StudioName</div>
-  <ul>
-    <li><a href="#">About</a></li>
-    <li><a href="#">Clients</a></li>
-    <li><a href="#">Past Work</a></li>
-    <li><a href="#">Contact</a></li>
-  </ul>
-</nav>
+  <header class="top">
+    <nav class="nav-pill" aria-label="Primary">
+      <div class="nav-inner">
+        <a class="nav-brand" href="#" aria-label="Home">
+          <img src="images/logo2.png" alt="Brand" />
+        </a>
 
-<section class="hero">
-  <img src="images/logo.png" class="hero-logo" alt="Logo">
-  <h1>StudioName</h1>
-  <p>Your tagline goes here</p>
-  <a href="#" class="cta">Explore our work</a>
-</section>
+        <span class="nav-sep" aria-hidden="true"></span>
 
+        <a class="nav-link" href="#">About</a>
+        <span class="nav-sep" aria-hidden="true"></span>
+        <a class="nav-link" href="#">Clients</a>
+        <span class="nav-sep" aria-hidden="true"></span>
+        <a class="nav-link" href="#">Past Work</a>
+        <span class="nav-sep" aria-hidden="true"></span>
+        <a class="nav-link" href="#">Contact</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="hero" role="main">
+    <div class="hero-stack">
+      <img class="hero-logo" src="images/logo.png" alt="Main logo" />
+
+      <h1 class="hero-title">StudioName</h1>
+      <p class="hero-tag">Your tagline goes here</p>
+
+      <a class="cta" href="#">Explore our work</a>
+    </div>
+  </main>
+
+  <script src="js/main.js"></script>
 </body>
 </html>
