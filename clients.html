@@ -138,11 +138,8 @@
 
     <div class="review-modal-card" role="dialog" aria-modal="true" aria-label="Expanded review">
       <button class="review-modal-close" id="reviewModalClose" aria-label="Close">×</button>
-
       <div class="review-modal-quote" id="reviewModalQuote"></div>
-
       <div class="review-modal-divider"></div>
-
       <div class="review-modal-meta">
         <div class="review-modal-name" id="reviewModalName"></div>
         <div class="review-modal-role" id="reviewModalRole"></div>
@@ -150,31 +147,48 @@
     </div>
   </div>
 
-  <!-- CAROUSEL + MODAL JS -->
+  <!-- CAROUSEL + MODAL JS (UPDATED) -->
   <script>
-    // ===== Auto-moving carousel (loops) + wheel-to-horizontal on hover (no interference) + click-to-expand =====
-
     const viewport = document.getElementById("reviewsViewport");
     const track = document.getElementById("reviewsTrack");
 
-    // --- 1) Duplicate items for a seamless loop
-    // We duplicate the original set once. Then we reset scrollLeft when crossing midpoint.
+    // Duplicate items for a seamless loop
     const originalHTML = track.innerHTML;
     track.insertAdjacentHTML("beforeend", originalHTML);
 
+    const reduceMotion =
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // Auto-scroll settings
+    const SPEED = 0.45;
+    let pauseAuto = false;
+    let resumeTimer = null;
     let isHovering = false;
-    let reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    // --- 2) Auto scroll
-    const SPEED = 0.45; // px per frame-ish (tasteful)
+    function loopFix() {
+      const half = track.scrollWidth / 2;
+      if (viewport.scrollLeft >= half) viewport.scrollLeft -= half;
+      if (viewport.scrollLeft < 0) viewport.scrollLeft += half;
+    }
+
+    function scheduleResume() {
+      clearTimeout(resumeTimer);
+      resumeTimer = setTimeout(() => {
+        pauseAuto = false;
+      }, 5000);
+    }
+
+    function markManualInteraction() {
+      pauseAuto = true;
+      scheduleResume();
+    }
+
+    // Auto-scroll loop
     function tick() {
-      if (!reduceMotion && !isHovering) {
+      if (!reduceMotion && !pauseAuto) {
         viewport.scrollLeft += SPEED;
-
-        const half = track.scrollWidth / 2;
-        if (viewport.scrollLeft >= half) {
-          viewport.scrollLeft -= half; // seamless jump back into first half
-        }
+        loopFix();
       }
       requestAnimationFrame(tick);
     }
@@ -183,26 +197,31 @@
     viewport.addEventListener("mouseenter", () => { isHovering = true; });
     viewport.addEventListener("mouseleave", () => { isHovering = false; });
 
-    // --- 3) Wheel scroll horizontally ONLY when hovering the carousel
-    // This prevents interfering with normal page scrolling.
+    // Manual scroll detection (trackpad / drag / keyboard)
+    viewport.addEventListener("scroll", () => {
+      markManualInteraction();
+      loopFix();
+    }, { passive: true });
+
+    // Pointer/touch starts = manual intent
+    viewport.addEventListener("pointerdown", markManualInteraction, { passive: true });
+    viewport.addEventListener("touchstart", markManualInteraction, { passive: true });
+
+    // Wheel -> horizontal ONLY when hovering the carousel
     viewport.addEventListener("wheel", (e) => {
       if (!isHovering) return;
 
-      // Convert vertical wheel into horizontal movement
-      // If user has a trackpad with horizontal scroll, include deltaX too
-      const delta = (Math.abs(e.deltaX) > Math.abs(e.deltaY)) ? e.deltaX : e.deltaY;
+      markManualInteraction();
 
-      // Make it "faster" as requested
+      const delta =
+        (Math.abs(e.deltaX) > Math.abs(e.deltaY)) ? e.deltaX : e.deltaY;
+
       viewport.scrollLeft += delta * 1.6;
-
-      const half = track.scrollWidth / 2;
-      if (viewport.scrollLeft >= half) viewport.scrollLeft -= half;
-      if (viewport.scrollLeft < 0) viewport.scrollLeft += half;
-
+      loopFix();
       e.preventDefault();
     }, { passive: false });
 
-    // --- 4) Click to expand (modal)
+    // ===== Modal (expand review) =====
     const modal = document.getElementById("reviewModal");
     const modalBackdrop = document.getElementById("reviewModalBackdrop");
     const modalClose = document.getElementById("reviewModalClose");
@@ -230,21 +249,15 @@
       if (lastFocus && lastFocus.focus) lastFocus.focus();
     }
 
-    function isRealOriginalCard(el) {
-      return el && el.classList && el.classList.contains("review-card");
-    }
-
-    // Delegate click on cards (works for duplicated ones too)
     track.addEventListener("click", (e) => {
       const card = e.target.closest(".review-card");
-      if (!isRealOriginalCard(card)) return;
+      if (!card) return;
       openModalFromCard(card);
     });
 
-    // Keyboard open (Enter/Space)
     track.addEventListener("keydown", (e) => {
       const card = e.target.closest(".review-card");
-      if (!isRealOriginalCard(card)) return;
+      if (!card) return;
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
         openModalFromCard(card);
