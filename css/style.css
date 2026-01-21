@@ -797,17 +797,15 @@ input:focus, select:focus, textarea:focus{
   font-size:14px;
 }
 
-/* The scroll feed */
+/* The feed */
 .pastwork-feed{
   display:flex;
   flex-direction:column;
   gap:22px;
-
-  /* make it feel like a gallery */
   padding:18px 0 26px;
 }
 
-/* Each image card */
+/* Each card */
 .work-item{
   width:100%;
   border-radius:22px;
@@ -825,7 +823,7 @@ input:focus, select:focus, textarea:focus{
   outline:none;
 
   /* greyed by default */
-  opacity:.38;
+  opacity:.40;
   filter:grayscale(1) contrast(.95) brightness(.85);
   transform:scale(.985);
 
@@ -835,28 +833,27 @@ input:focus, select:focus, textarea:focus{
     transform .22s ease;
 }
 
-/* Active = fully visible */
+/* Active = bright */
 .work-item.is-active{
   opacity:1;
   filter:none;
   transform:scale(1);
 }
 
-/* image sizing */
+/* image */
 .work-img{
   display:block;
   width:100%;
   height:auto;
 
-  /* make it take most of the screen */
+  /* big centered */
   max-height:72vh;
   object-fit:contain;
 
-  /* keeps it centered visually */
   background:rgba(0,0,0,.25);
 }
 
-/* make focus visible */
+/* focus ring */
 .work-item:focus-visible{
   box-shadow:
     0 0 0 2px rgba(255,255,255,.18),
@@ -865,7 +862,6 @@ input:focus, select:focus, textarea:focus{
     inset 0 -2px 4px rgba(255,255,255,.08);
 }
 
-/* small screens */
 @media (max-width:520px){
   .work-img{ max-height:62vh; }
 }
