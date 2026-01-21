@@ -22,7 +22,7 @@ position:fixed;
 top:22px;
 left:50%;
 translate:-50% 0;
-border-radius:34px; /* reduced more */
+border-radius:15px; /* reduced more */
 padding:18px 32px;
 background:linear-gradient(180deg,#f6a9c3,#e37aa3);
 box-shadow:
