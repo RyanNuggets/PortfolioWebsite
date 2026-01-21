@@ -101,7 +101,7 @@ body{
 /* ================= HERO ================= */
 
 .hero{
-  min-height:50vh;
+  min-height:70vh;
   padding-top:2px; /* 🔑 reduces space between navbar & logo */
   display:flex;
   flex-direction:column;
