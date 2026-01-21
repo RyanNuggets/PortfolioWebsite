@@ -34,7 +34,7 @@
   <main class="page-content fade-in">
     <section class="clients">
       <div class="clients-shell">
-        <div class="clients-icon" aria-hidden="true">✓</div>
+        <!-- ✅ removed the checkmark icon -->
 
         <h1 class="clients-title">What our clients say</h1>
         <p class="clients-sub">Placeholder text — replace with your own later. Lorem ipsum dolor sit amet.</p>
@@ -161,7 +161,7 @@
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     // Auto-scroll settings
-    const SPEED = 0.55; // a bit stronger so it’s clearly moving
+    const SPEED = 0.55;
     let pauseAuto = false;
     let resumeTimer = null;
     let isHovering = false;
@@ -183,7 +183,7 @@
       clearTimeout(resumeTimer);
       resumeTimer = setTimeout(() => {
         pauseAuto = false;
-      }, 5000); // resume 5s after user stops interacting
+      }, 5000);
     }
 
     function markManualInteraction() {
@@ -226,31 +226,23 @@
     viewport.addEventListener("pointerdown", markManualInteraction, { passive: true });
     viewport.addEventListener("touchstart", markManualInteraction, { passive: true });
 
-    // If user scrolls (trackpad, drag bar, keyboard), we treat it as manual
-    viewport.addEventListener("scroll", () => {
-      // Note: auto-scroll also triggers scroll, but that’s fine; this only pauses if user also did a manual action
-      loopFix();
-    }, { passive: true });
-
-    // Wheel -> horizontal ONLY when hovering carousel (won’t affect normal page scrolling)
+    // Wheel -> horizontal ONLY when hovering carousel
     viewport.addEventListener("wheel", (e) => {
       if (!isHovering) return;
 
       markManualInteraction();
 
       const delta = (Math.abs(e.deltaX) > Math.abs(e.deltaY)) ? e.deltaX : e.deltaY;
-      viewport.scrollLeft += delta * 1.75; // faster sideways
+      viewport.scrollLeft += delta * 1.75;
       loopFix();
 
       e.preventDefault();
     }, { passive: false });
 
-    // Keyboard arrows while focused over viewport = manual
-    viewport.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
-        markManualInteraction();
-      }
-    });
+    // Keep loop seamless for any kind of scroll
+    viewport.addEventListener("scroll", () => {
+      loopFix();
+    }, { passive: true });
 
     // ===== Modal (expand review) =====
     const modal = document.getElementById("reviewModal");
