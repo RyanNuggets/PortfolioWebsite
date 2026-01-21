@@ -2,8 +2,6 @@ import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 
-// ================= SETUP =================
-
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -48,18 +46,17 @@ app.post("/api/contact", async (req, res) => {
       });
     }
 
-    const { name, email, service, budget, message } = req.body || {};
+    const { discordUsername, discordId, service, budget, message } = req.body || {};
 
     // Basic validation
-    if (!name || !email || !message) {
+    if (!discordUsername || !discordId || !message) {
       return res.status(400).json({
         ok: false,
-        error: "Name, email, and message are required"
+        error: "Discord Username, Discord ID, and message are required"
       });
     }
 
-    const safe = (v, max = 1024) =>
-      String(v ?? "").trim().slice(0, max);
+    const safe = (v, max = 1024) => String(v ?? "").trim().slice(0, max);
 
     const payload = {
       username: "Nuggets Customs • Contact",
@@ -68,8 +65,8 @@ app.post("/api/contact", async (req, res) => {
           title: "New Contact Form Submission",
           color: 0x111111,
           fields: [
-            { name: "Name", value: safe(name, 256), inline: true },
-            { name: "Email", value: safe(email, 256), inline: true },
+            { name: "Discord Username", value: safe(discordUsername, 256), inline: true },
+            { name: "Discord ID", value: safe(discordId, 256), inline: true },
             { name: "Service", value: safe(service, 256) || "—", inline: true },
             { name: "Budget", value: safe(budget, 256) || "—", inline: true },
             { name: "Message", value: safe(message, 1500), inline: false }
