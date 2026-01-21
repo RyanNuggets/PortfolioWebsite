@@ -130,7 +130,7 @@ p{
 .cta{
   display:inline-block;
   padding:12px 38px;
-  border-radius:25px;
+  border-radius:20px;
 
   /* SAME COLOR SYSTEM AS NAVBAR */
   background:linear-gradient(180deg,#f6a9c3,#e37aa3);
