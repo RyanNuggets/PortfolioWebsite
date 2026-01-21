@@ -212,9 +212,10 @@ p{
 }
 
 .footer-logo{
-  height:46px;
+  height:24px;      /* 🔑 smaller than before */
+  width:auto;
   margin-bottom:16px;
-  opacity:.95;
+  opacity:.9;
 }
 
 .footer-text{
