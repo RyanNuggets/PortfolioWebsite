@@ -35,12 +35,12 @@
     <section class="pastwork">
       <div class="pastwork-shell">
         <h1 class="pastwork-title">Past Work</h1>
-        <p class="pastwork-sub">Scroll to explore. Click any piece to focus it.</p>
+        <p class="pastwork-sub">Scroll to explore. The centered piece is highlighted.</p>
 
         <div class="pastwork-feed" id="pastworkFeed" aria-label="Past work gallery"></div>
 
         <p class="pastwork-empty" id="pastworkEmpty" style="display:none;">
-          No files found. Add images in <code>/images</code> named like <code>work-1.png</code>, <code>work-bannerA.jpg</code>, etc.
+          No files found. Add images in <code>/images</code> named like <code>work-1.png</code>, <code>work-abc.jpg</code>, etc.
         </p>
       </div>
     </section>
@@ -60,11 +60,10 @@
     const empty = document.getElementById("pastworkEmpty");
 
     function getRouteId() {
-      // Supports /past-work or /past-work/work-abc
       const parts = window.location.pathname.split("/").filter(Boolean);
       const idx = parts.indexOf("past-work");
       if (idx === -1) return null;
-      return parts[idx + 1] || null; // workId
+      return parts[idx + 1] || null; // /past-work/:id
     }
 
     function renderItems(items) {
@@ -76,7 +75,6 @@
         wrap.setAttribute("tabindex", "0");
         wrap.dataset.id = item.id;
 
-        // Image
         const img = document.createElement("img");
         img.className = "work-img";
         img.src = item.url;
@@ -93,7 +91,7 @@
           wrap.scrollIntoView({ behavior: "smooth", block: "center" });
         });
 
-        // Keyboard -> Enter/Space behaves like click
+        // Keyboard -> Enter/Space
         wrap.addEventListener("keydown", (e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
@@ -105,23 +103,53 @@
       });
     }
 
-    function setupActiveObserver() {
+    // ✅ Active = the item closest to the viewport center
+    function setupCenterActive() {
       const items = Array.from(document.querySelectorAll(".work-item"));
 
-      const obs = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            // remove active from others
-            items.forEach((el) => el.classList.remove("is-active"));
-            entry.target.classList.add("is-active");
-          }
-        });
-      }, {
-        root: null,
-        threshold: 0.55 // "on screen" feel
-      });
+      function setActiveClosestToCenter() {
+        const centerY = window.innerHeight / 2;
 
-      items.forEach((el) => obs.observe(el));
+        let bestEl = null;
+        let bestDist = Infinity;
+
+        for (const el of items) {
+          const r = el.getBoundingClientRect();
+          const visible = r.bottom > 0 && r.top < window.innerHeight;
+          if (!visible) continue;
+
+          const elCenter = r.top + r.height / 2;
+          const dist = Math.abs(elCenter - centerY);
+
+          if (dist < bestDist) {
+            bestDist = dist;
+            bestEl = el;
+          }
+        }
+
+        if (bestEl) {
+          items.forEach((el) => el.classList.remove("is-active"));
+          bestEl.classList.add("is-active");
+        }
+      }
+
+      // run once on load
+      setActiveClosestToCenter();
+
+      // update on scroll (rAF throttle)
+      let ticking = false;
+      window.addEventListener("scroll", () => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(() => {
+            setActiveClosestToCenter();
+            ticking = false;
+          });
+        }
+      }, { passive: true });
+
+      // update on resize
+      window.addEventListener("resize", setActiveClosestToCenter);
     }
 
     function scrollToRouteId(routeId) {
@@ -145,22 +173,22 @@
 
         renderItems(data.items);
 
-        // start in a nice middle-ish position
+        // Start roughly in the middle for a nicer initial look
         const mid = Math.floor(data.items.length / 2);
         const midEl = feed.querySelectorAll(".work-item")[mid];
         if (midEl) midEl.scrollIntoView({ behavior: "auto", block: "center" });
 
-        // if deep-linked, override and go to that id
+        // Deep link override
         const routeId = getRouteId();
         if (routeId) scrollToRouteId(routeId);
 
-        setupActiveObserver();
+        setupCenterActive();
       } catch (e) {
         empty.style.display = "block";
       }
     }
 
-    // Handle back/forward
+    // Back/forward support
     window.addEventListener("popstate", () => {
       const routeId = getRouteId();
       if (routeId) scrollToRouteId(routeId);
