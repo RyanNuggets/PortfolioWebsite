@@ -147,12 +147,12 @@
     </div>
   </div>
 
-  <!-- CAROUSEL + MODAL JS (UPDATED) -->
+  <!-- CAROUSEL + MODAL JS (FULL FIXED) -->
   <script>
     const viewport = document.getElementById("reviewsViewport");
     const track = document.getElementById("reviewsTrack");
 
-    // Duplicate items for a seamless loop
+    // Duplicate items for seamless infinite loop
     const originalHTML = track.innerHTML;
     track.insertAdjacentHTML("beforeend", originalHTML);
 
@@ -161,13 +161,20 @@
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     // Auto-scroll settings
-    const SPEED = 0.45;
+    const SPEED = 0.55; // a bit stronger so it’s clearly moving
     let pauseAuto = false;
     let resumeTimer = null;
     let isHovering = false;
+    let started = false;
+
+    function getHalf() {
+      return track.scrollWidth / 2;
+    }
 
     function loopFix() {
-      const half = track.scrollWidth / 2;
+      const half = getHalf();
+      if (!half) return;
+
       if (viewport.scrollLeft >= half) viewport.scrollLeft -= half;
       if (viewport.scrollLeft < 0) viewport.scrollLeft += half;
     }
@@ -176,7 +183,7 @@
       clearTimeout(resumeTimer);
       resumeTimer = setTimeout(() => {
         pauseAuto = false;
-      }, 5000);
+      }, 5000); // resume 5s after user stops interacting
     }
 
     function markManualInteraction() {
@@ -184,11 +191,29 @@
       scheduleResume();
     }
 
+    // Start in the middle for a nicer look
+    function startInMiddle() {
+      if (started) return;
+      started = true;
+
+      const half = getHalf();
+      viewport.scrollLeft = Math.max(0, Math.floor(half * 0.35));
+    }
+
+    window.addEventListener("load", () => {
+      startInMiddle();
+      loopFix();
+    });
+
     // Auto-scroll loop
     function tick() {
-      if (!reduceMotion && !pauseAuto) {
-        viewport.scrollLeft += SPEED;
-        loopFix();
+      if (!reduceMotion) {
+        if (!started && track.scrollWidth) startInMiddle();
+
+        if (!pauseAuto) {
+          viewport.scrollLeft += SPEED;
+          loopFix();
+        }
       }
       requestAnimationFrame(tick);
     }
@@ -197,29 +222,35 @@
     viewport.addEventListener("mouseenter", () => { isHovering = true; });
     viewport.addEventListener("mouseleave", () => { isHovering = false; });
 
-    // Manual scroll detection (trackpad / drag / keyboard)
-    viewport.addEventListener("scroll", () => {
-      markManualInteraction();
-      loopFix();
-    }, { passive: true });
-
-    // Pointer/touch starts = manual intent
+    // Manual intent detection
     viewport.addEventListener("pointerdown", markManualInteraction, { passive: true });
     viewport.addEventListener("touchstart", markManualInteraction, { passive: true });
 
-    // Wheel -> horizontal ONLY when hovering the carousel
+    // If user scrolls (trackpad, drag bar, keyboard), we treat it as manual
+    viewport.addEventListener("scroll", () => {
+      // Note: auto-scroll also triggers scroll, but that’s fine; this only pauses if user also did a manual action
+      loopFix();
+    }, { passive: true });
+
+    // Wheel -> horizontal ONLY when hovering carousel (won’t affect normal page scrolling)
     viewport.addEventListener("wheel", (e) => {
       if (!isHovering) return;
 
       markManualInteraction();
 
-      const delta =
-        (Math.abs(e.deltaX) > Math.abs(e.deltaY)) ? e.deltaX : e.deltaY;
-
-      viewport.scrollLeft += delta * 1.6;
+      const delta = (Math.abs(e.deltaX) > Math.abs(e.deltaY)) ? e.deltaX : e.deltaY;
+      viewport.scrollLeft += delta * 1.75; // faster sideways
       loopFix();
+
       e.preventDefault();
     }, { passive: false });
+
+    // Keyboard arrows while focused over viewport = manual
+    viewport.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        markManualInteraction();
+      }
+    });
 
     // ===== Modal (expand review) =====
     const modal = document.getElementById("reviewModal");
