@@ -183,7 +183,7 @@ p{
 /* ================= FOOTER STRIP ================= */
 
 .footer-strip{
-  padding:40px 0 30px; /* no side padding so divider can hit edges */
+  padding:20px 0; /* no side padding so divider can hit edges */
   position:relative;
   z-index:1; /* below navbar */
 }
@@ -201,7 +201,7 @@ p{
 
 /* inner centered content with padding */
 .footer-inner{
-  padding:35px 20px 0;
+  padding:24px 20px;
   display:flex;
   flex-direction:column;
   align-items:center;
