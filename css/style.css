@@ -101,8 +101,8 @@ body{
 /* ================= HERO ================= */
 
 .hero{
-  min-height:100vh;
-  padding-top:-10px; /* 🔑 reduces space between navbar & logo */
+  min-height:90vh;
+  padding-top:0px; /* 🔑 reduces space between navbar & logo */
   display:flex;
   flex-direction:column;
   justify-content:center;
@@ -192,7 +192,7 @@ p{
 /* ================= FOOTER STRIP ================= */
 
 .footer-strip{
-  padding:20px 0;
+  padding:12px 0;
   position:relative;
   z-index:1;
 }
