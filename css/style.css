@@ -31,19 +31,19 @@ body{
   translate:-50% 0;
 
   border-radius:22px;
-  padding:22px 40px; /* 🔑 bigger navbar */
+  padding:22px 40px;
 
   background:linear-gradient(180deg,#1a1a1a,#000000);
   box-shadow:
-  0 12px 28px rgba(0,0,0,.75),
-  inset 0 2px 4px rgba(255,255,255,.12),
-  inset 0 -2px 4px rgba(225,225,225,.10);
+    0 12px 28px rgba(0,0,0,.75),
+    inset 0 2px 4px rgba(255,255,255,.12),
+    inset 0 -2px 4px rgba(255,255,255,.10);
 
   overflow:hidden;
   z-index:9999;
 }
 
-/* shine */
+/* shine (navbar) */
 .navbar::before{
   content:"";
   position:absolute;
@@ -66,13 +66,14 @@ body{
 .nav-inner{
   display:flex;
   align-items:center;
-  gap:22px; /* slightly more breathing room */
+  gap:22px;
   position:relative;
   z-index:1;
+  white-space:nowrap; /* helps mobile */
 }
 
 .nav-logo{
-  height:18px; /* 🔑 bigger navbar logo */
+  height:18px;
   width:auto;
 }
 
@@ -83,7 +84,7 @@ body{
 }
 
 .nav-link{
-  font-size:15px; /* slightly bigger */
+  font-size:15px;
   color:white;
   text-decoration:none;
   opacity:.95;
@@ -102,7 +103,7 @@ body{
 
 .hero{
   min-height:90vh;
-  padding-top:2px; /* 🔑 reduces space between navbar & logo */
+  padding-top:2px;
   display:flex;
   flex-direction:column;
   justify-content:center;
@@ -125,7 +126,6 @@ h1{
   margin:0;
 }
 
-/* 🔑 bigger tagline + more space below */
 p{
   margin:4px 0 28px;
   font-size:16px;
@@ -151,45 +151,53 @@ p{
   background:linear-gradient(180deg,#1a1a1a,#000000);
 
   box-shadow:
-  0 12px 28px rgba(0,0,0,.75),
-  inset 0 2px 4px rgba(255,255,255,.14),
-  inset 0 -2px 4px rgba(0,0,0,.12);
-
-  /* shine */
-.cta::before{
-  content:"";
-  position:absolute;
-  top:-40%;
-  left:-60%;
-  width:50%;
-  height:180%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
-  transform:rotate(18deg);
-  animation:shine 7s ease-in-out infinite;
-  pointer-events:none;
-}
-@keyframes shine{
-  0%{left:-70%;opacity:0}
-  10%{opacity:.35}
-  35%{left:120%;opacity:0}
-  100%{left:120%;opacity:0}
-}
+    0 12px 28px rgba(0,0,0,.75),
+    inset 0 2px 4px rgba(255,255,255,.14),
+    inset 0 -2px 4px rgba(255,255,255,.10);
 
   color:white;
   text-decoration:none;
   font-size:14px;
   font-weight:500;
 
+  position:relative;   /* needed for button shine */
+  overflow:hidden;     /* clip shine to rounded corners */
+
   transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+}
+
+/* ✅ Shine ONLY for primary button (Get Started) */
+.cta::before{
+  content:"";
+  position:absolute;
+  top:-45%;
+  left:-70%;
+  width:55%;
+  height:190%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
+  transform:rotate(18deg);
+  animation:ctaShine 6.5s ease-in-out infinite;
+  pointer-events:none;
+}
+
+/* ❌ No shine on secondary button */
+.cta.secondary::before{
+  content:none;
+}
+
+@keyframes ctaShine{
+  0%{left:-80%;opacity:0}
+  12%{opacity:.35}
+  38%{left:140%;opacity:0}
+  100%{left:140%;opacity:0}
 }
 
 .cta:hover{
   transform:translateY(-2px);
   box-shadow:
-    0 14px 30px rgba(0,0,0,.24),
-    inset 0 3px 5px rgba(255,255,255,.28),
-    inset 0 -4px 8px rgba(255,255,255,.26),
-    0 0 34px rgba(255,255,255,.75);
+    0 14px 30px rgba(0,0,0,.80),
+    inset 0 3px 5px rgba(255,255,255,.20),
+    inset 0 -3px 6px rgba(255,255,255,.16);
 }
 
 .cta:active{
@@ -198,15 +206,6 @@ p{
 
 .cta.secondary{ opacity:.88; }
 .cta.secondary:hover{ opacity:1; }
-
-/* mobile stacking */
-@media (max-width:520px){
-  .cta-group{
-    flex-direction:column;
-    gap:12px;
-  }
-  .cta{ width:100%; }
-}
 
 /* ================= FOOTER STRIP ================= */
 
@@ -244,4 +243,47 @@ p{
 .footer-text{
   font-size:13px;
   opacity:.65;
+}
+
+/* ================= MOBILE FRIENDLY ================= */
+
+@media (max-width:800px){
+  .navbar{
+    padding:18px 26px;
+    border-radius:20px;
+  }
+  .nav-inner{
+    gap:16px;
+  }
+  .nav-link{
+    font-size:14px;
+  }
+  .divider{
+    height:16px;
+  }
+}
+
+@media (max-width:520px){
+  /* Keep navbar usable instead of breaking */
+  .navbar{
+    left:12px;
+    translate:0 0;
+    max-width:calc(100vw - 24px);
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  .navbar::-webkit-scrollbar{ height:0; }
+
+  /* scale hero down a bit */
+  .hero-logo{ height:120px; }
+  h1{ font-size:38px; }
+  p{ font-size:14px; }
+
+  /* stack buttons */
+  .cta-group{
+    flex-direction:column;
+    gap:12px;
+    width:min(420px, calc(100vw - 40px));
+  }
+  .cta{ width:100%; }
 }
