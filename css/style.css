@@ -30,8 +30,9 @@ body{
   left:50%;
   translate:-50% 0;
 
-  border-radius:20px;
-  padding:18px 32px;
+  border-radius:22px;
+  padding:22px 40px; /* 🔑 bigger navbar */
+
   background:linear-gradient(180deg,#f6a9c3,#e37aa3);
   box-shadow:
     0 12px 28px rgba(0,0,0,.28),
@@ -39,8 +40,7 @@ body{
     inset 0 -4px 8px rgba(0,0,0,.10);
 
   overflow:hidden;
-
-  z-index:9999; /* 🔑 ALWAYS ON TOP */
+  z-index:9999;
 }
 
 /* shine */
@@ -66,13 +66,13 @@ body{
 .nav-inner{
   display:flex;
   align-items:center;
-  gap:18px;
+  gap:22px; /* slightly more breathing room */
   position:relative;
   z-index:1;
 }
 
 .nav-logo{
-  height:18px;      /* smaller */
+  height:22px; /* 🔑 bigger navbar logo */
   width:auto;
 }
 
@@ -83,7 +83,7 @@ body{
 }
 
 .nav-link{
-  font-size:14px;
+  font-size:15px; /* slightly bigger */
   color:white;
   text-decoration:none;
   opacity:.95;
@@ -101,7 +101,8 @@ body{
 /* ================= HERO ================= */
 
 .hero{
-  min-height:100vh; /* better for scroll pages */
+  min-height:100vh;
+  padding-top:70px; /* 🔑 reduces space between navbar & logo */
   display:flex;
   flex-direction:column;
   justify-content:center;
@@ -109,21 +110,25 @@ body{
   text-align:center;
 
   position:relative;
-  z-index:1; /* stays below navbar */
+  z-index:1;
 }
 
 .hero-logo{
   height:150px;
   width:auto;
-  margin-bottom:6px;
+  margin-bottom:10px;
   filter:drop-shadow(0 0 35px rgba(255,255,255,.9));
 }
 
-h1{ font-size:46px; margin:0; }
+h1{
+  font-size:46px;
+  margin:0;
+}
 
+/* 🔑 bigger tagline + more space below */
 p{
-  margin:2px 0 28px;
-  font-size:14px;
+  margin:4px 0 42px;
+  font-size:16px;
   opacity:.85;
 }
 
@@ -187,12 +192,11 @@ p{
 /* ================= FOOTER STRIP ================= */
 
 .footer-strip{
-  padding:20px 0; /* no side padding so divider can hit edges */
+  padding:20px 0;
   position:relative;
-  z-index:1; /* below navbar */
+  z-index:1;
 }
 
-/* FULL-WIDTH line to the edges */
 .footer-divider{
   width:100vw;
   height:1px;
@@ -203,7 +207,6 @@ p{
   transform:translateX(-50%);
 }
 
-/* inner centered content with padding */
 .footer-inner{
   padding:24px 20px;
   display:flex;
@@ -213,7 +216,7 @@ p{
 }
 
 .footer-logo{
-  height:24px;      /* 🔑 smaller than before */
+  height:24px;
   width:auto;
   margin-bottom:16px;
   opacity:.9;
