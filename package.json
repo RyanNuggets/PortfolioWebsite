@@ -1,7 +1,16 @@
 {
-  "name": "static-site",
+  "name": "nuggets-customs-website",
   "version": "1.0.0",
+  "description": "Nuggets Customs portfolio website",
+  "type": "module",
+  "main": "server.js",
   "scripts": {
-    "start": "npx serve -s . -l $PORT"
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
   }
 }
