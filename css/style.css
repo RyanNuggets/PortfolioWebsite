@@ -1,6 +1,8 @@
+/* ================= GLOBAL ================= */
+
 body{
   margin:0;
-  font-family:Poppins,sans-serif;
+  font-family: sans-serif; /* 🔑 force sans-serif everywhere */
   height:100vh;
   background:linear-gradient(160deg,#f9c3d4,#f4a9bf);
   color:white;
@@ -76,16 +78,21 @@ body{
   background:rgba(255,255,255,.45);
 }
 
+/* 🔑 FIXED NAV LINKS */
 .nav-link{
   font-size:14px;
+  color:white;                /* remove blue */
+  text-decoration:none;       /* remove underline */
   opacity:.95;
   transition:transform .12s,filter .12s,opacity .12s;
 }
+
 .nav-link:hover{
   transform:translateY(1px);
   filter:drop-shadow(0 2px 4px rgba(0,0,0,.18));
   opacity:1;
 }
+
 .nav-link:active{
   transform:translateY(2px) scale(.98);
 }
@@ -124,17 +131,16 @@ p{
   display:flex;
   gap:16px;
   justify-content:center;
-  align-items:stretch; /* ensures same height */
+  align-items:stretch;
 }
 
 .cta{
-  flex:1;                 /* 🔑 forces equal width */
-  min-width:90px;        /* keeps buttons from shrinking too much */
-  text-align:center;      /* centers text */
+  flex:1;
+  min-width:90px;
+  text-align:center;
 
   padding:12px 38px;
   border-radius:20px;
-
   background:linear-gradient(180deg,#f6a9c3,#e37aa3);
 
   box-shadow:
@@ -167,7 +173,6 @@ p{
   transform:translateY(0px) scale(.99);
 }
 
-/* second button = same style, slightly quieter */
 .cta.secondary{
   opacity:.88;
 }
@@ -183,6 +188,6 @@ p{
   }
 
   .cta{
-    width:100%; /* full width when stacked */
+    width:100%;
   }
 }
