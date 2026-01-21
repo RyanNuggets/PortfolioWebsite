@@ -6,7 +6,9 @@ body{
   height:100vh;
   background:linear-gradient(160deg,#f9c3d4,#f4a9bf);
   color:white;
-  overflow:hidden;
+  overflow-x:hidden;
+  overflow-y:auto;
+
 }
 
 /* fade in */
@@ -190,4 +192,41 @@ p{
   .cta{
     width:100%;
   }
+}
+
+/* ================= FOOTER STRIP ================= */
+
+.footer-strip{
+  padding:80px 20px 40px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+}
+
+/* divider line */
+.footer-divider{
+  width:70%;
+  max-width:900px;
+  height:1px;
+  background:linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,.35),
+    transparent
+  );
+  margin-bottom:40px;
+}
+
+/* logo */
+.footer-logo{
+  height:46px;
+  margin-bottom:16px;
+  opacity:.95;
+}
+
+/* copyright text */
+.footer-text{
+  font-size:13px;
+  opacity:.65;
 }
