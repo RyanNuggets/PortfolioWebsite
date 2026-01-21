@@ -1,3 +1,4 @@
+<!-- past-work.html (FULL FILE) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,13 +7,14 @@
   <title>Past Work – Nuggets Customs</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="page-layout">
 
-  <nav class="navbar">
+<body class="page-layout">
+  <!-- NAVBAR -->
+  <nav class="navbar fade-in">
     <div class="nav-inner">
       <a href="/" class="nav-home">
-  <img src="images/logo2.png" alt="Navbar Logo" class="nav-logo">
-</a>
+        <img src="images/logo2.png" alt="Navbar Logo" class="nav-logo">
+      </a>
 
       <span class="divider"></span>
       <a href="/about" class="nav-link">About</a>
@@ -28,18 +30,143 @@
     </div>
   </nav>
 
-  <main class="page-content">
-    <h1>Past Work</h1>
-    <p>This page will be customized later.</p>
+  <!-- CONTENT -->
+  <main class="page-content fade-in">
+    <section class="pastwork">
+      <div class="pastwork-shell">
+        <h1 class="pastwork-title">Past Work</h1>
+        <p class="pastwork-sub">Scroll to explore. Click any piece to focus it.</p>
+
+        <div class="pastwork-feed" id="pastworkFeed" aria-label="Past work gallery"></div>
+
+        <p class="pastwork-empty" id="pastworkEmpty" style="display:none;">
+          No files found. Add images in <code>/images</code> named like <code>work-1.png</code>, <code>work-bannerA.jpg</code>, etc.
+        </p>
+      </div>
+    </section>
   </main>
 
+  <!-- FOOTER -->
   <footer class="footer-strip">
     <div class="footer-divider"></div>
     <div class="footer-inner">
-      <img src="images/logo2.png" class="footer-logo">
+      <img src="images/logo2.png" class="footer-logo" alt="Footer Logo">
       <p class="footer-text">Copyright © 2026 Nuggets Customs. All rights reserved.</p>
     </div>
   </footer>
 
+  <script>
+    const feed = document.getElementById("pastworkFeed");
+    const empty = document.getElementById("pastworkEmpty");
+
+    function getRouteId() {
+      // Supports /past-work or /past-work/work-abc
+      const parts = window.location.pathname.split("/").filter(Boolean);
+      const idx = parts.indexOf("past-work");
+      if (idx === -1) return null;
+      return parts[idx + 1] || null; // workId
+    }
+
+    function renderItems(items) {
+      feed.innerHTML = "";
+
+      items.forEach((item) => {
+        const wrap = document.createElement("article");
+        wrap.className = "work-item";
+        wrap.setAttribute("tabindex", "0");
+        wrap.dataset.id = item.id;
+
+        // Image
+        const img = document.createElement("img");
+        img.className = "work-img";
+        img.src = item.url;
+        img.alt = item.id;
+
+        wrap.appendChild(img);
+
+        // Click -> focus + update URL
+        wrap.addEventListener("click", () => {
+          const newPath = `/past-work/${item.id}`;
+          if (window.location.pathname !== newPath) {
+            history.pushState({}, "", newPath);
+          }
+          wrap.scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+
+        // Keyboard -> Enter/Space behaves like click
+        wrap.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            wrap.click();
+          }
+        });
+
+        feed.appendChild(wrap);
+      });
+    }
+
+    function setupActiveObserver() {
+      const items = Array.from(document.querySelectorAll(".work-item"));
+
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            // remove active from others
+            items.forEach((el) => el.classList.remove("is-active"));
+            entry.target.classList.add("is-active");
+          }
+        });
+      }, {
+        root: null,
+        threshold: 0.55 // "on screen" feel
+      });
+
+      items.forEach((el) => obs.observe(el));
+    }
+
+    function scrollToRouteId(routeId) {
+      if (!routeId) return;
+
+      const target = document.querySelector(`.work-item[data-id="${CSS.escape(routeId)}"]`);
+      if (target) {
+        target.scrollIntoView({ behavior: "auto", block: "center" });
+      }
+    }
+
+    async function init() {
+      try {
+        const res = await fetch("/api/past-work");
+        const data = await res.json();
+
+        if (!data.ok || !data.items || data.items.length === 0) {
+          empty.style.display = "block";
+          return;
+        }
+
+        renderItems(data.items);
+
+        // start in a nice middle-ish position
+        const mid = Math.floor(data.items.length / 2);
+        const midEl = feed.querySelectorAll(".work-item")[mid];
+        if (midEl) midEl.scrollIntoView({ behavior: "auto", block: "center" });
+
+        // if deep-linked, override and go to that id
+        const routeId = getRouteId();
+        if (routeId) scrollToRouteId(routeId);
+
+        setupActiveObserver();
+      } catch (e) {
+        empty.style.display = "block";
+      }
+    }
+
+    // Handle back/forward
+    window.addEventListener("popstate", () => {
+      const routeId = getRouteId();
+      if (routeId) scrollToRouteId(routeId);
+    });
+
+    init();
+  </script>
 </body>
 </html>
