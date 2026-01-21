@@ -102,7 +102,7 @@ body{
 
 .hero{
   min-height:100vh;
-  padding-top:70px; /* 🔑 reduces space between navbar & logo */
+  padding-top:40px; /* 🔑 reduces space between navbar & logo */
   display:flex;
   flex-direction:column;
   justify-content:center;
@@ -127,7 +127,7 @@ h1{
 
 /* 🔑 bigger tagline + more space below */
 p{
-  margin:4px 0 42px;
+  margin:4px 0 28px;
   font-size:16px;
   opacity:.85;
 }
