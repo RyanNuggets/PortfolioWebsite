@@ -298,7 +298,7 @@ p{
 
 .page-content{
   flex:1;                    /* pushes footer to bottom */
-  padding-top:180px;         /* 🔑 navbar → content gap (EDIT THIS) */
+  padding-top:170px;         /* 🔑 navbar → content gap (EDIT THIS) */
   padding-bottom:80px;       /* 🔑 content → footer gap (EDIT THIS) */
   width:100%;
   display:flex;
