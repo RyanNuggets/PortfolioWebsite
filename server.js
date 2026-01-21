@@ -7,6 +7,10 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// ✅ IMPORTANT: parse JSON + form bodies (needed for contact form)
+app.use(express.json({ limit: "200kb" }));
+app.use(express.urlencoded({ extended: true }));
+
 // Serve static files (css, images, js, and html files)
 app.use(express.static(__dirname, { extensions: ["html"] }));
 
@@ -20,17 +24,76 @@ app.get("/api/past-work", (req, res) => {
       .filter((f) => /^work-.+\.(png|jpg|jpeg|webp|gif)$/i.test(f))
       .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 
-    // Return URLs for the frontend to use directly
     res.json({
       ok: true,
       items: workFiles.map((f) => ({
         file: f,
         url: `/images/${f}`,
-        id: f.replace(/\.[^.]+$/, ""), // filename without extension
+        id: f.replace(/\.[^.]+$/, ""),
       })),
     });
   } catch (err) {
+    console.error("past-work scan error:", err);
     res.status(500).json({ ok: false, error: "Failed to read images folder." });
+  }
+});
+
+// ===== API: contact form -> Discord webhook =====
+app.post("/api/contact", async (req, res) => {
+  try {
+    const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+    if (!webhookUrl) {
+      console.error("Missing DISCORD_WEBHOOK_URL in Railway Variables");
+      return res.status(500).json({ ok: false, error: "Server not configured." });
+    }
+
+    // Match these keys to what your frontend sends
+    const {
+      discordUsername = "",
+      discordId = "",
+      requestType = "",
+      details = "",
+    } = req.body || {};
+
+    if (!discordUsername.trim() || !details.trim()) {
+      return res.status(400).json({ ok: false, error: "Missing required fields." });
+    }
+
+    // Keep within Discord limits
+    const safe = (s, max) => String(s || "").slice(0, max);
+
+    const payload = {
+      embeds: [
+        {
+          title: "New Contact Request",
+          color: 0x111111,
+          fields: [
+            { name: "Discord Username", value: safe(discordUsername, 256) || "—", inline: true },
+            { name: "Discord ID", value: safe(discordId, 64) || "—", inline: true },
+            { name: "Request Type", value: safe(requestType, 256) || "—", inline: false },
+            { name: "Details", value: safe(details, 1800) || "—", inline: false },
+          ],
+          timestamp: new Date().toISOString(),
+        },
+      ],
+    };
+
+    const resp = await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!resp.ok) {
+      const text = await resp.text().catch(() => "");
+      console.error("Discord webhook failed:", resp.status, text);
+      return res.status(500).json({ ok: false, error: "Webhook failed." });
+    }
+
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error("Contact API error:", err);
+    return res.status(500).json({ ok: false, error: "Server error." });
   }
 });
 
