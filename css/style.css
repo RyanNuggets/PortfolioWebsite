@@ -102,7 +102,7 @@ body{
 
 .hero{
   min-height:90vh;
-  padding-top:0px; /* 🔑 reduces space between navbar & logo */
+  padding-top:2px; /* 🔑 reduces space between navbar & logo */
   display:flex;
   flex-direction:column;
   justify-content:center;
@@ -143,7 +143,7 @@ p{
 
 .cta{
   flex:1;
-  min-width:90px;
+  min-width:95px;
   text-align:center;
 
   padding:12px 38px;
