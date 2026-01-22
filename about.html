@@ -32,65 +32,113 @@
   <!-- CONTENT -->
   <main class="page-content fade-in">
     <section class="about">
-      <h1 class="about-title">About us</h1>
-      <p class="about-sub">
-        Nugget Studios is a commission-based design shop focused on clean, high-impact graphics for creators,
-        communities, and game brands — from banners and Discord panels to uniforms, embeds, and polished promo visuals.
-        We keep it fast, professional, and consistent so your server looks premium everywhere.
-      </p>
+      <header class="about-hero">
+        <h1 class="about-title">About us</h1>
 
-      <!-- BIG STATS -->
-      <div class="about-stats">
-        <div class="stat-card">
-          <div class="stat-icon" aria-hidden="true">◻</div>
-          <div class="stat-number count-up" data-to="100" data-suffix="+">0</div>
-          <div class="stat-label">orders completed</div>
-          <div class="stat-mini">Consistent delivery with quality control</div>
+        <p class="about-sub">
+          Nugget Studios is a commission-based design shop focused on clean, high-impact graphics for creators,
+          communities, and game brands — from banners and Discord panels to uniforms, embeds, and polished promo visuals.
+          We keep it fast, professional, and consistent so your server looks premium everywhere.
+        </p>
+
+        <div class="about-chips" aria-label="Highlights">
+          <span class="chip">Fast turnaround</span>
+          <span class="chip">Clean layouts</span>
+          <span class="chip">Consistent branding</span>
+          <span class="chip">Creator-first</span>
         </div>
+      </header>
 
-        <div class="stat-card">
-          <div class="stat-icon" aria-hidden="true">★</div>
-          <div class="stat-number count-up" data-to="99" data-suffix="%">0</div>
-          <div class="stat-label">client satisfaction</div>
-          <div class="stat-mini">Built on repeat clients and trust</div>
-        </div>
-      </div>
+      <div class="about-grid">
+        <!-- SERVICES (vertical rail list) -->
+        <section class="about-rail" aria-label="Services">
+          <h2 class="about-h2">What we make</h2>
 
-      <!-- SERVICES GRID -->
-      <div class="about-services">
-        <div class="service-card">
-          <div class="service-top">
-            <span class="service-icon" aria-hidden="true">🖼️</span>
-            <h3 class="service-title">Banners & headers</h3>
+          <div class="rail">
+            <article class="rail-item">
+              <div class="rail-dot" aria-hidden="true"></div>
+              <div class="rail-card">
+                <div class="rail-top">
+                  <span class="rail-icon" aria-hidden="true">🖼️</span>
+                  <h3 class="rail-title">Banners & headers</h3>
+                </div>
+                <p class="rail-text">Premium banners for Discord, YouTube, and socials — designed to pop.</p>
+              </div>
+            </article>
+
+            <article class="rail-item">
+              <div class="rail-dot" aria-hidden="true"></div>
+              <div class="rail-card">
+                <div class="rail-top">
+                  <span class="rail-icon" aria-hidden="true">💬</span>
+                  <h3 class="rail-title">Discord embeds & panels</h3>
+                </div>
+                <p class="rail-text">Clean embeds, rules/info panels, and layouts that match your brand.</p>
+              </div>
+            </article>
+
+            <article class="rail-item">
+              <div class="rail-dot" aria-hidden="true"></div>
+              <div class="rail-card">
+                <div class="rail-top">
+                  <span class="rail-icon" aria-hidden="true">👕</span>
+                  <h3 class="rail-title">Uniforms & clothing</h3>
+                </div>
+                <p class="rail-text">Quality uniform/clothing graphics with consistent department branding.</p>
+              </div>
+            </article>
+
+            <article class="rail-item">
+              <div class="rail-dot" aria-hidden="true"></div>
+              <div class="rail-card">
+                <div class="rail-top">
+                  <span class="rail-icon" aria-hidden="true">⚡</span>
+                  <h3 class="rail-title">Graphics packs & extras</h3>
+                </div>
+                <p class="rail-text">Launch-ready packs: icons, promo assets, templates, and more.</p>
+              </div>
+            </article>
           </div>
-          <p class="service-text">Premium banners for Discord, YouTube, and socials — designed to pop.</p>
-        </div>
+        </section>
 
-        <div class="service-card">
-          <div class="service-top">
-            <span class="service-icon" aria-hidden="true">💬</span>
-            <h3 class="service-title">Discord embeds & panels</h3>
-          </div>
-          <p class="service-text">Clean embeds, rules/info panels, and layouts that match your brand.</p>
-        </div>
+        <!-- STATS (stacked metrics) -->
+        <aside class="about-metrics" aria-label="Stats">
+          <h2 class="about-h2">By the numbers</h2>
 
-        <div class="service-card">
-          <div class="service-top">
-            <span class="service-icon" aria-hidden="true">👕</span>
-            <h3 class="service-title">Uniforms & clothing</h3>
-          </div>
-          <p class="service-text">Quality uniform/clothing graphics with consistent department branding.</p>
-        </div>
+          <div class="metric-card">
+            <div class="metric-head">
+              <div class="metric-icon" aria-hidden="true">◻</div>
+              <div class="metric-meta">
+                <div class="metric-number count-up" data-to="100" data-suffix="+">0</div>
+                <div class="metric-label">orders completed</div>
+              </div>
+            </div>
 
-        <div class="service-card">
-          <div class="service-top">
-            <span class="service-icon" aria-hidden="true">⚡</span>
-            <h3 class="service-title">Graphics packs & extras</h3>
+            <p class="metric-mini">Consistent delivery with quality control</p>
+
+            <div class="meter" aria-hidden="true">
+              <span class="meter-fill"></span>
+            </div>
           </div>
-          <p class="service-text">Launch-ready packs: icons, promo assets, templates, and more.</p>
-        </div>
-      </div>
-    </section>
+
+          <div class="metric-card">
+            <div class="metric-head">
+              <div class="metric-icon" aria-hidden="true">★</div>
+              <div class="metric-meta">
+                <div class="metric-number count-up" data-to="99" data-suffix="%">0</div>
+                <div class="metric-label">client satisfaction</div>
+              </div>
+            </div>
+
+            <p class="metric-mini">Built on repeat clients and trust</p>
+
+            <div class="meter" aria-hidden="true">
+              <span class="meter-fill is-strong"></span>
+            </div>
+          </div>
+        </aside>
+      </div> <!-- /about-grid -->
+    </section> <!-- /about -->
   </main>
 
   <!-- FOOTER -->
