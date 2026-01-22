@@ -430,29 +430,53 @@ input:focus, select:focus, textarea:focus{
   position:relative;
 }
 
-/* soft spotlight accents (matches your hero glow style) */
-.about::before{
+/* Big module box around everything */
+.about-shell{
+  width:100%;
+  border-radius:26px;
+  padding:44px 26px 30px;
+
+  background:linear-gradient(180deg,#141414,#000);
+  box-shadow:
+    0 16px 46px rgba(0,0,0,.78),
+    inset 0 2px 4px rgba(255,255,255,.10),
+    inset 0 -2px 4px rgba(255,255,255,.08);
+
+  border:1px solid rgba(255,255,255,.07);
+  position:relative;
+  overflow:hidden;
+}
+
+/* subtle shine sweep inside the big box */
+.about-shell::before{
   content:"";
   position:absolute;
-  inset:-40px -20px;
+  top:-40%;
+  left:-60%;
+  width:50%;
+  height:200%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.10),transparent);
+  transform:rotate(18deg);
+  animation:aboutShine 10s ease-in-out infinite;
   pointer-events:none;
-  background:
-    radial-gradient(700px 320px at 20% 5%, rgba(255,255,255,.08), transparent 55%),
-    radial-gradient(520px 260px at 85% 35%, rgba(255,255,255,.06), transparent 60%),
-    radial-gradient(420px 220px at 30% 95%, rgba(255,255,255,.05), transparent 60%);
-  opacity:.85;
-  filter: blur(2px);
+  opacity:.55;
+}
+@keyframes aboutShine{
+  0%{left:-70%;opacity:0}
+  12%{opacity:.25}
+  35%{left:130%;opacity:0}
+  100%{left:130%;opacity:0}
 }
 
 .about-hero{
   position:relative;
   text-align:center;
-  padding-top:8px;
+  padding-top:6px;
   margin-bottom:22px;
 }
 
 .about-title{
-  font-size:48px; /* matches your site scale */
+  font-size:48px;
   margin:0 0 14px;
   letter-spacing:.2px;
 }
@@ -482,7 +506,6 @@ input:focus, select:focus, textarea:focus{
   opacity:.9;
 }
 
-/* section label */
 .about-h2{
   font-size:13px;
   letter-spacing:.18px;
@@ -491,7 +514,7 @@ input:focus, select:focus, textarea:focus{
   margin:0 0 12px;
 }
 
-/* layout: services left, metrics right */
+/* layout */
 .about-grid{
   position:relative;
   display:grid;
@@ -500,7 +523,8 @@ input:focus, select:focus, textarea:focus{
   align-items:start;
 }
 
-/* --- Services rail --- */
+/* ===== Rail / timeline ===== */
+
 .about-rail{ position:relative; }
 
 .rail{
@@ -519,12 +543,41 @@ input:focus, select:focus, textarea:focus{
   border-radius:999px;
 }
 
+/* moving shimmer scan on the line */
+.rail::after{
+  content:"";
+  position:absolute;
+  left:6px;
+  top:-30%;
+  width:2px;
+  height:30%;
+  border-radius:999px;
+  background:linear-gradient(180deg, transparent, rgba(255,255,255,.22), transparent);
+  animation:railScan 3.8s ease-in-out infinite;
+  opacity:.5;
+}
+@keyframes railScan{
+  0%{transform:translateY(0); opacity:0}
+  15%{opacity:.5}
+  60%{opacity:0}
+  100%{transform:translateY(520px); opacity:0}
+}
+
 .rail-item{
   position:relative;
   display:grid;
   grid-template-columns: 18px 1fr;
   gap:12px;
   margin-bottom:14px;
+
+  /* animated entrance */
+  opacity:0;
+  transform:translateY(10px);
+  transition:opacity .55s ease, transform .55s ease;
+}
+.rail-item.is-in{
+  opacity:1;
+  transform:none;
 }
 
 .rail-dot{
@@ -535,13 +588,29 @@ input:focus, select:focus, textarea:focus{
   border:1px solid rgba(255,255,255,.20);
   background:rgba(255,255,255,.06);
   box-shadow: 0 0 0 6px rgba(255,255,255,.02);
+  position:relative;
+}
+
+/* pulsing ring */
+.rail-dot::after{
+  content:"";
+  position:absolute;
+  inset:-8px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.10);
+  opacity:0;
+  animation:dotPulse 2.6s ease-in-out infinite;
+}
+@keyframes dotPulse{
+  0%{transform:scale(.75);opacity:0}
+  35%{opacity:.35}
+  100%{transform:scale(1.25);opacity:0}
 }
 
 .rail-card{
   border-radius:22px;
   padding:16px 16px 14px;
 
-  /* matches your panels (same gradient + inset shine) */
   background:linear-gradient(180deg,#141414,#000);
   box-shadow:
     0 16px 40px rgba(0,0,0,.70),
@@ -549,7 +618,7 @@ input:focus, select:focus, textarea:focus{
     inset 0 -2px 4px rgba(255,255,255,.08);
 
   border:1px solid rgba(255,255,255,.07);
-  transition:transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+  transition:transform .18s ease, box-shadow .18s ease;
 }
 
 .rail-card:hover{
@@ -587,7 +656,8 @@ input:focus, select:focus, textarea:focus{
   opacity:.78;
 }
 
-/* --- Metrics column (stacked) --- */
+/* ===== Metrics ===== */
+
 .about-metrics{ position:relative; }
 
 .metric-card{
@@ -651,14 +721,13 @@ input:focus, select:focus, textarea:focus{
   overflow:hidden;
 }
 
+/* start at 0 so JS can animate to target */
 .meter-fill{
   display:block;
   height:100%;
-  width:72%;
+  width:0%;
   background:linear-gradient(90deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
 }
-
-.meter-fill.is-strong{ width:90%; }
 
 /* Responsive */
 @media (max-width:900px){
@@ -670,6 +739,7 @@ input:focus, select:focus, textarea:focus{
 }
 
 @media (max-width:520px){
+  .about-shell{ padding:34px 18px 22px; }
   .about-sub{ font-size:14px; }
   .about-chips{ gap:8px; }
 }
