@@ -422,7 +422,287 @@ input:focus, select:focus, textarea:focus{
   .contact-submit, .contact-discord{ width:100%; }
 }
 
-/* ================= ABOUT PAGE (NEW) ================= */
+/* css/style.css  (your full CSS + UPDATED About section) */
+
+/* ================= GLOBAL ================= */
+
+body{
+  margin:0;
+  font-family: sans-serif;
+  min-height:100vh;
+  background:linear-gradient(180deg,#0a0a0a,#000000);
+  color:white;
+
+  overflow-x:hidden;
+  overflow-y:auto;
+  scroll-behavior:smooth;
+}
+
+/* fade in */
+.fade-in{
+  opacity:0;
+  transform:translateY(10px);
+  animation:fadeUp .7s ease forwards;
+}
+@keyframes fadeUp{
+  to{opacity:1;transform:none}
+}
+
+/* ================= NAVBAR ================= */
+
+.navbar{
+  position:fixed;
+  top:22px;
+  left:50%;
+  translate:-50% 0;
+
+  border-radius:22px;
+  padding:22px 40px;
+
+  background:linear-gradient(180deg,#1a1a1a,#000000);
+  box-shadow:
+    0 12px 28px rgba(0,0,0,.75),
+    inset 0 2px 4px rgba(255,255,255,.12),
+    inset 0 -2px 4px rgba(255,255,255,.10);
+
+  overflow:hidden;
+  z-index:9999;
+}
+
+/* shine (navbar) */
+.navbar::before{
+  content:"";
+  position:absolute;
+  top:-40%;
+  left:-60%;
+  width:50%;
+  height:180%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
+  transform:rotate(18deg);
+  animation:shine 7s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes shine{
+  0%{left:-70%;opacity:0}
+  10%{opacity:.35}
+  35%{left:120%;opacity:0}
+  100%{left:120%;opacity:0}
+}
+
+.nav-inner{
+  display:flex;
+  align-items:center;
+  gap:22px;
+  position:relative;
+  z-index:1;
+  white-space:nowrap;
+}
+
+.nav-logo{ height:18px; width:auto; }
+
+.divider{
+  width:1px;
+  height:18px;
+  background:rgba(255,255,255,.45);
+}
+
+.nav-link{
+  font-size:15px;
+  color:white;
+  text-decoration:none;
+  opacity:.95;
+  transition:transform .12s,filter .12s,opacity .12s;
+}
+.nav-link:hover{
+  transform:translateY(1px);
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.18));
+  opacity:1;
+}
+.nav-link:active{ transform:translateY(2px) scale(.98); }
+
+/* ================= HERO ================= */
+
+.hero{
+  min-height:90vh;
+  padding-top:2px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+
+  position:relative;
+  z-index:1;
+}
+
+.hero-logo{
+  height:150px;
+  width:auto;
+  margin-bottom:20px;
+  filter:drop-shadow(0 0 35px rgba(255,255,255,.9));
+}
+
+h1{ font-size:46px; margin:0; }
+
+p{
+  margin:4px 0 28px;
+  font-size:16px;
+  opacity:.85;
+}
+
+/* ================= CTA BUTTONS ================= */
+
+.cta-group{
+  display:flex;
+  gap:16px;
+  justify-content:center;
+  align-items:stretch;
+}
+
+.cta{
+  flex:1;
+  min-width:95px;
+  text-align:center;
+
+  padding:12px 38px;
+  border-radius:20px;
+  background:linear-gradient(180deg,#1a1a1a,#000000);
+
+  box-shadow:
+    0 12px 28px rgba(0,0,0,.75),
+    inset 0 2px 4px rgba(255,255,255,.14),
+    inset 0 -2px 4px rgba(255,255,255,.10);
+
+  color:white;
+  text-decoration:none;
+  font-size:14px;
+  font-weight:500;
+
+  position:relative;
+  overflow:hidden;
+
+  transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+}
+
+/* shine only for primary button */
+.cta::before{
+  content:"";
+  position:absolute;
+  top:-45%;
+  left:-70%;
+  width:55%;
+  height:190%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
+  transform:rotate(18deg);
+  animation:ctaShine 6.5s ease-in-out infinite;
+  pointer-events:none;
+}
+
+/* no shine on secondary */
+.cta.secondary::before{ content:none; }
+
+@keyframes ctaShine{
+  0%{left:-80%;opacity:0}
+  12%{opacity:.35}
+  38%{left:140%;opacity:0}
+  100%{left:140%;opacity:0}
+}
+
+.cta:hover{
+  transform:translateY(-2px);
+  box-shadow:
+    0 14px 30px rgba(0,0,0,.80),
+    inset 0 3px 5px rgba(255,255,255,.20),
+    inset 0 -3px 6px rgba(255,255,255,.16);
+}
+.cta:active{ transform:translateY(0px) scale(.99); }
+
+.cta.secondary{ opacity:.88; }
+.cta.secondary:hover{ opacity:1; }
+
+/* ================= FOOTER STRIP ================= */
+
+.footer-strip{ padding:8px 0; position:relative; z-index:1; }
+
+.footer-divider{
+  width:100vw;
+  height:1px;
+  background:rgba(255,255,255,.35);
+  margin:0;
+  position:relative;
+  left:50%;
+  transform:translateX(-50%);
+}
+
+.footer-inner{
+  padding:24px 20px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+}
+
+.footer-logo{
+  height:24px;
+  width:auto;
+  margin-bottom:16px;
+  opacity:.9;
+}
+
+.footer-text{ font-size:13px; opacity:.65; }
+
+/* ================= MOBILE FRIENDLY ================= */
+
+@media (max-width:800px){
+  .navbar{ padding:18px 26px; border-radius:20px; }
+  .nav-inner{ gap:16px; }
+  .nav-link{ font-size:14px; }
+  .divider{ height:16px; }
+}
+
+@media (max-width:520px){
+  .navbar{
+    left:12px;
+    translate:0 0;
+    max-width:calc(100vw - 24px);
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  .navbar::-webkit-scrollbar{ height:0; }
+
+  .hero-logo{ height:120px; }
+  h1{ font-size:38px; }
+  p{ font-size:14px; }
+
+  .cta-group{
+    flex-direction:column;
+    gap:12px;
+    width:min(420px, calc(100vw - 40px));
+  }
+  .cta{ width:100%; }
+}
+
+/* ================= INNER PAGE LAYOUT ================= */
+
+.page-layout{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+.page-content{
+  flex:1;
+  padding-top:175px;
+  padding-bottom:80px;
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+
+/* ================= ABOUT PAGE (UPDATED) ================= */
 
 .about{
   width:min(1100px, calc(100vw - 40px));
@@ -430,7 +710,7 @@ input:focus, select:focus, textarea:focus{
   position:relative;
 }
 
-/* Big module box around everything */
+/* One big box around EVERYTHING */
 .about-shell{
   width:100%;
   border-radius:26px;
@@ -447,7 +727,7 @@ input:focus, select:focus, textarea:focus{
   overflow:hidden;
 }
 
-/* subtle shine sweep inside the big box */
+/* subtle shine sweep inside big box */
 .about-shell::before{
   content:"";
   position:absolute;
@@ -514,7 +794,6 @@ input:focus, select:focus, textarea:focus{
   margin:0 0 12px;
 }
 
-/* layout */
 .about-grid{
   position:relative;
   display:grid;
@@ -523,7 +802,7 @@ input:focus, select:focus, textarea:focus{
   align-items:start;
 }
 
-/* ===== Rail / timeline ===== */
+/* ===== Timeline / rail ===== */
 
 .about-rail{ position:relative; }
 
@@ -570,7 +849,6 @@ input:focus, select:focus, textarea:focus{
   gap:12px;
   margin-bottom:14px;
 
-  /* animated entrance */
   opacity:0;
   transform:translateY(10px);
   transition:opacity .55s ease, transform .55s ease;
@@ -721,7 +999,7 @@ input:focus, select:focus, textarea:focus{
   overflow:hidden;
 }
 
-/* start at 0 so JS can animate to target */
+/* starts at 0 so JS can animate it */
 .meter-fill{
   display:block;
   height:100%;
