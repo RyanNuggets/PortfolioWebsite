@@ -1,4 +1,3 @@
-<!-- clients.html (FULL FILE) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -34,91 +33,98 @@
   <main class="page-content fade-in">
     <section class="clients">
       <div class="clients-shell">
-        <!-- ✅ removed the checkmark icon -->
-
         <h1 class="clients-title">What our clients say</h1>
-        <p class="clients-sub">Coming soon.</p>
+        <p class="clients-sub">Real feedback from communities we’ve worked with.</p>
 
-        <!-- Carousel viewport -->
-        <div class="reviews-viewport" id="reviewsViewport" aria-label="Client reviews carousel">
-          <div class="reviews-track" id="reviewsTrack">
+        <!-- ✅ NEW: logo grid -->
+        <div class="client-grid" id="clientGrid" aria-label="Client servers">
+          <!--
+            Replace logo src with your real server logos, e.g:
+            images/client-gtrp.png
+            images/client-lvrp.png
+            images/client-chicagorp.png
+          -->
 
-            <!-- Review card (repeat as many as you want) -->
-            <article class="review-card" tabindex="0" role="button"
-              data-name="awesome_choice"
-              data-role="Server Owner"
-              data-quote="&quot;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.&quot;">
-              <p class="review-quote">
-                “Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore…
-                <span class="review-em">quality and attention to detail</span> …ut enim ad minim veniam.”
-              </p>
-              <div class="review-divider"></div>
-              <div class="review-meta">
-                <div class="review-name">awesome_choice</div>
-                <div class="review-role">Server Owner</div>
-              </div>
-            </article>
+          <button class="client-card" type="button"
+            data-name="awesome_choice"
+            data-role="Server Owner"
+            data-quote="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+            data-logo="images/client-1.png"
+            aria-label="Open testimonial for awesome_choice">
+            <span class="client-badge">Featured</span>
+            <div class="client-logo-wrap">
+              <img class="client-logo" src="images/client-1.png" alt="awesome_choice logo" loading="lazy">
+            </div>
+            <div class="client-meta">
+              <div class="client-name">awesome_choice</div>
+              <div class="client-role">Server Owner</div>
+            </div>
+          </button>
 
-            <article class="review-card" tabindex="0" role="button"
-              data-name="SomeRandomDude"
-              data-role="2k+ member server owner"
-              data-quote="&quot;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque posuere, metus at posuere fringilla, turpis elit luctus mi, at dignissim neque mi id nulla. Integer sit amet nibh eu massa fermentum.&quot;">
-              <p class="review-quote">
-                “Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque posuere, metus at posuere fringilla…
-                Everything got done <span class="review-em">really fast</span>.”
-              </p>
-              <div class="review-divider"></div>
-              <div class="review-meta">
-                <div class="review-name">SomeRandomDude</div>
-                <div class="review-role">2k+ member server owner</div>
-              </div>
-            </article>
+          <button class="client-card" type="button"
+            data-name="SomeRandomDude"
+            data-role="2k+ member server owner"
+            data-quote="Quisque posuere, metus at posuere fringilla, turpis elit luctus mi, at dignissim neque mi id nulla. Everything got done really fast."
+            data-logo="images/client-2.png"
+            aria-label="Open testimonial for SomeRandomDude">
+            <div class="client-logo-wrap">
+              <img class="client-logo" src="images/client-2.png" alt="SomeRandomDude logo" loading="lazy">
+            </div>
+            <div class="client-meta">
+              <div class="client-name">SomeRandomDude</div>
+              <div class="client-role">2k+ member server owner</div>
+            </div>
+          </button>
 
-            <article class="review-card" tabindex="0" role="button"
-              data-name="kbear948"
-              data-role="Server Owner"
-              data-quote="&quot;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean interdum, orci in commodo egestas, augue mi tempor nulla, non faucibus nisl sem sed metus. Pellentesque habitant morbi tristique.&quot;">
-              <p class="review-quote">
-                “Lorem ipsum dolor sit amet… I can’t stress enough how much these guys knocked it out of the park with
-                <span class="review-em">quality and attention to detail</span>.”
-              </p>
-              <div class="review-divider"></div>
-              <div class="review-meta">
-                <div class="review-name">kbear948</div>
-                <div class="review-role">Server Owner</div>
-              </div>
-            </article>
+          <button class="client-card" type="button"
+            data-name="kbear948"
+            data-role="Server Owner"
+            data-quote="Aenean interdum, orci in commodo egestas, augue mi tempor nulla. I can’t stress enough how much they knocked it out of the park with quality and attention to detail."
+            data-logo="images/client-3.png"
+            aria-label="Open testimonial for kbear948">
+            <div class="client-logo-wrap">
+              <img class="client-logo" src="images/client-3.png" alt="kbear948 logo" loading="lazy">
+            </div>
+            <div class="client-meta">
+              <div class="client-name">kbear948</div>
+              <div class="client-role">Server Owner</div>
+            </div>
+          </button>
 
-            <article class="review-card" tabindex="0" role="button"
-              data-name="NeonPilot"
-              data-role="Community Manager"
-              data-quote="&quot;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus vel elit a neque suscipit convallis. Nulla facilisi. Morbi at sapien eget urna vulputate bibendum.&quot;">
-              <p class="review-quote">
-                “Lorem ipsum dolor sit amet… super clean, super consistent. We’ll be back for more.”
-              </p>
-              <div class="review-divider"></div>
-              <div class="review-meta">
-                <div class="review-name">NeonPilot</div>
-                <div class="review-role">Community Manager</div>
-              </div>
-            </article>
+          <button class="client-card" type="button"
+            data-name="NeonPilot"
+            data-role="Community Manager"
+            data-quote="Vivamus vel elit a neque suscipit convallis. Super clean, super consistent. We’ll be back for more."
+            data-logo="images/client-4.png"
+            aria-label="Open testimonial for NeonPilot">
+            <div class="client-logo-wrap">
+              <img class="client-logo" src="images/client-4.png" alt="NeonPilot logo" loading="lazy">
+            </div>
+            <div class="client-meta">
+              <div class="client-name">NeonPilot</div>
+              <div class="client-role">Community Manager</div>
+            </div>
+          </button>
 
-            <article class="review-card" tabindex="0" role="button"
-              data-name="VantaStudio"
-              data-role="Server Owner"
-              data-quote="&quot;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.&quot;">
-              <p class="review-quote">
-                “Lorem ipsum dolor sit amet… premium look, great communication, delivered exactly what we wanted.”
-              </p>
-              <div class="review-divider"></div>
-              <div class="review-meta">
-                <div class="review-name">VantaStudio</div>
-                <div class="review-role">Server Owner</div>
-              </div>
-            </article>
-
-          </div>
+          <button class="client-card" type="button"
+            data-name="VantaStudio"
+            data-role="Server Owner"
+            data-quote="Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque. Premium look, great communication, delivered exactly what we wanted."
+            data-logo="images/client-5.png"
+            aria-label="Open testimonial for VantaStudio">
+            <div class="client-logo-wrap">
+              <img class="client-logo" src="images/client-5.png" alt="VantaStudio logo" loading="lazy">
+            </div>
+            <div class="client-meta">
+              <div class="client-name">VantaStudio</div>
+              <div class="client-role">Server Owner</div>
+            </div>
+          </button>
         </div>
+
+        <p class="clients-foot">
+          Want to be featured here? Send a message in Contact with your server name + what you ordered.
+        </p>
       </div>
     </section>
   </main>
@@ -132,134 +138,68 @@
     </div>
   </footer>
 
-  <!-- EXPAND MODAL -->
+  <!-- MODAL -->
   <div class="review-modal" id="reviewModal" aria-hidden="true">
     <div class="review-modal-backdrop" id="reviewModalBackdrop"></div>
 
-    <div class="review-modal-card" role="dialog" aria-modal="true" aria-label="Expanded review">
+    <div class="review-modal-card" role="dialog" aria-modal="true" aria-label="Expanded testimonial">
       <button class="review-modal-close" id="reviewModalClose" aria-label="Close">×</button>
-      <div class="review-modal-quote" id="reviewModalQuote"></div>
-      <div class="review-modal-divider"></div>
-      <div class="review-modal-meta">
-        <div class="review-modal-name" id="reviewModalName"></div>
-        <div class="review-modal-role" id="reviewModalRole"></div>
+
+      <div class="review-modal-top">
+        <div class="review-modal-logoWrap" aria-hidden="true">
+          <img class="review-modal-logo" id="reviewModalLogo" alt="">
+        </div>
+
+        <div class="review-modal-meta">
+          <div class="review-modal-name" id="reviewModalName"></div>
+          <div class="review-modal-role" id="reviewModalRole"></div>
+        </div>
       </div>
+
+      <div class="review-modal-divider"></div>
+      <div class="review-modal-quote" id="reviewModalQuote"></div>
     </div>
   </div>
 
-  <!-- CAROUSEL + MODAL JS (FULL FIXED) -->
+  <!-- ✅ GRID + MODAL JS (FULL) -->
   <script>
-    const viewport = document.getElementById("reviewsViewport");
-    const track = document.getElementById("reviewsTrack");
+    const grid = document.getElementById("clientGrid");
 
-    // Duplicate items for seamless infinite loop
-    const originalHTML = track.innerHTML;
-    track.insertAdjacentHTML("beforeend", originalHTML);
-
-    const reduceMotion =
-      window.matchMedia &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    // Auto-scroll settings
-    const SPEED = 0.55;
-    let pauseAuto = false;
-    let resumeTimer = null;
-    let isHovering = false;
-    let started = false;
-
-    function getHalf() {
-      return track.scrollWidth / 2;
-    }
-
-    function loopFix() {
-      const half = getHalf();
-      if (!half) return;
-
-      if (viewport.scrollLeft >= half) viewport.scrollLeft -= half;
-      if (viewport.scrollLeft < 0) viewport.scrollLeft += half;
-    }
-
-    function scheduleResume() {
-      clearTimeout(resumeTimer);
-      resumeTimer = setTimeout(() => {
-        pauseAuto = false;
-      }, 1000);
-    }
-
-    function markManualInteraction() {
-      pauseAuto = true;
-      scheduleResume();
-    }
-
-    // Start in the middle for a nicer look
-    function startInMiddle() {
-      if (started) return;
-      started = true;
-
-      const half = getHalf();
-      viewport.scrollLeft = Math.max(0, Math.floor(half * 0.35));
-    }
-
-    window.addEventListener("load", () => {
-      startInMiddle();
-      loopFix();
-    });
-
-    // Auto-scroll loop
-    function tick() {
-      if (!reduceMotion) {
-        if (!started && track.scrollWidth) startInMiddle();
-
-        if (!pauseAuto) {
-          viewport.scrollLeft += SPEED;
-          loopFix();
-        }
-      }
-      requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
-
-    viewport.addEventListener("mouseenter", () => { isHovering = true; });
-    viewport.addEventListener("mouseleave", () => { isHovering = false; });
-
-    // Manual intent detection
-    viewport.addEventListener("pointerdown", markManualInteraction, { passive: true });
-    viewport.addEventListener("touchstart", markManualInteraction, { passive: true });
-
-    // Wheel -> horizontal ONLY when hovering carousel
-    viewport.addEventListener("wheel", (e) => {
-      if (!isHovering) return;
-
-      markManualInteraction();
-
-      const delta = (Math.abs(e.deltaX) > Math.abs(e.deltaY)) ? e.deltaX : e.deltaY;
-      viewport.scrollLeft += delta * 1.75;
-      loopFix();
-
-      e.preventDefault();
-    }, { passive: false });
-
-    // Keep loop seamless for any kind of scroll
-    viewport.addEventListener("scroll", () => {
-      loopFix();
-    }, { passive: true });
-
-    // ===== Modal (expand review) =====
     const modal = document.getElementById("reviewModal");
     const modalBackdrop = document.getElementById("reviewModalBackdrop");
     const modalClose = document.getElementById("reviewModalClose");
+
     const modalQuote = document.getElementById("reviewModalQuote");
     const modalName = document.getElementById("reviewModalName");
     const modalRole = document.getElementById("reviewModalRole");
+    const modalLogo = document.getElementById("reviewModalLogo");
 
     let lastFocus = null;
 
     function openModalFromCard(card) {
       lastFocus = document.activeElement;
 
-      modalQuote.innerHTML = card.getAttribute("data-quote") || "";
-      modalName.textContent = card.getAttribute("data-name") || "";
-      modalRole.textContent = card.getAttribute("data-role") || "";
+      const name = card.getAttribute("data-name") || "";
+      const role = card.getAttribute("data-role") || "";
+      const quote = card.getAttribute("data-quote") || "";
+      const logo = card.getAttribute("data-logo") || "";
+
+      modalName.textContent = name;
+      modalRole.textContent = role;
+
+      // keep it simple (textContent) so quotes always render clean
+      modalQuote.textContent = quote;
+
+      // logo is optional
+      if (logo) {
+        modalLogo.src = logo;
+        modalLogo.alt = name ? (name + " logo") : "Client logo";
+        modalLogo.style.display = "block";
+      } else {
+        modalLogo.removeAttribute("src");
+        modalLogo.alt = "";
+        modalLogo.style.display = "none";
+      }
 
       modal.classList.add("open");
       modal.setAttribute("aria-hidden", "false");
@@ -272,21 +212,25 @@
       if (lastFocus && lastFocus.focus) lastFocus.focus();
     }
 
-    track.addEventListener("click", (e) => {
-      const card = e.target.closest(".review-card");
+    // Click open
+    grid.addEventListener("click", (e) => {
+      const card = e.target.closest(".client-card");
       if (!card) return;
       openModalFromCard(card);
     });
 
-    track.addEventListener("keydown", (e) => {
-      const card = e.target.closest(".review-card");
+    // Keyboard open (Enter/Space)
+    grid.addEventListener("keydown", (e) => {
+      const card = e.target.closest(".client-card");
       if (!card) return;
+
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
         openModalFromCard(card);
       }
     });
 
+    // Close handlers
     modalBackdrop.addEventListener("click", closeModal);
     modalClose.addEventListener("click", closeModal);
 
