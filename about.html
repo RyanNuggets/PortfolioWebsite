@@ -1,3 +1,4 @@
+<!-- about.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -51,7 +52,7 @@
         </header>
 
         <div class="about-grid">
-          <!-- SERVICES (vertical rail list) -->
+          <!-- SERVICES (timeline/rail) -->
           <section class="about-rail" aria-label="Services">
             <h2 class="about-h2">What we make</h2>
 
@@ -102,7 +103,7 @@
             </div>
           </section>
 
-          <!-- STATS (stacked metrics) -->
+          <!-- METRICS -->
           <aside class="about-metrics" aria-label="Stats">
             <h2 class="about-h2">By the numbers</h2>
 
@@ -140,7 +141,7 @@
           </aside>
         </div> <!-- /about-grid -->
       </div> <!-- /about-shell -->
-    </section> <!-- /about -->
+    </section>
   </main>
 
   <!-- FOOTER -->
@@ -152,9 +153,68 @@
     </div>
   </footer>
 
-  <!-- COUNT-UP ANIMATION + RAIL ANIMATION (you’ll paste your full JS next and I’ll update it) -->
+  <!-- ✅ REQUIRED: animations need this script -->
   <script>
-    // placeholder: paste your existing full JS here next
+    const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+    function animateCount(el, to, duration = 900, suffix = "", fillEl = null, fillTarget = 0) {
+      const start = performance.now();
+
+      function frame(now) {
+        const p = Math.min(1, (now - start) / duration);
+        const eased = easeOutCubic(p);
+
+        const value = Math.round(to * eased);
+        el.textContent = value + suffix;
+
+        if (fillEl) {
+          const w = Math.max(0, Math.min(100, fillTarget * eased));
+          fillEl.style.width = w + "%";
+        }
+
+        if (p < 1) requestAnimationFrame(frame);
+      }
+
+      requestAnimationFrame(frame);
+    }
+
+    // Count-ups + meters
+    const counters = document.querySelectorAll(".count-up");
+
+    const metricsIO = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+
+        const el = entry.target;
+        if (el.dataset.done === "1") return;
+
+        el.dataset.done = "1";
+
+        const metricCard = el.closest(".metric-card");
+        const fill = metricCard ? metricCard.querySelector(".meter-fill") : null;
+        const target = fill ? Number(fill.dataset.fill || 0) : 0;
+
+        animateCount(el, Number(el.dataset.to || 0), 950, el.dataset.suffix || "", fill, target);
+      });
+    }, { threshold: 0.35 });
+
+    counters.forEach((c) => metricsIO.observe(c));
+
+    // Rail reveal animation
+    const railItems = document.querySelectorAll(".rail-item");
+
+    const railIO = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-in");
+        railIO.unobserve(entry.target);
+      });
+    }, { threshold: 0.18 });
+
+    railItems.forEach((item, i) => {
+      item.style.transitionDelay = (i * 90) + "ms";
+      railIO.observe(item);
+    });
   </script>
 </body>
 </html>
