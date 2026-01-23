@@ -13,6 +13,16 @@ const ADMIN_PATH = process.env.ADMIN_PATH || "/admin-board";
 // Parse JSON bodies (for contact form)
 app.use(express.json());
 
+// ✅ Block old admin paths (prevents /admin-board and /admin-board.html from working)
+function blockAdminAliases(req, res, next) {
+  const p = (req.path || "").toLowerCase();
+  if (p === "/admin-board" || p === "/admin-board.html") {
+    return res.status(404).send("Not found");
+  }
+  next();
+}
+app.use(blockAdminAliases);
+
 // Serve static files (css, images, js, html)
 app.use(express.static(__dirname, { extensions: ["html"] }));
 
