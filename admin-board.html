@@ -216,129 +216,142 @@
   </footer>
 
   <script>
-    function escapeHtml(s){
-      return String(s ?? "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
+  // --- CONFIG ---
+  const STATUSES = ["Queued", "In Progress", "Review", "Delivered", "Archived"];
 
-    function cardHTML(o){
-      const updated = o.updatedAt ? new Date(o.updatedAt).toLocaleString() : "—";
+  // --- ELEMENTS ---
+  const board = document.getElementById("board");
+  const editorTitle = document.getElementById("editorTitle"); // if exists
+  const editorSub = document.getElementById("editorSub");     // if exists
+
+  // --- HELPERS ---
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[c]));
+
+  function groupByStatus(items) {
+    const map = {};
+    STATUSES.forEach(s => (map[s] = []));
+    items.forEach(o => {
+      if (map[o.status]) map[o.status].push(o);
+      else map["Queued"].push(o);
+    });
+    return map;
+  }
+
+  async function apiUpdateStatus(id, newStatus) {
+    await fetch(`/api/orders/${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: newStatus })
+    });
+  }
+
+  async function apiArchive(id) {
+    return apiUpdateStatus(id, "Archived");
+  }
+
+  // --- RENDER ---
+  function renderBoard(items) {
+    const grouped = groupByStatus(items);
+
+    board.innerHTML = STATUSES.map((status) => {
+      const cards = grouped[status].map((o) => `
+        <article class="order-card is-draggable" draggable="true" data-id="${esc(o.id)}">
+          <div class="order-top">
+            <div class="order-title">${esc(o.title)}</div>
+            <div class="order-badge">${esc(o.status)}</div>
+          </div>
+
+          <div class="order-meta">
+            <div class="order-line"><span>Client:</span> ${esc(o.client)}</div>
+            <div class="order-line"><span>Updated:</span> ${esc(o.updatedAt || "—")}</div>
+          </div>
+
+          <p class="order-notes">${esc(o.notes || "")}</p>
+
+          <!-- ✅ quick archive button (only show when Delivered) -->
+          ${o.status === "Delivered" ? `
+            <button class="order-archive" type="button" data-archive="${esc(o.id)}">
+              Archive
+            </button>
+          ` : ""}
+        </article>
+      `).join("");
+
       return `
-        <div class="card" draggable="true" tabindex="0" data-id="${escapeHtml(o.id)}">
-          <div class="card-title">${escapeHtml(o.client)} — ${escapeHtml(o.title)}</div>
-          <div class="card-meta">Updated: ${escapeHtml(updated)}</div>
-        </div>
+        <section class="col" data-status="${esc(status)}">
+          <div class="col-head">
+            <div class="col-title">${esc(status)}</div>
+            <div class="col-sub">${grouped[status].length} orders</div>
+          </div>
+
+          <div class="col-body dropzone" data-status="${esc(status)}">
+            ${cards || `<div class="col-empty">Drop orders here.</div>`}
+          </div>
+        </section>
       `;
-    }
+    }).join("");
 
-    async function loadBoard(){
-      const res = await fetch("/api/orders");
-      if (!res.ok) { window.location.href = "/portal"; return; }
+    wireDnD();
+    wireArchiveButtons();
+  }
 
-      const data = await res.json();
-      const items = data.items || [];
+  // --- DRAG & DROP ---
+  function wireDnD() {
+    const cards = document.querySelectorAll(".order-card.is-draggable");
+    const zones = document.querySelectorAll(".dropzone");
 
-      document.querySelectorAll(".col .list").forEach(l => l.innerHTML = "");
-      const cols = {};
-      document.querySelectorAll(".col").forEach(c => cols[c.dataset.status] = c.querySelector(".list"));
-
-      for (const o of items){
-        const list = cols[o.status] || cols["Queued"];
-        list.insertAdjacentHTML("beforeend", cardHTML(o));
-      }
-
-      wireDnD();
-    }
-
-    // ===== Add order =====
-    const form = document.getElementById("addForm");
-    const msg = document.getElementById("msg");
-
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      msg.textContent = "Adding…";
-
-      const body = {
-        client: document.getElementById("client").value,
-        title: document.getElementById("title").value,
-        status: document.getElementById("status").value
-      };
-
-      try{
-        const res = await fetch("/api/orders", {
-          method:"POST",
-          headers:{ "Content-Type":"application/json" },
-          body: JSON.stringify(body)
-        });
-
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok || !data.ok){
-          msg.textContent = data.error || "Failed to add order (admin only).";
-          return;
-        }
-
-        msg.textContent = "Added ✅";
-        form.reset();
-        await loadBoard();
-      }catch{
-        msg.textContent = "Server error.";
-      }
+    cards.forEach((card) => {
+      card.addEventListener("dragstart", (e) => {
+        e.dataTransfer.setData("text/plain", card.dataset.id);
+        card.classList.add("dragging");
+      });
+      card.addEventListener("dragend", () => card.classList.remove("dragging"));
     });
 
-    // ===== Drag & drop (admin) =====
-    let dragId = null;
-
-    function wireDnD(){
-      document.querySelectorAll(".card").forEach(card => {
-        card.addEventListener("dragstart", (e) => {
-          dragId = card.dataset.id;
-          e.dataTransfer.setData("text/plain", dragId);
-          e.dataTransfer.effectAllowed = "move";
-        });
+    zones.forEach((zone) => {
+      zone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        zone.classList.add("drop-over");
       });
 
-      document.querySelectorAll(".col").forEach(col => {
-        col.addEventListener("dragover", (e) => {
-          e.preventDefault();
-          col.classList.add("is-over");
-        });
+      zone.addEventListener("dragleave", () => zone.classList.remove("drop-over"));
 
-        col.addEventListener("dragleave", () => {
-          col.classList.remove("is-over");
-        });
+      zone.addEventListener("drop", async (e) => {
+        e.preventDefault();
+        zone.classList.remove("drop-over");
 
-        col.addEventListener("drop", async (e) => {
-          e.preventDefault();
-          col.classList.remove("is-over");
+        const id = e.dataTransfer.getData("text/plain");
+        const newStatus = zone.dataset.status;
 
-          const id = e.dataTransfer.getData("text/plain") || dragId;
-          if (!id) return;
+        if (!id || !newStatus) return;
 
-          const newStatus = col.dataset.status;
-
-          // update server
-          const res = await fetch(`/api/orders/${encodeURIComponent(id)}`, {
-            method:"PATCH",
-            headers:{ "Content-Type":"application/json" },
-            body: JSON.stringify({ status: newStatus })
-          });
-
-          if (!res.ok){
-            msg.textContent = "Update failed (admin only).";
-            return;
-          }
-
-          msg.textContent = `Moved to ${newStatus} ✅`;
-          await loadBoard();
-        });
+        await apiUpdateStatus(id, newStatus);
+        await loadOrders();
       });
-    }
+    });
+  }
 
-    loadBoard();
-  </script>
+  // --- ARCHIVE BUTTON ---
+  function wireArchiveButtons() {
+    document.querySelectorAll("[data-archive]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const id = btn.getAttribute("data-archive");
+        await apiArchive(id);
+        await loadOrders();
+      });
+    });
+  }
+
+  // --- LOAD (admin) ---
+  async function loadOrders() {
+    const res = await fetch("/api/orders");
+    const data = await res.json();
+    renderBoard(data.items || []);
+  }
+
+  loadOrders();
+</script>
 </body>
 </html>
