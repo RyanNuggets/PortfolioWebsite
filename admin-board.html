@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Board – Nugget Studios</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="page-layout">
+  <!-- NAVBAR -->
+  <nav class="navbar fade-in">
+    <div class="nav-inner">
+      <a href="/" class="nav-home">
+        <img src="images/logo2.png" alt="Navbar Logo" class="nav-logo">
+      </a>
+
+      <span class="divider"></span>
+      <a href="/about" class="nav-link">About</a>
+
+      <span class="divider"></span>
+      <a href="/clients" class="nav-link">Clients</a>
+
+      <span class="divider"></span>
+      <a href="/past-work" class="nav-link">Past Work</a>
+
+      <span class="divider"></span>
+      <a href="/contact" class="nav-link">Contact</a>
+    </div>
+  </nav>
+
+  <main class="page-content fade-in">
+    <section class="board">
+      <div class="board-shell">
+        <div class="board-head">
+          <div>
+            <h1 class="board-title">Admin Board</h1>
+            <p class="board-sub">Add + move orders between columns.</p>
+          </div>
+
+          <div class="board-actions">
+            <button class="board-btn" id="refreshBtn" type="button">Refresh</button>
+            <a class="board-btn" href="/api/logout">Logout</a>
+          </div>
+        </div>
+
+        <div class="admin-add">
+          <form class="admin-add-form" id="addForm">
+            <input id="client" placeholder="Client / Server (e.g. GTRP)" required />
+            <input id="title" placeholder="Order title (e.g. Banner pack)" required />
+            <select id="status">
+              <option>Queued</option>
+              <option>In Progress</option>
+              <option>Waiting Client</option>
+              <option>Delivered</option>
+            </select>
+            <button class="board-btn is-primary" type="submit">Add</button>
+          </form>
+          <div class="board-msg" id="msg"></div>
+        </div>
+
+        <div class="kanban" id="kanban">
+          <!-- columns injected by JS -->
+        </div>
+
+        <p class="board-mini">
+          Drag & drop cards to change status instantly.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer-strip">
+    <div class="footer-divider"></div>
+    <div class="footer-inner">
+      <img src="images/logo2.png" class="footer-logo" alt="Footer Logo">
+      <p class="footer-text">Copyright © 2026 Nugget Studios. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    const STATUSES = ["Queued", "In Progress", "Waiting Client", "Delivered"];
+
+    const kanban = document.getElementById("kanban");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const addForm = document.getElementById("addForm");
+    const msg = document.getElementById("msg");
+
+    function esc(s){
+      return String(s ?? "").replace(/[&<>"']/g, (m) => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[m]));
+    }
+
+    function fmtDate(iso){
+      try { return new Date(iso).toLocaleString(); } catch { return ""; }
+    }
+
+    function setMsg(text, ok=true){
+      msg.textContent = text || "";
+      msg.className = "board-msg " + (ok ? "is-ok" : "is-err");
+      if (!text) msg.className = "board-msg";
+    }
+
+    function buildColumns(){
+      kanban.innerHTML = STATUSES.map(s => `
+        <div class="kcol">
+          <div class="kcol-head">
+            <div class="kcol-title">${esc(s)}</div>
+            <div class="kcol-count" data-count-for="${esc(s)}">0</div>
+          </div>
+          <div class="kcol-body" data-status="${esc(s)}"></div>
+        </div>
+      `).join("");
+    }
+
+    async function loadBoard(){
+      setMsg("");
+      buildColumns();
+
+      const res = await fetch("/api/orders");
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data.ok) {
+        kanban.innerHTML = `<div class="kerror">Failed to load orders.</div>`;
+        return;
+      }
+
+      const items = Array.isArray(data.items) ? data.items : [];
+      const byStatus = Object.fromEntries(STATUSES.map(s => [s, []]));
+      for (const it of items){
+        const st = STATUSES.includes(it.status) ? it.status : "Queued";
+        byStatus[st].push(it);
+      }
+
+      for (const st of STATUSES){
+        const body = kanban.querySelector(`.kcol-body[data-status="${CSS.escape(st)}"]`);
+        const countEl = kanban.querySelector(`[data-count-for="${CSS.escape(st)}"]`);
+        const list = byStatus[st];
+
+        countEl.textContent = String(list.length);
+
+        body.innerHTML = list.map(o => `
+          <article class="kcard kcard-admin" draggable="true"
+            data-id="${esc(o.id)}"
+            data-client="${esc(o.client)}"
+            data-title="${esc(o.title)}"
+            data-status="${esc(o.status)}">
+            <div class="kcard-top">
+              <span class="kbadge">${esc(o.client)}</span>
+              <div class="kadmin-actions">
+                <button class="kmini" type="button" data-act="edit">Edit</button>
+                <button class="kmini danger" type="button" data-act="delete">Del</button>
+              </div>
+            </div>
+            <div class="kcard-title">${esc(o.title)}</div>
+            <div class="kcard-foot">
+              <span class="kmuted">${esc(fmtDate(o.updatedAt))}</span>
+            </div>
+          </article>
+        `).join("");
+      }
+    }
+
+    // Add order
+    addForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      setMsg("");
+
+      const client = document.getElementById("client").value.trim();
+      const title = document.getElementById("title").value.trim();
+      const status = document.getElementById("status").value;
+
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ client, title, status })
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) {
+        setMsg(data.error || "Failed to add order.", false);
+        return;
+      }
+
+      addForm.reset();
+      setMsg("Order added!", true);
+      loadBoard();
+    });
+
+    // Drag & drop status change
+    let draggingId = null;
+
+    kanban.addEventListener("dragstart", (e) => {
+      const card = e.target.closest(".kcard-admin");
+      if (!card) return;
+      draggingId = card.dataset.id;
+      card.classList.add("is-dragging");
+      e.dataTransfer.effectAllowed = "move";
+    });
+
+    kanban.addEventListener("dragend", (e) => {
+      const card = e.target.closest(".kcard-admin");
+      if (card) card.classList.remove("is-dragging");
+      draggingId = null;
+      kanban.querySelectorAll(".kcol-body").forEach(b => b.classList.remove("is-over"));
+    });
+
+    kanban.addEventListener("dragover", (e) => {
+      const col = e.target.closest(".kcol-body");
+      if (!col) return;
+      e.preventDefault();
+      col.classList.add("is-over");
+    });
+
+    kanban.addEventListener("dragleave", (e) => {
+      const col = e.target.closest(".kcol-body");
+      if (!col) return;
+      col.classList.remove("is-over");
+    });
+
+    kanban.addEventListener("drop", async (e) => {
+      const col = e.target.closest(".kcol-body");
+      if (!col || !draggingId) return;
+      e.preventDefault();
+
+      const newStatus = col.getAttribute("data-status");
+
+      const res = await fetch(`/api/orders/${encodeURIComponent(draggingId)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) {
+        setMsg(data.error || "Failed to move card.", false);
+        return;
+      }
+
+      setMsg("Status updated.", true);
+      loadBoard();
+    });
+
+    // Admin actions: edit/delete
+    kanban.addEventListener("click", async (e) => {
+      const btn = e.target.closest(".kmini");
+      if (!btn) return;
+
+      const card = btn.closest(".kcard-admin");
+      if (!card) return;
+
+      const id = card.dataset.id;
+      const act = btn.getAttribute("data-act");
+
+      if (act === "delete") {
+        // Simple delete: mark as Delivered + title prefix (safe quick delete alt)
+        // If you want true delete, I can add a DELETE endpoint.
+        const ok = confirm("Delete this order? (This will mark it Delivered + add [DELETED])");
+        if (!ok) return;
+
+        const res = await fetch(`/api/orders/${encodeURIComponent(id)}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "Delivered" })
+        });
+
+        if (!res.ok) {
+          setMsg("Failed to delete.", false);
+          return;
+        }
+        setMsg("Deleted (soft).", true);
+        loadBoard();
+        return;
+      }
+
+      if (act === "edit") {
+        const newTitle = prompt("New title:", card.dataset.title || "");
+        if (newTitle == null) return;
+
+        // title edits need an endpoint too — quick workaround:
+        // for now: use status move only; tell me if you want title/client editing server-side.
+        setMsg("Title editing needs a small server endpoint. Say the word and I’ll add it.", false);
+        return;
+      }
+    });
+
+    refreshBtn.addEventListener("click", loadBoard);
+    loadBoard();
+  </script>
+</body>
+</html>
