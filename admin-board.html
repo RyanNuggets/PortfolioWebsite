@@ -1,3 +1,4 @@
+<!-- admin-board.html (FULL FILE) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,69 +6,205 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Board – Nugget Studios</title>
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    .board-wrap{ width:min(1180px, calc(100vw - 40px)); margin:0 auto; }
+    .board-top{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-bottom:16px;
+    }
+    .board-title{ margin:0; font-size:34px; letter-spacing:.2px; }
+    .board-sub{ margin:0; opacity:.72; font-size:14px; }
+
+    .admin-panel{
+      width:100%;
+      border-radius:22px;
+      padding:14px;
+      background:linear-gradient(180deg,#141414,#000);
+      border:1px solid rgba(255,255,255,.07);
+      box-shadow:
+        0 16px 46px rgba(0,0,0,.70),
+        inset 0 2px 4px rgba(255,255,255,.08),
+        inset 0 -2px 4px rgba(255,255,255,.06);
+      margin-bottom:14px;
+    }
+
+    .admin-row{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:stretch;
+    }
+
+    .admin-row input, .admin-row select{
+      border-radius:16px;
+      padding:12px 14px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.55);
+      color:white;
+      outline:none;
+      font-size:14px;
+      flex:1;
+      min-width:200px;
+    }
+
+    .admin-row button{
+      border-radius:16px;
+      padding:12px 14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.04);
+      color:white;
+      cursor:pointer;
+      opacity:.9;
+      transition:transform .15s ease, opacity .15s ease;
+      font-size:14px;
+      font-weight:700;
+      min-width:160px;
+    }
+    .admin-row button:hover{ transform:translateY(-2px); opacity:1; }
+    .admin-row button:active{ transform:translateY(0px) scale(.99); }
+
+    .board-actions{ display:flex; gap:10px; align-items:center; }
+    .tiny-btn{
+      border-radius:16px;
+      padding:10px 14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.04);
+      color:white;
+      cursor:pointer;
+      opacity:.9;
+      transition:transform .15s ease, opacity .15s ease;
+      text-decoration:none;
+      font-size:13px;
+    }
+    .tiny-btn:hover{ transform:translateY(-2px); opacity:1; }
+
+    .board-grid{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0, 1fr));
+      gap:14px;
+    }
+    .col{
+      border-radius:22px;
+      padding:14px;
+      background:linear-gradient(180deg,#141414,#000);
+      border:1px solid rgba(255,255,255,.07);
+      box-shadow:
+        0 16px 46px rgba(0,0,0,.70),
+        inset 0 2px 4px rgba(255,255,255,.08),
+        inset 0 -2px 4px rgba(255,255,255,.06);
+      min-height:52vh;
+    }
+    .col h3{
+      margin:4px 0 10px;
+      font-size:13px;
+      text-transform:uppercase;
+      letter-spacing:.18px;
+      opacity:.75;
+    }
+    .list{ min-height:32px; }
+
+    .card{
+      border-radius:18px;
+      padding:12px 12px 10px;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.07);
+      box-shadow:
+        0 14px 32px rgba(0,0,0,.55),
+        inset 0 2px 4px rgba(255,255,255,.06),
+        inset 0 -2px 4px rgba(255,255,255,.05);
+      margin-bottom:10px;
+
+      cursor:grab;
+      user-select:none;
+      outline:none;
+
+      transition:transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+    }
+    .card:hover{
+      transform:translateY(-2px);
+      box-shadow:
+        0 18px 36px rgba(0,0,0,.70),
+        inset 0 2px 4px rgba(255,255,255,.08),
+        inset 0 -2px 4px rgba(255,255,255,.06);
+    }
+    .card:active{ cursor:grabbing; }
+
+    .card-title{ margin:0; font-size:14px; font-weight:800; opacity:.95; }
+    .card-meta{ margin-top:6px; font-size:12px; opacity:.7; line-height:1.5; }
+
+    .drop-hint{
+      border:1px dashed rgba(255,255,255,.16);
+      border-radius:18px;
+      padding:10px;
+      opacity:.55;
+      font-size:12px;
+      margin-bottom:10px;
+      display:none;
+    }
+    .col.is-over .drop-hint{ display:block; }
+    .col.is-over{ outline:2px solid rgba(255,255,255,.12); outline-offset:4px; }
+
+    @media (max-width:1000px){ .board-grid{ grid-template-columns:repeat(2, minmax(0, 1fr)); } }
+    @media (max-width:520px){ .board-grid{ grid-template-columns:1fr; } }
+  </style>
 </head>
 
 <body class="page-layout">
-  <!-- NAVBAR -->
   <nav class="navbar fade-in">
     <div class="nav-inner">
       <a href="/" class="nav-home">
         <img src="images/logo2.png" alt="Navbar Logo" class="nav-logo">
       </a>
-
       <span class="divider"></span>
       <a href="/about" class="nav-link">About</a>
-
       <span class="divider"></span>
       <a href="/clients" class="nav-link">Clients</a>
-
       <span class="divider"></span>
       <a href="/past-work" class="nav-link">Past Work</a>
-
       <span class="divider"></span>
       <a href="/contact" class="nav-link">Contact</a>
     </div>
   </nav>
 
   <main class="page-content fade-in">
-    <section class="board">
-      <div class="board-shell">
-        <div class="board-head">
-          <div>
-            <h1 class="board-title">Admin Board</h1>
-            <p class="board-sub">Add + move orders between columns.</p>
-          </div>
-
-          <div class="board-actions">
-            <button class="board-btn" id="refreshBtn" type="button">Refresh</button>
-            <a class="board-btn" href="/api/logout">Logout</a>
-          </div>
+    <div class="board-wrap">
+      <div class="board-top">
+        <div>
+          <h1 class="board-title">Admin board</h1>
+          <p class="board-sub">Add orders and drag cards between columns to update status.</p>
         </div>
-
-        <div class="admin-add">
-          <form class="admin-add-form" id="addForm">
-            <input id="client" placeholder="Client / Server (e.g. GTRP)" required />
-            <input id="title" placeholder="Order title (e.g. Banner pack)" required />
-            <select id="status">
-              <option>Queued</option>
-              <option>In Progress</option>
-              <option>Waiting Client</option>
-              <option>Delivered</option>
-            </select>
-            <button class="board-btn is-primary" type="submit">Add</button>
-          </form>
-          <div class="board-msg" id="msg"></div>
+        <div class="board-actions">
+          <a class="tiny-btn" href="/client-board">Client view</a>
+          <a class="tiny-btn" href="/api/logout">Logout</a>
         </div>
-
-        <div class="kanban" id="kanban">
-          <!-- columns injected by JS -->
-        </div>
-
-        <p class="board-mini">
-          Drag & drop cards to change status instantly.
-        </p>
       </div>
-    </section>
+
+      <div class="admin-panel">
+        <form id="addForm" class="admin-row">
+          <input id="client" placeholder="Client / Server name (e.g. GTRP)" />
+          <input id="title" placeholder="Order title (e.g. Discord banner)" />
+          <select id="status">
+            <option>Queued</option>
+            <option>In Progress</option>
+            <option>Review</option>
+            <option>Delivered</option>
+          </select>
+          <button type="submit">Add order</button>
+        </form>
+        <div id="msg" style="margin-top:10px;font-size:13px;opacity:.7;min-height:18px;"></div>
+      </div>
+
+      <div class="board-grid" id="grid">
+        <div class="col" data-status="Queued"><h3>Queued</h3><div class="drop-hint">Drop here</div><div class="list"></div></div>
+        <div class="col" data-status="In Progress"><h3>In progress</h3><div class="drop-hint">Drop here</div><div class="list"></div></div>
+        <div class="col" data-status="Review"><h3>Review</h3><div class="drop-hint">Drop here</div><div class="list"></div></div>
+        <div class="col" data-status="Delivered"><h3>Delivered</h3><div class="drop-hint">Drop here</div><div class="list"></div></div>
+      </div>
+    </div>
   </main>
 
   <footer class="footer-strip">
@@ -79,213 +216,128 @@
   </footer>
 
   <script>
-    const STATUSES = ["Queued", "In Progress", "Waiting Client", "Delivered"];
-
-    const kanban = document.getElementById("kanban");
-    const refreshBtn = document.getElementById("refreshBtn");
-    const addForm = document.getElementById("addForm");
-    const msg = document.getElementById("msg");
-
-    function esc(s){
-      return String(s ?? "").replace(/[&<>"']/g, (m) => ({
-        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-      }[m]));
+    function escapeHtml(s){
+      return String(s ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
     }
 
-    function fmtDate(iso){
-      try { return new Date(iso).toLocaleString(); } catch { return ""; }
-    }
-
-    function setMsg(text, ok=true){
-      msg.textContent = text || "";
-      msg.className = "board-msg " + (ok ? "is-ok" : "is-err");
-      if (!text) msg.className = "board-msg";
-    }
-
-    function buildColumns(){
-      kanban.innerHTML = STATUSES.map(s => `
-        <div class="kcol">
-          <div class="kcol-head">
-            <div class="kcol-title">${esc(s)}</div>
-            <div class="kcol-count" data-count-for="${esc(s)}">0</div>
-          </div>
-          <div class="kcol-body" data-status="${esc(s)}"></div>
+    function cardHTML(o){
+      const updated = o.updatedAt ? new Date(o.updatedAt).toLocaleString() : "—";
+      return `
+        <div class="card" draggable="true" tabindex="0" data-id="${escapeHtml(o.id)}">
+          <div class="card-title">${escapeHtml(o.client)} — ${escapeHtml(o.title)}</div>
+          <div class="card-meta">Updated: ${escapeHtml(updated)}</div>
         </div>
-      `).join("");
+      `;
     }
 
     async function loadBoard(){
-      setMsg("");
-      buildColumns();
-
       const res = await fetch("/api/orders");
-      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { window.location.href = "/portal"; return; }
 
-      if (!res.ok || !data.ok) {
-        kanban.innerHTML = `<div class="kerror">Failed to load orders.</div>`;
-        return;
+      const data = await res.json();
+      const items = data.items || [];
+
+      document.querySelectorAll(".col .list").forEach(l => l.innerHTML = "");
+      const cols = {};
+      document.querySelectorAll(".col").forEach(c => cols[c.dataset.status] = c.querySelector(".list"));
+
+      for (const o of items){
+        const list = cols[o.status] || cols["Queued"];
+        list.insertAdjacentHTML("beforeend", cardHTML(o));
       }
 
-      const items = Array.isArray(data.items) ? data.items : [];
-      const byStatus = Object.fromEntries(STATUSES.map(s => [s, []]));
-      for (const it of items){
-        const st = STATUSES.includes(it.status) ? it.status : "Queued";
-        byStatus[st].push(it);
-      }
-
-      for (const st of STATUSES){
-        const body = kanban.querySelector(`.kcol-body[data-status="${CSS.escape(st)}"]`);
-        const countEl = kanban.querySelector(`[data-count-for="${CSS.escape(st)}"]`);
-        const list = byStatus[st];
-
-        countEl.textContent = String(list.length);
-
-        body.innerHTML = list.map(o => `
-          <article class="kcard kcard-admin" draggable="true"
-            data-id="${esc(o.id)}"
-            data-client="${esc(o.client)}"
-            data-title="${esc(o.title)}"
-            data-status="${esc(o.status)}">
-            <div class="kcard-top">
-              <span class="kbadge">${esc(o.client)}</span>
-              <div class="kadmin-actions">
-                <button class="kmini" type="button" data-act="edit">Edit</button>
-                <button class="kmini danger" type="button" data-act="delete">Del</button>
-              </div>
-            </div>
-            <div class="kcard-title">${esc(o.title)}</div>
-            <div class="kcard-foot">
-              <span class="kmuted">${esc(fmtDate(o.updatedAt))}</span>
-            </div>
-          </article>
-        `).join("");
-      }
+      wireDnD();
     }
 
-    // Add order
-    addForm.addEventListener("submit", async (e) => {
+    // ===== Add order =====
+    const form = document.getElementById("addForm");
+    const msg = document.getElementById("msg");
+
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      setMsg("");
+      msg.textContent = "Adding…";
 
-      const client = document.getElementById("client").value.trim();
-      const title = document.getElementById("title").value.trim();
-      const status = document.getElementById("status").value;
+      const body = {
+        client: document.getElementById("client").value,
+        title: document.getElementById("title").value,
+        status: document.getElementById("status").value
+      };
 
-      const res = await fetch("/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ client, title, status })
-      });
-
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data.ok) {
-        setMsg(data.error || "Failed to add order.", false);
-        return;
-      }
-
-      addForm.reset();
-      setMsg("Order added!", true);
-      loadBoard();
-    });
-
-    // Drag & drop status change
-    let draggingId = null;
-
-    kanban.addEventListener("dragstart", (e) => {
-      const card = e.target.closest(".kcard-admin");
-      if (!card) return;
-      draggingId = card.dataset.id;
-      card.classList.add("is-dragging");
-      e.dataTransfer.effectAllowed = "move";
-    });
-
-    kanban.addEventListener("dragend", (e) => {
-      const card = e.target.closest(".kcard-admin");
-      if (card) card.classList.remove("is-dragging");
-      draggingId = null;
-      kanban.querySelectorAll(".kcol-body").forEach(b => b.classList.remove("is-over"));
-    });
-
-    kanban.addEventListener("dragover", (e) => {
-      const col = e.target.closest(".kcol-body");
-      if (!col) return;
-      e.preventDefault();
-      col.classList.add("is-over");
-    });
-
-    kanban.addEventListener("dragleave", (e) => {
-      const col = e.target.closest(".kcol-body");
-      if (!col) return;
-      col.classList.remove("is-over");
-    });
-
-    kanban.addEventListener("drop", async (e) => {
-      const col = e.target.closest(".kcol-body");
-      if (!col || !draggingId) return;
-      e.preventDefault();
-
-      const newStatus = col.getAttribute("data-status");
-
-      const res = await fetch(`/api/orders/${encodeURIComponent(draggingId)}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus })
-      });
-
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data.ok) {
-        setMsg(data.error || "Failed to move card.", false);
-        return;
-      }
-
-      setMsg("Status updated.", true);
-      loadBoard();
-    });
-
-    // Admin actions: edit/delete
-    kanban.addEventListener("click", async (e) => {
-      const btn = e.target.closest(".kmini");
-      if (!btn) return;
-
-      const card = btn.closest(".kcard-admin");
-      if (!card) return;
-
-      const id = card.dataset.id;
-      const act = btn.getAttribute("data-act");
-
-      if (act === "delete") {
-        // Simple delete: mark as Delivered + title prefix (safe quick delete alt)
-        // If you want true delete, I can add a DELETE endpoint.
-        const ok = confirm("Delete this order? (This will mark it Delivered + add [DELETED])");
-        if (!ok) return;
-
-        const res = await fetch(`/api/orders/${encodeURIComponent(id)}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: "Delivered" })
+      try{
+        const res = await fetch("/api/orders", {
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify(body)
         });
 
-        if (!res.ok) {
-          setMsg("Failed to delete.", false);
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok){
+          msg.textContent = data.error || "Failed to add order (admin only).";
           return;
         }
-        setMsg("Deleted (soft).", true);
-        loadBoard();
-        return;
-      }
 
-      if (act === "edit") {
-        const newTitle = prompt("New title:", card.dataset.title || "");
-        if (newTitle == null) return;
-
-        // title edits need an endpoint too — quick workaround:
-        // for now: use status move only; tell me if you want title/client editing server-side.
-        setMsg("Title editing needs a small server endpoint. Say the word and I’ll add it.", false);
-        return;
+        msg.textContent = "Added ✅";
+        form.reset();
+        await loadBoard();
+      }catch{
+        msg.textContent = "Server error.";
       }
     });
 
-    refreshBtn.addEventListener("click", loadBoard);
+    // ===== Drag & drop (admin) =====
+    let dragId = null;
+
+    function wireDnD(){
+      document.querySelectorAll(".card").forEach(card => {
+        card.addEventListener("dragstart", (e) => {
+          dragId = card.dataset.id;
+          e.dataTransfer.setData("text/plain", dragId);
+          e.dataTransfer.effectAllowed = "move";
+        });
+      });
+
+      document.querySelectorAll(".col").forEach(col => {
+        col.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          col.classList.add("is-over");
+        });
+
+        col.addEventListener("dragleave", () => {
+          col.classList.remove("is-over");
+        });
+
+        col.addEventListener("drop", async (e) => {
+          e.preventDefault();
+          col.classList.remove("is-over");
+
+          const id = e.dataTransfer.getData("text/plain") || dragId;
+          if (!id) return;
+
+          const newStatus = col.dataset.status;
+
+          // update server
+          const res = await fetch(`/api/orders/${encodeURIComponent(id)}`, {
+            method:"PATCH",
+            headers:{ "Content-Type":"application/json" },
+            body: JSON.stringify({ status: newStatus })
+          });
+
+          if (!res.ok){
+            msg.textContent = "Update failed (admin only).";
+            return;
+          }
+
+          msg.textContent = `Moved to ${newStatus} ✅`;
+          await loadBoard();
+        });
+      });
+    }
+
     loadBoard();
   </script>
 </body>
