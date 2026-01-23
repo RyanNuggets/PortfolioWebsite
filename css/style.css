@@ -1213,7 +1213,7 @@ input:focus, select:focus, textarea:focus{
 .kanban{
   margin-top:20px;
   display:grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap:14px;
   position:relative;
   z-index:1;
@@ -1233,12 +1233,18 @@ input:focus, select:focus, textarea:focus{
   flex-direction:column;
 }
 
+.board-title,
+.board-sub{
+  text-align:center;
+}
+
+.col-head,
 .kcol-head{
+  text-align:center;
   display:flex;
+  flex-direction:column;
   align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  padding:2px 4px 10px;
+  gap:4px;
 }
 
 .kcol-title{
