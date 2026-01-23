@@ -1121,18 +1121,26 @@ input:focus, select:focus, textarea:focus{
   left:-60%;
   width:50%;
   height:200%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.10),transparent);
+  background:linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,.10),
+    transparent
+  );
   transform:rotate(18deg);
   animation:boardShine 11s ease-in-out infinite;
   pointer-events:none;
   opacity:.45;
 }
+
 @keyframes boardShine{
   0%{left:-70%;opacity:0}
   12%{opacity:.22}
   35%{left:130%;opacity:0}
   100%{left:130%;opacity:0}
 }
+
+/* ================= BOARD HEADER ================= */
 
 .board-head{
   display:flex;
@@ -1157,7 +1165,6 @@ input:focus, select:focus, textarea:focus{
   display:flex;
   gap:10px;
   align-items:center;
-  justify-content:flex-end;
 }
 
 .board-btn{
@@ -1172,54 +1179,26 @@ input:focus, select:focus, textarea:focus{
   cursor:pointer;
 }
 .board-btn:hover{ opacity:1; }
+
 .board-btn.is-primary{
   background:linear-gradient(180deg,#1a1a1a,#000);
   box-shadow: inset 0 2px 4px rgba(255,255,255,.10);
 }
 
-.board-mini{
-  margin:16px 0 0;
-  font-size:12px;
-  opacity:.6;
-}
+/* ================= KANBAN GRID ================= */
 
-.board-msg{
-  margin-top:10px;
-  font-size:13px;
-  opacity:.85;
-}
-.board-msg.is-err{ color:#ffb3b3; opacity:1; }
-.board-msg.is-ok{ color:#b9ffcc; opacity:1; }
-
-/* Admin add */
-.admin-add{ margin-top:18px; }
-.admin-add-form{
-  display:grid;
-  grid-template-columns: 1fr 1.2fr 220px 120px;
-  gap:10px;
-  align-items:center;
-}
-.admin-add-form input,
-.admin-add-form select{
-  border-radius:16px;
-  padding:12px 14px;
-  border:1px solid rgba(255,255,255,.14);
-  background:rgba(0,0,0,.55);
-  color:white;
-  outline:none;
-}
-
-/* Board grid */
 .kanban{
   margin-top:20px;
   display:grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr)); /* Archived included */
   gap:14px;
   position:relative;
   z-index:1;
 }
 
-.kcol{
+/* ================= COLUMNS ================= */
+
+.col{
   border-radius:20px;
   padding:14px 12px 12px;
   background:rgba(255,255,255,.03);
@@ -1233,21 +1212,15 @@ input:focus, select:focus, textarea:focus{
   flex-direction:column;
 }
 
-.board-title,
-.board-sub{
-  text-align:center;
-}
-
-.col-head,
-.kcol-head{
-  text-align:center;
+.col-head{
   display:flex;
   flex-direction:column;
-  align-items:center;
+  align-items:flex-start;
   gap:4px;
+  padding:2px 4px 10px;
 }
 
-.kcol-title{
+.col-title{
   font-size:13px;
   letter-spacing:.16px;
   text-transform:uppercase;
@@ -1255,16 +1228,12 @@ input:focus, select:focus, textarea:focus{
   font-weight:800;
 }
 
-.kcol-count{
+.col-sub{
   font-size:12px;
-  opacity:.75;
-  border:1px solid rgba(255,255,255,.12);
-  background:rgba(255,255,255,.04);
-  padding:6px 10px;
-  border-radius:999px;
+  opacity:.65;
 }
 
-.kcol-body{
+.col-body{
   display:flex;
   flex-direction:column;
   gap:10px;
@@ -1272,14 +1241,16 @@ input:focus, select:focus, textarea:focus{
   flex:1;
 }
 
-.kcol-body.is-over{
+/* drag hover */
+.dropzone.drop-over{
   outline:2px dashed rgba(255,255,255,.18);
   outline-offset:6px;
   border-radius:14px;
 }
 
-/* Cards */
-.kcard{
+/* ================= ORDER CARDS ================= */
+
+.order-card{
   border-radius:18px;
   padding:12px 12px 10px;
   background:linear-gradient(180deg,#141414,#000);
@@ -1290,11 +1261,13 @@ input:focus, select:focus, textarea:focus{
     inset 0 -2px 4px rgba(255,255,255,.06);
 
   cursor:pointer;
-  outline:none;
-  transition:transform .16s ease, box-shadow .16s ease, opacity .16s ease;
+  transition:
+    transform .16s ease,
+    box-shadow .16s ease,
+    opacity .16s ease;
 }
 
-.kcard:hover{
+.order-card:hover{
   transform:translateY(-2px);
   box-shadow:
     0 18px 38px rgba(0,0,0,.74),
@@ -1302,197 +1275,57 @@ input:focus, select:focus, textarea:focus{
     inset 0 -2px 4px rgba(255,255,255,.07);
 }
 
-.kcard:focus-visible{
-  box-shadow:
-    0 0 0 2px rgba(255,255,255,.18),
-    0 18px 38px rgba(0,0,0,.74),
-    inset 0 2px 4px rgba(255,255,255,.10),
-    inset 0 -2px 4px rgba(255,255,255,.07);
-}
-
-.kcard.is-dragging{
+.order-card.dragging{
   opacity:.55;
   transform:scale(.98);
 }
 
-.kcard-top{
+/* ================= CARD CONTENT ================= */
+
+.order-top{
   display:flex;
   align-items:center;
   justify-content:space-between;
   gap:10px;
-  margin-bottom:10px;
+  margin-bottom:8px;
 }
 
-.kbadge{
+.order-title{
+  font-size:13px;
+  font-weight:700;
+  opacity:.9;
+}
+
+.order-badge{
   font-size:12px;
   padding:6px 10px;
   border-radius:999px;
   border:1px solid rgba(255,255,255,.12);
   background:rgba(255,255,255,.04);
-  opacity:.9;
-  white-space:nowrap;
-}
-
-.kdot{
-  width:8px;
-  height:8px;
-  border-radius:50%;
-  background:rgba(255,255,255,.25);
-  box-shadow:0 0 10px rgba(255,255,255,.12);
-}
-
-.kcard-title{
-  font-size:13px;
-  line-height:1.55;
-  opacity:.88;
-  font-weight:700;
-}
-
-.kcard-foot{
-  margin-top:10px;
-  display:flex;
-  justify-content:flex-end;
-}
-
-.kmuted{
-  font-size:12px;
-  opacity:.55;
-}
-
-/* Admin mini buttons */
-.kadmin-actions{
-  display:flex;
-  gap:8px;
-  align-items:center;
-}
-
-.kmini{
-  border-radius:12px;
-  padding:6px 10px;
-  border:1px solid rgba(255,255,255,.12);
-  background:rgba(255,255,255,.06);
-  color:white;
-  cursor:pointer;
   opacity:.85;
+}
+
+.order-meta{
   font-size:12px;
-}
-.kmini:hover{ opacity:1; }
-.kmini.danger{ border-color:rgba(255,140,140,.25); }
-
-/* Modal */
-.kmodal{
-  position:fixed;
-  inset:0;
-  display:none;
-  z-index:10000;
-}
-.kmodal.open{ display:block; }
-
-.kmodal-backdrop{
-  position:absolute;
-  inset:0;
-  background:rgba(0,0,0,.65);
-  backdrop-filter: blur(6px);
+  opacity:.65;
+  margin-bottom:8px;
 }
 
-.kmodal-card{
-  position:relative;
-  width:min(680px, calc(100vw - 30px));
-  margin: min(12vh, 120px) auto 0;
-  border-radius:22px;
-  padding:54px 22px 22px;
-  background:linear-gradient(180deg,#141414,#000);
-  border:1px solid rgba(255,255,255,.10);
-  box-shadow:
-    0 26px 70px rgba(0,0,0,.82),
-    inset 0 2px 4px rgba(255,255,255,.10),
-    inset 0 -2px 4px rgba(255,255,255,.08);
+.order-line span{
+  opacity:.85;
 }
 
-.kmodal-close{
-  position:absolute;
-  top:16px;
-  right:16px;
-  width:36px;
-  height:36px;
-  border-radius:14px;
-  border:1px solid rgba(255,255,255,.12);
-  background:rgba(255,255,255,.06);
-  color:white;
-  font-size:22px;
-  cursor:pointer;
-  opacity:.9;
-}
-.kmodal-close:hover{ opacity:1; }
-
-.kmodal-title{
-  font-weight:900;
-  font-size:18px;
-  line-height:1.5;
-  margin-top:4px;
+.order-notes{
+  font-size:12px;
+  line-height:1.55;
+  opacity:.75;
+  margin:0;
 }
 
-.kmodal-meta{
-  margin-top:12px;
-  display:flex;
-  gap:10px;
-  align-items:center;
-  flex-wrap:wrap;
-}
+/* ================= ARCHIVE BUTTON ================= */
 
-.kmodal-divider{
-  height:1px;
-  margin:18px 0 12px;
-  background:rgba(255,255,255,.10);
-}
-
-.kmodal-status{
-  font-size:14px;
-  opacity:.9;
-}
-.kstatus{
-  font-weight:900;
-  text-shadow:0 0 14px rgba(255,255,255,.10);
-}
-
-/* responsive */
-@media (max-width:1050px){
-  .kanban{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .admin-add-form{ grid-template-columns: 1fr 1fr; }
-}
-@media (max-width:520px){
-  .board-shell{ padding:34px 18px 22px; }
-  .kanban{ grid-template-columns: 1fr; }
-}
-
-/* ===== Centered headings (status + read-only + editor panel) ===== */
-.board-header,
-.board-title,
-.board-sub,
-.editor-panel-title,
-.editor-panel-sub,
-.col-head{
-  text-align:center;
-}
-
-/* nicer column header spacing */
-.col-head{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:4px;
-}
-
-/* drag hover highlight */
-.dropzone.drop-over{
-  outline:1px solid rgba(255,255,255,.16);
-  background:rgba(255,255,255,.03);
-  border-radius:18px;
-}
-
-/* archive button (admin only) */
 .order-archive{
-  margin-top:12px;
+  margin-top:10px;
   width:100%;
   padding:10px 12px;
   border-radius:14px;
@@ -1503,5 +1336,24 @@ input:focus, select:focus, textarea:focus{
   opacity:.9;
   transition:transform .15s ease, opacity .15s ease;
 }
-.order-archive:hover{ opacity:1; transform:translateY(-1px); }
-.order-archive:active{ transform:translateY(0px) scale(.99); }
+
+.order-archive:hover{
+  opacity:1;
+  transform:translateY(-1px);
+}
+
+.order-archive:active{
+  transform:translateY(0) scale(.99);
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width:1050px){
+  .kanban{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width:520px){
+  .kanban{ grid-template-columns: 1fr; }
+  .board-shell{ padding:34px 18px 22px; }
+}
+
