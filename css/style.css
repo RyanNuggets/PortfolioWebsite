@@ -1458,3 +1458,13 @@ input:focus, select:focus, textarea:focus{
   .board-shell{ padding:34px 18px 22px; }
   .kanban{ grid-template-columns: 1fr; }
 }
+
+.board-head {
+  text-align: center;
+}
+
+.board-title,
+.board-sub {
+  margin-left: auto;
+  margin-right: auto;
+}
