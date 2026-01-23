@@ -122,58 +122,72 @@
   </footer>
 
   <script>
-    function escapeHtml(s){
-      return String(s ?? "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
+  // --- CONFIG ---
+  const STATUSES = ["Queued", "In Progress", "Review", "Delivered"]; // client never shows Archived
 
-    function cardHTML(o){
-      const updated = o.updatedAt ? new Date(o.updatedAt).toLocaleString() : "—";
-      return `
-        <div class="card">
-          <div class="card-title">${escapeHtml(o.client)} — ${escapeHtml(o.title)}</div>
-          <div class="card-meta">
-            Updated: ${escapeHtml(updated)}
+  // --- ELEMENTS ---
+  const board = document.getElementById("board"); // your container
+  const statusText = document.getElementById("statusText"); // "Order status" text (if you have it)
+  const viewText = document.getElementById("viewText");     // "Read-only view" text (if you have it)
+
+  // --- HELPERS ---
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[c]));
+
+  function groupByStatus(items) {
+    const map = {};
+    STATUSES.forEach(s => (map[s] = []));
+    items.forEach(o => {
+      if (map[o.status]) map[o.status].push(o);
+    });
+    return map;
+  }
+
+  // --- RENDER ---
+  function renderBoard(orders) {
+    const grouped = groupByStatus(orders);
+
+    board.innerHTML = STATUSES.map((status) => {
+      const cards = grouped[status].map((o) => `
+        <article class="order-card">
+          <div class="order-top">
+            <div class="order-title">${esc(o.title)}</div>
+            <div class="order-badge">${esc(o.status)}</div>
           </div>
-        </div>
+          <div class="order-meta">
+            <div class="order-line"><span>Client:</span> ${esc(o.client)}</div>
+            <div class="order-line"><span>Updated:</span> ${esc(o.updatedAt || "—")}</div>
+          </div>
+          <p class="order-notes">${esc(o.notes || "")}</p>
+        </article>
+      `).join("");
+
+      return `
+        <section class="col">
+          <div class="col-head">
+            <div class="col-title">${esc(status)}</div>
+            <div class="col-sub">${grouped[status].length} orders</div>
+          </div>
+          <div class="col-body">${cards || `<div class="col-empty">No orders here yet.</div>`}</div>
+        </section>
       `;
-    }
+    }).join("");
+  }
 
-    async function loadBoard(){
-      const res = await fetch("/api/orders");
-      if (!res.ok) {
-        // not logged in -> go portal
-        window.location.href = "/portal";
-        return;
-      }
-      const data = await res.json();
-      const items = data.items || [];
+  // --- LOAD (client) ---
+  async function loadOrders() {
+    const res = await fetch("/api/orders");
+    const data = await res.json();
 
-      document.querySelectorAll(".col .list").forEach(l => l.innerHTML = "");
+    // ✅ hide archived for clients
+    const visible = (data.items || []).filter(o => o.status !== "Archived");
 
-      const cols = {};
-      document.querySelectorAll(".col").forEach(c => {
-        cols[c.dataset.status] = c.querySelector(".list");
-      });
+    renderBoard(visible);
+  }
 
-      if (!items.length){
-        Object.values(cols).forEach(list => {
-          list.innerHTML = `<div class="empty">No orders yet.</div>`;
-        });
-        return;
-      }
-
-      for (const o of items){
-        const list = cols[o.status] || cols["Queued"];
-        list.insertAdjacentHTML("beforeend", cardHTML(o));
-      }
-    }
-
-    loadBoard();
-  </script>
+  loadOrders();
+  setInterval(loadOrders, 4000); // optional refresh
+</script>
 </body>
 </html>
