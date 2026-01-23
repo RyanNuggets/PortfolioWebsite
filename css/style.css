@@ -1458,3 +1458,44 @@ input:focus, select:focus, textarea:focus{
   .board-shell{ padding:34px 18px 22px; }
   .kanban{ grid-template-columns: 1fr; }
 }
+
+/* ===== Centered headings (status + read-only + editor panel) ===== */
+.board-header,
+.board-title,
+.board-sub,
+.editor-panel-title,
+.editor-panel-sub,
+.col-head{
+  text-align:center;
+}
+
+/* nicer column header spacing */
+.col-head{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:4px;
+}
+
+/* drag hover highlight */
+.dropzone.drop-over{
+  outline:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.03);
+  border-radius:18px;
+}
+
+/* archive button (admin only) */
+.order-archive{
+  margin-top:12px;
+  width:100%;
+  padding:10px 12px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.06);
+  color:white;
+  cursor:pointer;
+  opacity:.9;
+  transition:transform .15s ease, opacity .15s ease;
+}
+.order-archive:hover{ opacity:1; transform:translateY(-1px); }
+.order-archive:active{ transform:translateY(0px) scale(.99); }
