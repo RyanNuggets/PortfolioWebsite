@@ -1,10 +1,89 @@
+<!-- portal.html (FULL FILE) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Order Portal – Nugget Studios</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* small page-only styling (keeps your theme) */
+    .portal-wrap{
+      width:min(740px, calc(100vw - 40px));
+      margin:0 auto;
+    }
+    .portal-card{
+      width:100%;
+      border-radius:26px;
+      padding:34px 22px 22px;
+      background:linear-gradient(180deg,#141414,#000);
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:
+        0 16px 46px rgba(0,0,0,.78),
+        inset 0 2px 4px rgba(255,255,255,.10),
+        inset 0 -2px 4px rgba(255,255,255,.08);
+      text-align:center;
+    }
+    .portal-title{
+      margin:0 0 8px;
+      font-size:34px;
+      letter-spacing:.2px;
+    }
+    .portal-sub{
+      margin:0 0 18px;
+      opacity:.75;
+      font-size:14px;
+      line-height:1.6;
+    }
+    .portal-row{
+      display:flex;
+      gap:12px;
+      justify-content:center;
+      align-items:stretch;
+      margin-top:12px;
+      flex-wrap:wrap;
+    }
+    .portal-input{
+      flex:1;
+      min-width:240px;
+      border-radius:18px;
+      padding:12px 14px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.55);
+      color:white;
+      outline:none;
+      font-size:14px;
+    }
+    .portal-btn{
+      min-width:160px;
+      border-radius:18px;
+      border:0;
+      cursor:pointer;
+      color:white;
+      background:linear-gradient(180deg,#1a1a1a,#000);
+      box-shadow:
+        0 12px 28px rgba(0,0,0,.75),
+        inset 0 2px 4px rgba(255,255,255,.14),
+        inset 0 -2px 4px rgba(255,255,255,.10);
+      padding:12px 18px;
+      font-size:14px;
+      font-weight:600;
+      transition:transform .15s ease, opacity .15s ease;
+    }
+    .portal-btn:hover{ transform:translateY(-2px); }
+    .portal-btn:active{ transform:translateY(0px) scale(.99); }
+    .portal-status{
+      margin-top:14px;
+      font-size:13px;
+      opacity:.75;
+      min-height:18px;
+    }
+    .portal-hint{
+      margin-top:14px;
+      font-size:12px;
+      opacity:.6;
+    }
+  </style>
 </head>
 
 <body class="page-layout">
@@ -29,38 +108,24 @@
     </div>
   </nav>
 
-  <!-- CONTENT -->
   <main class="page-content fade-in">
-    <section class="board">
-      <div class="board-shell">
-        <div class="board-head" style="justify-content:center; flex-direction:column; text-align:center;">
-          <div>
-            <h1 class="board-title" style="margin:0 0 10px;">Client Portal</h1>
-            <p class="board-sub" style="margin:0;">Enter the password you were given to view your order status.</p>
-          </div>
-        </div>
-
-        <div class="contact-wrap" style="margin-top:18px;">
-          <div class="contact-card">
-            <div class="field" style="margin-bottom:0;">
-              <label for="pw">Password</label>
-              <input id="pw" type="password" placeholder="Enter password..." autocomplete="current-password" />
-            </div>
-
-            <div class="contact-actions" style="margin-top:14px;">
-              <button class="cta contact-submit" id="goBtn" type="button">Open</button>
-              <a class="cta secondary contact-discord" href="/contact">Contact</a>
-            </div>
-
-            <div class="form-status" id="msg" aria-live="polite"></div>
-          </div>
-        </div>
-
-        <p class="board-mini" style="text-align:center;">
-          If you don’t have a password, message me on Discord and I’ll send you one.
+    <div class="portal-wrap">
+      <div class="portal-card">
+        <h1 class="portal-title">Order portal</h1>
+        <p class="portal-sub">
+          Enter your password to view your order status.<br/>
+          (Admins can enter the admin password to manage orders.)
         </p>
+
+        <form id="portalForm" class="portal-row" autocomplete="off">
+          <input id="password" class="portal-input" type="password" placeholder="Enter password…" />
+          <button class="portal-btn" type="submit">Continue</button>
+        </form>
+
+        <div id="status" class="portal-status"></div>
+        <div class="portal-hint">Tip: If you get “Not authorized”, refresh and try again.</div>
       </div>
-    </section>
+    </div>
   </main>
 
   <!-- FOOTER -->
@@ -73,39 +138,32 @@
   </footer>
 
   <script>
-    const input = document.getElementById("pw");
-    const msg = document.getElementById("msg");
-    const goBtn = document.getElementById("goBtn");
+    const form = document.getElementById("portalForm");
+    const pass = document.getElementById("password");
+    const statusEl = document.getElementById("status");
 
-    const CLIENT_PW = "nuggetstudios67";
-    const ADMIN_PW  = "passwordpass123";
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      statusEl.textContent = "Checking…";
 
-    function go() {
-      const v = String(input.value || "").trim();
-      msg.textContent = "";
-      msg.style.opacity = "1";
+      try {
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password: pass.value })
+        });
 
-      if (!v) {
-        msg.textContent = "Please enter a password.";
-        return;
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) {
+          statusEl.textContent = data.error || "Wrong password";
+          return;
+        }
+
+        statusEl.textContent = "Success — redirecting…";
+        window.location.href = data.go || "/client-board";
+      } catch (err) {
+        statusEl.textContent = "Server error. Try again.";
       }
-
-      if (v === CLIENT_PW) {
-        window.location.href = "/client-board";
-        return;
-      }
-
-      if (v === ADMIN_PW) {
-        window.location.href = "/admin-board";
-        return;
-      }
-
-      msg.textContent = "Wrong password.";
-    }
-
-    goBtn.addEventListener("click", go);
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") go();
     });
   </script>
 </body>
