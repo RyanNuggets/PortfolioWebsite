@@ -209,7 +209,7 @@ app.post("/api/login", (req, res) => {
     return res.json({ ok: true, go: "/client-board" });
   }
 
-  if (password === "passwordpass123") {
+  if (password === "RyanWasHere") {
     setCookie(res, "role", "admin");
     return res.json({ ok: true, go: "/admin-board" });
   }
