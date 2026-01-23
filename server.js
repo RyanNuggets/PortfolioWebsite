@@ -204,7 +204,7 @@ function isAdmin(req) {
 app.post("/api/login", (req, res) => {
   const { password } = req.body || {};
 
-  if (password === "nuggetstudios67") {
+  if (password === "NuggetStudiosCLIENT") {
     setCookie(res, "role", "client");
     return res.json({ ok: true, go: "/client-board" });
   }
