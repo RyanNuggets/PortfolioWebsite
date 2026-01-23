@@ -1458,24 +1458,3 @@ input:focus, select:focus, textarea:focus{
   .board-shell{ padding:34px 18px 22px; }
   .kanban{ grid-template-columns: 1fr; }
 }
-
-/* Keep buttons untouched — only fix title/subtitle alignment */
-.board-head > div {
-  margin: 0;
-  padding: 0;
-  text-align: left;
-}
-
-/* Make title + subtitle share the same left edge */
-.board-head .board-title,
-.board-head .board-sub {
-  margin-left: 0;
-  padding-left: 0;
-  text-align: left;
-  max-width: none;
-}
-
-/* Prevent default <p> top margin from shifting the subtitle */
-.board-head .board-sub {
-  margin-top: 6px; /* tweak if you want */
-}
