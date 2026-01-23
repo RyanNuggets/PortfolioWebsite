@@ -12,7 +12,7 @@ const __dirname = path.dirname(__filename);
 
 app.use(express.json());
 
-// ================= SIMPLE SESSION SYSTEM =================
+// ================= SESSION SYSTEM =================
 
 const adminSessions = new Map();
 
@@ -32,12 +32,7 @@ function parseCookies(req) {
   return out;
 }
 
-function setCookie(
-  res,
-  name,
-  value,
-  { maxAgeSeconds = 60 * 60 * 6, httpOnly = true } = {}
-) {
+function setCookie(res, name, value, { maxAgeSeconds = 60 * 60 * 6, httpOnly = true } = {}) {
   res.setHeader(
     "Set-Cookie",
     `${name}=${value}; Path=/; Max-Age=${maxAgeSeconds}; SameSite=Lax; ${httpOnly ? "HttpOnly;" : ""}`
@@ -51,26 +46,29 @@ function clearCookie(res, name) {
   );
 }
 
-function requireAdmin(req, res, next) {
+function isAdmin(req) {
   const sid = parseCookies(req).admin_session;
-  if (!sid || !adminSessions.has(sid)) {
-    return res.redirect("/portal");
-  }
-  next();
+  return sid && adminSessions.has(sid);
 }
 
-// ================= BLOCK STATIC ACCESS TO PROTECTED PAGES =================
-// 🔒 THIS CLOSES THE BYPASS FOR /admin-board AND /client-board
-app.use((req, res, next) => {
-  const blocked = new Set([
-    "/admin-board",
-    "/admin-board.html",
-    "/client-board",
-    "/client-board.html"
-  ]);
+function isClient(req) {
+  const role = parseCookies(req).role || "";
+  return role === "client" || role === "admin";
+}
 
-  if (blocked.has(req.path)) {
-    return res.redirect("/portal");
+// ================= BLOCK STATIC BYPASS (FIXED) =================
+
+app.use((req, res, next) => {
+  // Admin protection
+  if (req.path === "/admin-board" || req.path === "/admin-board.html") {
+    if (!isAdmin(req)) return res.redirect("/portal");
+    return next();
+  }
+
+  // Client protection
+  if (req.path === "/client-board" || req.path === "/client-board.html") {
+    if (!isClient(req)) return res.redirect("/portal");
+    return next();
   }
 
   next();
@@ -106,23 +104,17 @@ app.get("/contact", (req, res) =>
   res.sendFile(path.join(__dirname, "contact.html"))
 );
 
-// ================= PORTAL / BOARDS =================
-
 app.get("/portal", (req, res) =>
   res.sendFile(path.join(__dirname, "portal.html"))
 );
 
-// CLIENT BOARD (COOKIE-BASED)
-app.get("/client-board", (req, res) => {
-  const role = parseCookies(req).role || "";
-  if (role !== "client" && role !== "admin") {
-    return res.redirect("/portal");
-  }
-  res.sendFile(path.join(__dirname, "client-board.html"));
-});
+// ================= BOARDS =================
 
-// ADMIN BOARD (SESSION-BASED)
-app.get("/admin-board", requireAdmin, (req, res) =>
+app.get("/client-board", (req, res) =>
+  res.sendFile(path.join(__dirname, "client-board.html"))
+);
+
+app.get("/admin-board", (req, res) =>
   res.sendFile(path.join(__dirname, "admin-board.html"))
 );
 
@@ -195,11 +187,13 @@ app.post("/api/contact", async (req, res) => {
 app.post("/api/login", (req, res) => {
   const { password } = req.body || {};
 
+  // CLIENT
   if (password === "nuggetstudios67") {
     setCookie(res, "role", "client", { httpOnly: false });
     return res.json({ ok: true, go: "/client-board" });
   }
 
+  // ADMIN
   if (password === "passwordpass123") {
     const sid = createSession();
     adminSessions.set(sid, { created: Date.now() });
@@ -240,14 +234,13 @@ function writeOrders(items) {
 }
 
 app.get("/api/orders", (req, res) => {
-  const role = parseCookies(req).role || "";
-  if (role !== "client" && role !== "admin") {
-    return res.status(401).json({ ok: false });
-  }
+  if (!isClient(req)) return res.status(401).json({ ok: false });
   res.json({ ok: true, items: readOrders() });
 });
 
-app.post("/api/orders", requireAdmin, (req, res) => {
+app.post("/api/orders", (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ ok: false });
+
   const { client, title, status } = req.body || {};
   if (!client || !title) return res.status(400).json({ ok: false });
 
@@ -264,7 +257,9 @@ app.post("/api/orders", requireAdmin, (req, res) => {
   res.json({ ok: true });
 });
 
-app.patch("/api/orders/:id", requireAdmin, (req, res) => {
+app.patch("/api/orders/:id", (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ ok: false });
+
   const items = readOrders();
   const order = items.find(o => o.id === req.params.id);
   if (!order) return res.status(404).json({ ok: false });
