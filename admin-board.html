@@ -253,34 +253,46 @@
       const id = card.dataset.id;
       const act = btn.getAttribute("data-act");
 
+      // ✅ TRUE DELETE (poof)
       if (act === "delete") {
-        // Simple delete: mark as Delivered + title prefix (safe quick delete alt)
-        // If you want true delete, I can add a DELETE endpoint.
-        const ok = confirm("Delete this order? (This will mark it Delivered + add [DELETED])");
+        const ok = confirm("Delete this order permanently? This cannot be undone.");
         if (!ok) return;
 
         const res = await fetch(`/api/orders/${encodeURIComponent(id)}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: "Delivered" })
+          method: "DELETE"
         });
 
-        if (!res.ok) {
-          setMsg("Failed to delete.", false);
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) {
+          setMsg(data.error || "Failed to delete.", false);
           return;
         }
-        setMsg("Deleted (soft).", true);
+
+        setMsg("Order deleted.", true);
         loadBoard();
         return;
       }
 
+      // ✅ TRUE EDIT (PATCH title)
       if (act === "edit") {
-        const newTitle = prompt("New title:", card.dataset.title || "");
+        const currentTitle = card.dataset.title || "";
+        const newTitle = prompt("New title:", currentTitle);
         if (newTitle == null) return;
 
-        // title edits need an endpoint too — quick workaround:
-        // for now: use status move only; tell me if you want title/client editing server-side.
-        setMsg("Title editing needs a small server endpoint. Say the word and I’ll add it.", false);
+        const res = await fetch(`/api/orders/${encodeURIComponent(id)}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title: newTitle.trim() })
+        });
+
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) {
+          setMsg(data.error || "Failed to edit title.", false);
+          return;
+        }
+
+        setMsg("Title updated.", true);
+        loadBoard();
         return;
       }
     });
