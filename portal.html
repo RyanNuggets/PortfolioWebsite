@@ -6,84 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Order Portal – Nugget Studios</title>
   <link rel="stylesheet" href="css/style.css">
-  <style>
-    /* small page-only styling (keeps your theme) */
-    .portal-wrap{
-      width:min(740px, calc(100vw - 40px));
-      margin:0 auto;
-    }
-    .portal-card{
-      width:100%;
-      border-radius:26px;
-      padding:34px 22px 22px;
-      background:linear-gradient(180deg,#141414,#000);
-      border:1px solid rgba(255,255,255,.08);
-      box-shadow:
-        0 16px 46px rgba(0,0,0,.78),
-        inset 0 2px 4px rgba(255,255,255,.10),
-        inset 0 -2px 4px rgba(255,255,255,.08);
-      text-align:center;
-    }
-    .portal-title{
-      margin:0 0 8px;
-      font-size:34px;
-      letter-spacing:.2px;
-    }
-    .portal-sub{
-      margin:0 0 18px;
-      opacity:.75;
-      font-size:14px;
-      line-height:1.6;
-    }
-    .portal-row{
-      display:flex;
-      gap:12px;
-      justify-content:center;
-      align-items:stretch;
-      margin-top:12px;
-      flex-wrap:wrap;
-    }
-    .portal-input{
-      flex:1;
-      min-width:240px;
-      border-radius:18px;
-      padding:12px 14px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(0,0,0,.55);
-      color:white;
-      outline:none;
-      font-size:14px;
-    }
-    .portal-btn{
-      min-width:160px;
-      border-radius:18px;
-      border:0;
-      cursor:pointer;
-      color:white;
-      background:linear-gradient(180deg,#1a1a1a,#000);
-      box-shadow:
-        0 12px 28px rgba(0,0,0,.75),
-        inset 0 2px 4px rgba(255,255,255,.14),
-        inset 0 -2px 4px rgba(255,255,255,.10);
-      padding:12px 18px;
-      font-size:14px;
-      font-weight:600;
-      transition:transform .15s ease, opacity .15s ease;
-    }
-    .portal-btn:hover{ transform:translateY(-2px); }
-    .portal-btn:active{ transform:translateY(0px) scale(.99); }
-    .portal-status{
-      margin-top:14px;
-      font-size:13px;
-      opacity:.75;
-      min-height:18px;
-    }
-    .portal-hint{
-      margin-top:14px;
-      font-size:12px;
-      opacity:.6;
-    }
-  </style>
 </head>
 
 <body class="page-layout">
@@ -108,24 +30,25 @@
     </div>
   </nav>
 
+  <!-- CONTENT -->
   <main class="page-content fade-in">
-    <div class="portal-wrap">
-      <div class="portal-card">
-        <h1 class="portal-title">Order portal</h1>
-        <p class="portal-sub">
-          Enter your password to view your order status.<br/>
-          (Admins can enter the admin password to manage orders.)
+    <section class="portal">
+      <div class="portal-shell">
+        <h1 class="portal-title">Order Portal</h1>
+        <p class="portal-sub">Enter your access password to continue.</p>
+
+        <div class="portal-card">
+          <label class="portal-label" for="pw">Password</label>
+          <input id="pw" class="portal-input" type="password" placeholder="Enter password..." autocomplete="off" />
+          <button class="portal-btn" id="goBtn" type="button">Continue</button>
+          <div class="portal-hint" id="hint"></div>
+        </div>
+
+        <p class="portal-mini">
+          Clients: read-only order status • Admin: manage orders and statuses
         </p>
-
-        <form id="portalForm" class="portal-row" autocomplete="off">
-          <input id="password" class="portal-input" type="password" placeholder="Enter password…" />
-          <button class="portal-btn" type="submit">Continue</button>
-        </form>
-
-        <div id="status" class="portal-status"></div>
-        <div class="portal-hint">Tip: If you get “Not authorized”, refresh and try again.</div>
       </div>
-    </div>
+    </section>
   </main>
 
   <!-- FOOTER -->
@@ -138,32 +61,32 @@
   </footer>
 
   <script>
-    const form = document.getElementById("portalForm");
-    const pass = document.getElementById("password");
-    const statusEl = document.getElementById("status");
+    const clientPw = "nuggetstudios67";
+    const adminPw = "passwordpass123";
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      statusEl.textContent = "Checking…";
+    const pw = document.getElementById("pw");
+    const goBtn = document.getElementById("goBtn");
+    const hint = document.getElementById("hint");
 
-      try {
-        const res = await fetch("/api/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ password: pass.value })
-        });
+    function go(){
+      const v = (pw.value || "").trim();
+      hint.textContent = "";
 
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok || !data.ok) {
-          statusEl.textContent = data.error || "Wrong password";
-          return;
-        }
-
-        statusEl.textContent = "Success — redirecting…";
-        window.location.href = data.go || "/client-board";
-      } catch (err) {
-        statusEl.textContent = "Server error. Try again.";
+      if (v === clientPw) {
+        window.location.href = "/client-board";
+        return;
       }
+      if (v === adminPw) {
+        window.location.href = "/admin-board";
+        return;
+      }
+
+      hint.textContent = "Incorrect password. Please try again.";
+    }
+
+    goBtn.addEventListener("click", go);
+    pw.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") go();
     });
   </script>
 </body>
