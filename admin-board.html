@@ -65,6 +65,8 @@
 
         <p class="board-mini">
           Drag & drop cards to change status instantly.
+          <br>
+          Tip: In <b>Queued</b>, drag cards up/down to change priority.
         </p>
       </div>
     </section>
@@ -114,6 +116,42 @@
       `).join("");
     }
 
+    function getQueuedIdsInUiOrder(){
+      const body = kanban.querySelector(`.kcol-body[data-status="${CSS.escape("Queued")}"]`);
+      if (!body) return [];
+      return Array.from(body.querySelectorAll(".kcard-admin")).map(c => c.dataset.id);
+    }
+
+    async function saveQueueOrder(){
+      const ids = getQueuedIdsInUiOrder();
+      if (!ids.length) return true;
+
+      const res = await fetch("/api/orders/queue-reorder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids })
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) {
+        setMsg(data.error || "Failed to reorder queue.", false);
+        return false;
+      }
+      return true;
+    }
+
+    function getAfterElement(container, y){
+      const els = [...container.querySelectorAll(".kcard-admin:not(.is-dragging)")];
+      return els.reduce((closest, el) => {
+        const box = el.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+          return { offset, element: el };
+        }
+        return closest;
+      }, { offset: Number.NEGATIVE_INFINITY, element: null }).element;
+    }
+
     async function loadBoard(){
       setMsg("");
       buildColumns();
@@ -132,6 +170,9 @@
         const st = STATUSES.includes(it.status) ? it.status : "Queued";
         byStatus[st].push(it);
       }
+
+      // ✅ Queued sorted by queueRank (top = 1st)
+      byStatus["Queued"].sort((a,b) => (a.queueRank ?? 999999) - (b.queueRank ?? 999999));
 
       for (const st of STATUSES){
         const body = kanban.querySelector(`.kcol-body[data-status="${CSS.escape(st)}"]`);
@@ -188,7 +229,7 @@
       loadBoard();
     });
 
-    // Drag & drop status change
+    // Drag & drop status change + Queued reorder
     let draggingId = null;
 
     kanban.addEventListener("dragstart", (e) => {
@@ -199,18 +240,39 @@
       e.dataTransfer.effectAllowed = "move";
     });
 
-    kanban.addEventListener("dragend", (e) => {
+    kanban.addEventListener("dragend", async (e) => {
       const card = e.target.closest(".kcard-admin");
       if (card) card.classList.remove("is-dragging");
-      draggingId = null;
+
+      // remove hover styles
       kanban.querySelectorAll(".kcol-body").forEach(b => b.classList.remove("is-over"));
+
+      // if we were dragging inside queued, save new order
+      const queuedBody = kanban.querySelector(`.kcol-body[data-status="${CSS.escape("Queued")}"]`);
+      if (queuedBody && queuedBody.contains(card)) {
+        await saveQueueOrder();
+      }
+
+      draggingId = null;
     });
 
     kanban.addEventListener("dragover", (e) => {
       const col = e.target.closest(".kcol-body");
       if (!col) return;
+
       e.preventDefault();
       col.classList.add("is-over");
+
+      // ✅ Only reorder inside Queued column
+      const status = col.getAttribute("data-status");
+      if (status !== "Queued") return;
+
+      const dragging = kanban.querySelector(".kcard-admin.is-dragging");
+      if (!dragging) return;
+
+      const afterEl = getAfterElement(col, e.clientY);
+      if (afterEl == null) col.appendChild(dragging);
+      else col.insertBefore(dragging, afterEl);
     });
 
     kanban.addEventListener("dragleave", (e) => {
@@ -226,6 +288,15 @@
 
       const newStatus = col.getAttribute("data-status");
 
+      // ✅ If dropped into Queued, treat it as reorder + save
+      if (newStatus === "Queued") {
+        const ok = await saveQueueOrder();
+        if (ok) setMsg("Queue order updated.", true);
+        loadBoard();
+        return;
+      }
+
+      // Otherwise, normal status change
       const res = await fetch(`/api/orders/${encodeURIComponent(draggingId)}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
