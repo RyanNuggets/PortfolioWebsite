@@ -1459,18 +1459,28 @@ input:focus, select:focus, textarea:focus{
   .kanban{ grid-template-columns: 1fr; }
 }
 
-/* Force board header to truly center */
-.board-head {
+/* Keep board head as left+right layout */
+.board-head{
   display: flex;
-  flex-direction: column;
-  align-items: center;   /* centers the block */
-  text-align: center;    /* centers the text */
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 
-/* Make sure nothing offsets either line */
-.board-head .board-title,
-.board-head .board-sub {
-  width: 100%;
-  margin-left: 0;
-  margin-right: 0;
+/* Center ONLY the title/subtitle block */
+.board-head > div{
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Keep buttons on the right */
+.board-actions{
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex: 0 0 auto;
 }
