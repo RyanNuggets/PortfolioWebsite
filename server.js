@@ -223,21 +223,57 @@ app.get("/api/logout", (req, res) => {
 });
 
 // ---- Orders storage (orders.json) ----
-const ORDERS_PATH = path.join(__dirname, "orders.json");
+// Uses persistent directory if provided (Railway Volume), else project root
+const DATA_DIR = process.env.DATA_DIR || process.cwd();
+const ORDERS_PATH = path.join(DATA_DIR, "orders.json");
+
+console.log("ORDERS_PATH =", ORDERS_PATH);
+
+function ensureOrdersFile() {
+  try {
+    if (!fs.existsSync(ORDERS_PATH)) {
+      fs.mkdirSync(path.dirname(ORDERS_PATH), { recursive: true });
+      fs.writeFileSync(
+        ORDERS_PATH,
+        JSON.stringify({ items: [] }, null, 2),
+        "utf8"
+      );
+    }
+  } catch (e) {
+    console.error("❌ Failed to ensure orders file:", e);
+  }
+}
+ensureOrdersFile();
 
 function readOrders() {
   try {
     const raw = fs.readFileSync(ORDERS_PATH, "utf8");
     const json = JSON.parse(raw);
     return Array.isArray(json.items) ? json.items : [];
-  } catch {
+  } catch (e) {
+    console.error("❌ readOrders error:", e);
     return [];
   }
 }
 
 function writeOrders(items) {
-  fs.writeFileSync(ORDERS_PATH, JSON.stringify({ items }, null, 2), "utf8");
+  try {
+    fs.mkdirSync(path.dirname(ORDERS_PATH), { recursive: true });
+    fs.writeFileSync(
+      ORDERS_PATH,
+      JSON.stringify({ items }, null, 2),
+      "utf8"
+    );
+  } catch (e) {
+    console.error("❌ writeOrders error:", e);
+    throw e;
+  }
 }
+
+// (Optional) quick debug to see where it's writing
+app.get("/api/debug/orders-path", (req, res) => {
+  res.json({ ok: true, ORDERS_PATH });
+});
 
 // client + admin: READ
 app.get("/api/orders", (req, res) => {
