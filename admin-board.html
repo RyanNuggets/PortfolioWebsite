@@ -1,11 +1,10 @@
-<!-- admin-board.html (FULL FILE) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Board – Nugget Studios</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 
 <body class="page-layout">
@@ -32,23 +31,37 @@
 
   <!-- CONTENT -->
   <main class="page-content fade-in">
-    <section class="board-page">
+    <section class="board">
       <div class="board-shell">
-        <h1 class="board-title">Editor Panel</h1>
-        <p class="board-sub">Drag cards to change status • Delivered → Archive to hide from clients</p>
-
-        <!-- add order -->
-        <div class="admin-add">
-          <div class="admin-row">
-            <input id="title" class="admin-input" placeholder="Order title (e.g. Discord Banner)" />
-            <input id="client" class="admin-input" placeholder="Client / Server name" />
+        <div class="board-head" style="justify-content:center; flex-direction:column; text-align:center;">
+          <div>
+            <h1 class="board-title" style="margin:0 0 10px;">Editor Panel</h1>
+            <p class="board-sub" style="margin:0;">Drag orders between columns, or archive delivered orders.</p>
           </div>
-          <textarea id="notes" class="admin-textarea" placeholder="Notes (optional)"></textarea>
-          <button class="admin-btn" id="addBtn" type="button">Add Order</button>
-          <div class="admin-hint" id="adminHint"></div>
         </div>
 
-        <div class="board" id="board" aria-label="Admin order board"></div>
+        <!-- Add order -->
+        <div class="admin-add">
+          <form class="admin-add-form" id="addForm">
+            <input id="title" placeholder="Order title" required />
+            <input id="client" placeholder="Client name" required />
+            <select id="status">
+              <option>Queued</option>
+              <option>In Progress</option>
+              <option>Review</option>
+              <option>Delivered</option>
+              <option>Archived</option>
+            </select>
+            <button class="board-btn is-primary" type="submit">Add</button>
+          </form>
+          <div class="board-msg" id="msg" aria-live="polite"></div>
+        </div>
+
+        <div id="board" style="margin-top:18px;"></div>
+
+        <p class="board-mini" style="text-align:center;">
+          Tip: use “Archive” on Delivered → it moves to Archived (stays saved).
+        </p>
       </div>
     </section>
   </main>
@@ -63,19 +76,28 @@
   </footer>
 
   <script>
-    // ✅ Admin sees Archived column too
+    // --- CONFIG (admin DOES show Archived) ---
     const STATUSES = ["Queued", "In Progress", "Review", "Delivered", "Archived"];
+
+    // --- ELEMENTS ---
     const board = document.getElementById("board");
+    const addForm = document.getElementById("addForm");
+    const msg = document.getElementById("msg");
 
     const titleEl = document.getElementById("title");
     const clientEl = document.getElementById("client");
-    const notesEl = document.getElementById("notes");
-    const addBtn = document.getElementById("addBtn");
-    const adminHint = document.getElementById("adminHint");
+    const statusEl = document.getElementById("status");
 
+    // --- HELPERS ---
     const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({
       "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
     }[c]));
+
+    function nowStamp() {
+      const d = new Date();
+      const pad = (n) => String(n).padStart(2, "0");
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
 
     function groupByStatus(items) {
       const map = {};
@@ -87,71 +109,78 @@
       return map;
     }
 
-    async function apiGet() {
-      const res = await fetch("/api/orders", { cache: "no-store" });
-      return res.json();
+    async function apiUpdateStatus(id, newStatus) {
+      await fetch(`/api/orders/${encodeURIComponent(id)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus, updatedAt: nowStamp() })
+      });
+    }
+
+    async function apiArchive(id) {
+      return apiUpdateStatus(id, "Archived");
     }
 
     async function apiAdd(payload) {
       const res = await fetch("/api/orders", {
         method: "POST",
-        headers: { "Content-Type":"application/json" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
       return res.json();
     }
 
-    async function apiPatch(id, body) {
-      const res = await fetch(`/api/orders/${encodeURIComponent(id)}`, {
-        method: "PATCH",
-        headers: { "Content-Type":"application/json" },
-        body: JSON.stringify(body)
-      });
-      return res.json();
-    }
-
+    // --- RENDER (OLD STYLE) ---
     function renderBoard(items) {
       const grouped = groupByStatus(items);
 
-      board.innerHTML = STATUSES.map((status) => {
-        const cards = grouped[status].map((o) => `
-          <article class="order-card is-draggable" draggable="true" data-id="${esc(o.id)}">
-            <div class="order-top">
-              <div class="order-title">${esc(o.title)}</div>
-              <div class="order-badge">${esc(o.status)}</div>
-            </div>
+      board.innerHTML = `
+        <div class="kanban">
+          ${STATUSES.map((status) => {
+            const cards = grouped[status].map((o) => `
+              <article class="order-card is-draggable" draggable="true" data-id="${esc(o.id)}">
+                <div class="order-top">
+                  <div class="order-title">${esc(o.title)}</div>
+                  <div class="order-badge">${esc(o.status)}</div>
+                </div>
 
-            <div class="order-meta">
-              <div class="order-line"><span>Client:</span> ${esc(o.client)}</div>
-              <div class="order-line"><span>Updated:</span> ${esc(o.updatedAt || "—")}</div>
-            </div>
+                <div class="order-meta">
+                  <div class="order-line"><span>Client:</span> ${esc(o.client)}</div>
+                  <div class="order-line"><span>Updated:</span> ${esc(o.updatedAt || "—")}</div>
+                </div>
 
-            <p class="order-notes">${esc(o.notes || "")}</p>
+                <p class="order-notes">${esc(o.notes || "")}</p>
 
-            ${o.status === "Delivered" ? `
-              <button class="order-archive" type="button" data-archive="${esc(o.id)}">Archive</button>
-            ` : ""}
-          </article>
-        `).join("");
+                <!-- ✅ quick archive button (only show when Delivered) -->
+                ${o.status === "Delivered" ? `
+                  <button class="order-archive" type="button" data-archive="${esc(o.id)}">
+                    Archive
+                  </button>
+                ` : ""}
+              </article>
+            `).join("");
 
-        return `
-          <section class="col" data-status="${esc(status)}">
-            <div class="col-head">
-              <div class="col-title">${esc(status)}</div>
-              <div class="col-sub">${grouped[status].length} orders</div>
-            </div>
+            return `
+              <section class="col" data-status="${esc(status)}">
+                <div class="col-head">
+                  <div class="col-title">${esc(status)}</div>
+                  <div class="col-sub">${grouped[status].length} orders</div>
+                </div>
 
-            <div class="col-body dropzone" data-status="${esc(status)}">
-              ${cards || `<div class="col-empty">Drop orders here.</div>`}
-            </div>
-          </section>
-        `;
-      }).join("");
+                <div class="col-body dropzone" data-status="${esc(status)}">
+                  ${cards || `<div class="col-empty">Drop orders here.</div>`}
+                </div>
+              </section>
+            `;
+          }).join("")}
+        </div>
+      `;
 
       wireDnD();
       wireArchiveButtons();
     }
 
+    // --- DRAG & DROP ---
     function wireDnD() {
       const cards = document.querySelectorAll(".order-card.is-draggable");
       const zones = document.querySelectorAll(".dropzone");
@@ -169,6 +198,7 @@
           e.preventDefault();
           zone.classList.add("drop-over");
         });
+
         zone.addEventListener("dragleave", () => zone.classList.remove("drop-over"));
 
         zone.addEventListener("drop", async (e) => {
@@ -177,51 +207,71 @@
 
           const id = e.dataTransfer.getData("text/plain");
           const newStatus = zone.dataset.status;
+
           if (!id || !newStatus) return;
 
-          await apiPatch(id, { status: newStatus });
+          await apiUpdateStatus(id, newStatus);
           await loadOrders();
         });
       });
     }
 
+    // --- ARCHIVE BUTTON ---
     function wireArchiveButtons() {
       document.querySelectorAll("[data-archive]").forEach((btn) => {
         btn.addEventListener("click", async () => {
           const id = btn.getAttribute("data-archive");
-          await apiPatch(id, { status: "Archived" });
+          await apiArchive(id);
           await loadOrders();
         });
       });
     }
 
+    // --- LOAD (admin) ---
     async function loadOrders() {
-      const data = await apiGet();
+      const res = await fetch("/api/orders");
+      const data = await res.json();
       renderBoard(data.items || []);
     }
 
-    addBtn.addEventListener("click", async () => {
-      adminHint.textContent = "";
-      const title = (titleEl.value || "").trim();
-      const client = (clientEl.value || "").trim();
-      const notes = (notesEl.value || "").trim();
+    loadOrders();
 
-      if (!title || !client) {
-        adminHint.textContent = "Title and Client are required.";
+    // --- ADD FORM ---
+    addForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      msg.textContent = "";
+      msg.className = "board-msg";
+
+      const payload = {
+        title: titleEl.value.trim(),
+        client: clientEl.value.trim(),
+        status: statusEl.value,
+        notes: "",
+        updatedAt: nowStamp()
+      };
+
+      if (!payload.title || !payload.client) {
+        msg.textContent = "Title + client required.";
+        msg.classList.add("is-err");
         return;
       }
 
-      await apiAdd({ title, client, notes, status: "Queued" });
+      const out = await apiAdd(payload);
+      if (!out.ok) {
+        msg.textContent = out.error || "Failed to add order.";
+        msg.classList.add("is-err");
+        return;
+      }
 
       titleEl.value = "";
       clientEl.value = "";
-      notesEl.value = "";
+      statusEl.value = "Queued";
+
+      msg.textContent = "Order added.";
+      msg.classList.add("is-ok");
 
       await loadOrders();
     });
-
-    loadOrders();
-    setInterval(loadOrders, 4000);
   </script>
 </body>
 </html>
