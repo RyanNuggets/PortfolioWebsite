@@ -1,10 +1,9 @@
-<!-- client-board.html (FULL FILE) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Client Board – Nugget Studios</title>
+  <title>Clients – Nugget Studios</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -32,12 +31,100 @@
 
   <!-- CONTENT -->
   <main class="page-content fade-in">
-    <section class="board-page">
-      <div class="board-shell">
-        <h1 class="board-title">Order Status</h1>
-        <p class="board-sub">Read-only view • refreshes automatically</p>
+    <section class="clients">
+      <div class="clients-shell">
+        <h1 class="clients-title">What our clients say</h1>
+        <p class="clients-sub">Real feedback from communities we’ve worked with.</p>
 
-        <div class="board" id="board" aria-label="Client order board"></div>
+        <!-- ✅ NEW: logo grid -->
+        <div class="client-grid" id="clientGrid" aria-label="Client servers">
+          <!--
+            Replace logo src with your real server logos, e.g:
+            images/client-gtrp.png
+            images/client-lvrp.png
+            images/client-chicagorp.png
+          -->
+
+          <button class="client-card" type="button"
+            data-name="awesome_choice"
+            data-role="Server Owner"
+            data-quote="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+            data-logo="images/client-1.png"
+            aria-label="Open testimonial for awesome_choice">
+            <span class="client-badge">Featured</span>
+            <div class="client-logo-wrap">
+              <img class="client-logo" src="images/client-1.png" alt="awesome_choice logo" loading="lazy">
+            </div>
+            <div class="client-meta">
+              <div class="client-name">awesome_choice</div>
+              <div class="client-role">Server Owner</div>
+            </div>
+          </button>
+
+          <button class="client-card" type="button"
+            data-name="SomeRandomDude"
+            data-role="2k+ member server owner"
+            data-quote="Quisque posuere, metus at posuere fringilla, turpis elit luctus mi, at dignissim neque mi id nulla. Everything got done really fast."
+            data-logo="images/client-2.png"
+            aria-label="Open testimonial for SomeRandomDude">
+            <div class="client-logo-wrap">
+              <img class="client-logo" src="images/client-2.png" alt="SomeRandomDude logo" loading="lazy">
+            </div>
+            <div class="client-meta">
+              <div class="client-name">SomeRandomDude</div>
+              <div class="client-role">2k+ member server owner</div>
+            </div>
+          </button>
+
+          <button class="client-card" type="button"
+            data-name="kbear948"
+            data-role="Server Owner"
+            data-quote="Aenean interdum, orci in commodo egestas, augue mi tempor nulla. I can’t stress enough how much they knocked it out of the park with quality and attention to detail."
+            data-logo="images/client-3.png"
+            aria-label="Open testimonial for kbear948">
+            <div class="client-logo-wrap">
+              <img class="client-logo" src="images/client-3.png" alt="kbear948 logo" loading="lazy">
+            </div>
+            <div class="client-meta">
+              <div class="client-name">kbear948</div>
+              <div class="client-role">Server Owner</div>
+            </div>
+          </button>
+
+          <button class="client-card" type="button"
+            data-name="NeonPilot"
+            data-role="Community Manager"
+            data-quote="Vivamus vel elit a neque suscipit convallis. Super clean, super consistent. We’ll be back for more."
+            data-logo="images/client-4.png"
+            aria-label="Open testimonial for NeonPilot">
+            <div class="client-logo-wrap">
+              <img class="client-logo" src="images/client-4.png" alt="NeonPilot logo" loading="lazy">
+            </div>
+            <div class="client-meta">
+              <div class="client-name">NeonPilot</div>
+              <div class="client-role">Community Manager</div>
+            </div>
+          </button>
+
+          <button class="client-card" type="button"
+            data-name="VantaStudio"
+            data-role="Server Owner"
+            data-quote="Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque. Premium look, great communication, delivered exactly what we wanted."
+            data-logo="images/client-5.png"
+            aria-label="Open testimonial for VantaStudio">
+            <div class="client-logo-wrap">
+              <img class="client-logo" src="images/client-5.png" alt="VantaStudio logo" loading="lazy">
+            </div>
+            <div class="client-meta">
+              <div class="client-name">VantaStudio</div>
+              <div class="client-role">Server Owner</div>
+            </div>
+          </button>
+        </div>
+
+        <p class="clients-foot">
+          Want to be featured here? Send a message in Contact with your server name + what you ordered.
+        </p>
       </div>
     </section>
   </main>
@@ -51,66 +138,106 @@
     </div>
   </footer>
 
+  <!-- MODAL -->
+  <div class="review-modal" id="reviewModal" aria-hidden="true">
+    <div class="review-modal-backdrop" id="reviewModalBackdrop"></div>
+
+    <div class="review-modal-card" role="dialog" aria-modal="true" aria-label="Expanded testimonial">
+      <button class="review-modal-close" id="reviewModalClose" aria-label="Close">×</button>
+
+      <div class="review-modal-top">
+        <div class="review-modal-logoWrap" aria-hidden="true">
+          <img class="review-modal-logo" id="reviewModalLogo" alt="">
+        </div>
+
+        <div class="review-modal-meta">
+          <div class="review-modal-name" id="reviewModalName"></div>
+          <div class="review-modal-role" id="reviewModalRole"></div>
+        </div>
+      </div>
+
+      <div class="review-modal-divider"></div>
+      <div class="review-modal-quote" id="reviewModalQuote"></div>
+    </div>
+  </div>
+
+  <!-- ✅ GRID + MODAL JS (FULL) -->
   <script>
-    // Client sees only these columns (Archived is hidden)
-    const STATUSES = ["Queued", "In Progress", "Review", "Delivered"];
+    const grid = document.getElementById("clientGrid");
 
-    const board = document.getElementById("board");
+    const modal = document.getElementById("reviewModal");
+    const modalBackdrop = document.getElementById("reviewModalBackdrop");
+    const modalClose = document.getElementById("reviewModalClose");
 
-    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-    }[c]));
+    const modalQuote = document.getElementById("reviewModalQuote");
+    const modalName = document.getElementById("reviewModalName");
+    const modalRole = document.getElementById("reviewModalRole");
+    const modalLogo = document.getElementById("reviewModalLogo");
 
-    function groupByStatus(items) {
-      const map = {};
-      STATUSES.forEach(s => (map[s] = []));
-      items.forEach(o => {
-        if (o.status === "Archived") return; // ✅ hide archived
-        if (map[o.status]) map[o.status].push(o);
-      });
-      return map;
+    let lastFocus = null;
+
+    function openModalFromCard(card) {
+      lastFocus = document.activeElement;
+
+      const name = card.getAttribute("data-name") || "";
+      const role = card.getAttribute("data-role") || "";
+      const quote = card.getAttribute("data-quote") || "";
+      const logo = card.getAttribute("data-logo") || "";
+
+      modalName.textContent = name;
+      modalRole.textContent = role;
+
+      // keep it simple (textContent) so quotes always render clean
+      modalQuote.textContent = quote;
+
+      // logo is optional
+      if (logo) {
+        modalLogo.src = logo;
+        modalLogo.alt = name ? (name + " logo") : "Client logo";
+        modalLogo.style.display = "block";
+      } else {
+        modalLogo.removeAttribute("src");
+        modalLogo.alt = "";
+        modalLogo.style.display = "none";
+      }
+
+      modal.classList.add("open");
+      modal.setAttribute("aria-hidden", "false");
+      modalClose.focus();
     }
 
-    function renderBoard(items) {
-      const grouped = groupByStatus(items);
-
-      board.innerHTML = STATUSES.map((status) => {
-        const cards = grouped[status].map((o) => `
-          <article class="order-card">
-            <div class="order-top">
-              <div class="order-title">${esc(o.title)}</div>
-              <div class="order-badge">${esc(o.status)}</div>
-            </div>
-            <div class="order-meta">
-              <div class="order-line"><span>Client:</span> ${esc(o.client)}</div>
-              <div class="order-line"><span>Updated:</span> ${esc(o.updatedAt || "—")}</div>
-            </div>
-            <p class="order-notes">${esc(o.notes || "")}</p>
-          </article>
-        `).join("");
-
-        return `
-          <section class="col">
-            <div class="col-head">
-              <div class="col-title">${esc(status)}</div>
-              <div class="col-sub">${grouped[status].length} orders</div>
-            </div>
-            <div class="col-body">
-              ${cards || `<div class="col-empty">No orders here yet.</div>`}
-            </div>
-          </section>
-        `;
-      }).join("");
+    function closeModal() {
+      modal.classList.remove("open");
+      modal.setAttribute("aria-hidden", "true");
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
     }
 
-    async function loadOrders() {
-      const res = await fetch("/api/orders", { cache: "no-store" });
-      const data = await res.json();
-      renderBoard(data.items || []);
-    }
+    // Click open
+    grid.addEventListener("click", (e) => {
+      const card = e.target.closest(".client-card");
+      if (!card) return;
+      openModalFromCard(card);
+    });
 
-    loadOrders();
-    setInterval(loadOrders, 3500);
+    // Keyboard open (Enter/Space)
+    grid.addEventListener("keydown", (e) => {
+      const card = e.target.closest(".client-card");
+      if (!card) return;
+
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        openModalFromCard(card);
+      }
+    });
+
+    // Close handlers
+    modalBackdrop.addEventListener("click", closeModal);
+    modalClose.addEventListener("click", closeModal);
+
+    document.addEventListener("keydown", (e) => {
+      if (!modal.classList.contains("open")) return;
+      if (e.key === "Escape") closeModal();
+    });
   </script>
 </body>
 </html>
