@@ -1090,3 +1090,371 @@ input:focus, select:focus, textarea:focus{
 @media (max-width:520px){
   .work-img{ max-height:62vh; }
 }
+
+/* ================= CUSTOM KANBAN BOARD ================= */
+
+.board{
+  width:min(1180px, calc(100vw - 40px));
+  margin:0 auto;
+}
+
+.board-shell{
+  width:100%;
+  border-radius:26px;
+  padding:44px 26px 30px;
+
+  background:linear-gradient(180deg,#141414,#000);
+  box-shadow:
+    0 16px 46px rgba(0,0,0,.78),
+    inset 0 2px 4px rgba(255,255,255,.10),
+    inset 0 -2px 4px rgba(255,255,255,.08);
+
+  border:1px solid rgba(255,255,255,.07);
+  position:relative;
+  overflow:hidden;
+}
+
+.board-shell::before{
+  content:"";
+  position:absolute;
+  top:-40%;
+  left:-60%;
+  width:50%;
+  height:200%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.10),transparent);
+  transform:rotate(18deg);
+  animation:boardShine 11s ease-in-out infinite;
+  pointer-events:none;
+  opacity:.45;
+}
+@keyframes boardShine{
+  0%{left:-70%;opacity:0}
+  12%{opacity:.22}
+  35%{left:130%;opacity:0}
+  100%{left:130%;opacity:0}
+}
+
+.board-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+}
+
+.board-title{
+  margin:0 0 10px;
+  font-size:34px;
+  letter-spacing:.2px;
+}
+
+.board-sub{
+  margin:0;
+  opacity:.75;
+  font-size:14px;
+}
+
+.board-actions{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  justify-content:flex-end;
+}
+
+.board-btn{
+  font-size:13px;
+  text-decoration:none;
+  color:white;
+  opacity:.9;
+  border:1px solid rgba(255,255,255,.12);
+  padding:10px 14px;
+  border-radius:14px;
+  background:rgba(255,255,255,.06);
+  cursor:pointer;
+}
+.board-btn:hover{ opacity:1; }
+.board-btn.is-primary{
+  background:linear-gradient(180deg,#1a1a1a,#000);
+  box-shadow: inset 0 2px 4px rgba(255,255,255,.10);
+}
+
+.board-mini{
+  margin:16px 0 0;
+  font-size:12px;
+  opacity:.6;
+}
+
+.board-msg{
+  margin-top:10px;
+  font-size:13px;
+  opacity:.85;
+}
+.board-msg.is-err{ color:#ffb3b3; opacity:1; }
+.board-msg.is-ok{ color:#b9ffcc; opacity:1; }
+
+/* Admin add */
+.admin-add{ margin-top:18px; }
+.admin-add-form{
+  display:grid;
+  grid-template-columns: 1fr 1.2fr 220px 120px;
+  gap:10px;
+  align-items:center;
+}
+.admin-add-form input,
+.admin-add-form select{
+  border-radius:16px;
+  padding:12px 14px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.55);
+  color:white;
+  outline:none;
+}
+
+/* Board grid */
+.kanban{
+  margin-top:20px;
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap:14px;
+  position:relative;
+  z-index:1;
+}
+
+.kcol{
+  border-radius:20px;
+  padding:14px 12px 12px;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.07);
+  box-shadow:
+    0 14px 32px rgba(0,0,0,.55),
+    inset 0 2px 4px rgba(255,255,255,.06),
+    inset 0 -2px 4px rgba(255,255,255,.05);
+  min-height:320px;
+  display:flex;
+  flex-direction:column;
+}
+
+.kcol-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:2px 4px 10px;
+}
+
+.kcol-title{
+  font-size:13px;
+  letter-spacing:.16px;
+  text-transform:uppercase;
+  opacity:.78;
+  font-weight:800;
+}
+
+.kcol-count{
+  font-size:12px;
+  opacity:.75;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.04);
+  padding:6px 10px;
+  border-radius:999px;
+}
+
+.kcol-body{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  padding:2px;
+  flex:1;
+}
+
+.kcol-body.is-over{
+  outline:2px dashed rgba(255,255,255,.18);
+  outline-offset:6px;
+  border-radius:14px;
+}
+
+/* Cards */
+.kcard{
+  border-radius:18px;
+  padding:12px 12px 10px;
+  background:linear-gradient(180deg,#141414,#000);
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:
+    0 14px 32px rgba(0,0,0,.62),
+    inset 0 2px 4px rgba(255,255,255,.08),
+    inset 0 -2px 4px rgba(255,255,255,.06);
+
+  cursor:pointer;
+  outline:none;
+  transition:transform .16s ease, box-shadow .16s ease, opacity .16s ease;
+}
+
+.kcard:hover{
+  transform:translateY(-2px);
+  box-shadow:
+    0 18px 38px rgba(0,0,0,.74),
+    inset 0 2px 4px rgba(255,255,255,.10),
+    inset 0 -2px 4px rgba(255,255,255,.07);
+}
+
+.kcard:focus-visible{
+  box-shadow:
+    0 0 0 2px rgba(255,255,255,.18),
+    0 18px 38px rgba(0,0,0,.74),
+    inset 0 2px 4px rgba(255,255,255,.10),
+    inset 0 -2px 4px rgba(255,255,255,.07);
+}
+
+.kcard.is-dragging{
+  opacity:.55;
+  transform:scale(.98);
+}
+
+.kcard-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+
+.kbadge{
+  font-size:12px;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.04);
+  opacity:.9;
+  white-space:nowrap;
+}
+
+.kdot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:rgba(255,255,255,.25);
+  box-shadow:0 0 10px rgba(255,255,255,.12);
+}
+
+.kcard-title{
+  font-size:13px;
+  line-height:1.55;
+  opacity:.88;
+  font-weight:700;
+}
+
+.kcard-foot{
+  margin-top:10px;
+  display:flex;
+  justify-content:flex-end;
+}
+
+.kmuted{
+  font-size:12px;
+  opacity:.55;
+}
+
+/* Admin mini buttons */
+.kadmin-actions{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+
+.kmini{
+  border-radius:12px;
+  padding:6px 10px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.06);
+  color:white;
+  cursor:pointer;
+  opacity:.85;
+  font-size:12px;
+}
+.kmini:hover{ opacity:1; }
+.kmini.danger{ border-color:rgba(255,140,140,.25); }
+
+/* Modal */
+.kmodal{
+  position:fixed;
+  inset:0;
+  display:none;
+  z-index:10000;
+}
+.kmodal.open{ display:block; }
+
+.kmodal-backdrop{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.65);
+  backdrop-filter: blur(6px);
+}
+
+.kmodal-card{
+  position:relative;
+  width:min(680px, calc(100vw - 30px));
+  margin: min(12vh, 120px) auto 0;
+  border-radius:22px;
+  padding:54px 22px 22px;
+  background:linear-gradient(180deg,#141414,#000);
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow:
+    0 26px 70px rgba(0,0,0,.82),
+    inset 0 2px 4px rgba(255,255,255,.10),
+    inset 0 -2px 4px rgba(255,255,255,.08);
+}
+
+.kmodal-close{
+  position:absolute;
+  top:16px;
+  right:16px;
+  width:36px;
+  height:36px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.06);
+  color:white;
+  font-size:22px;
+  cursor:pointer;
+  opacity:.9;
+}
+.kmodal-close:hover{ opacity:1; }
+
+.kmodal-title{
+  font-weight:900;
+  font-size:18px;
+  line-height:1.5;
+  margin-top:4px;
+}
+
+.kmodal-meta{
+  margin-top:12px;
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+.kmodal-divider{
+  height:1px;
+  margin:18px 0 12px;
+  background:rgba(255,255,255,.10);
+}
+
+.kmodal-status{
+  font-size:14px;
+  opacity:.9;
+}
+.kstatus{
+  font-weight:900;
+  text-shadow:0 0 14px rgba(255,255,255,.10);
+}
+
+/* responsive */
+@media (max-width:1050px){
+  .kanban{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .admin-add-form{ grid-template-columns: 1fr 1fr; }
+}
+@media (max-width:520px){
+  .board-shell{ padding:34px 18px 22px; }
+  .kanban{ grid-template-columns: 1fr; }
+}
