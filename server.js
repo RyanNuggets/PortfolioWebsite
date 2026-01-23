@@ -32,7 +32,12 @@ function parseCookies(req) {
   return out;
 }
 
-function setCookie(res, name, value, { maxAgeSeconds = 60 * 60 * 6, httpOnly = true } = {}) {
+function setCookie(
+  res,
+  name,
+  value,
+  { maxAgeSeconds = 60 * 60 * 6, httpOnly = true } = {}
+) {
   res.setHeader(
     "Set-Cookie",
     `${name}=${value}; Path=/; Max-Age=${maxAgeSeconds}; SameSite=Lax; ${httpOnly ? "HttpOnly;" : ""}`
@@ -54,12 +59,20 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-// ================= BLOCK STATIC ADMIN FILE =================
-// 🔒 THIS IS THE CRITICAL FIX
+// ================= BLOCK STATIC ACCESS TO PROTECTED PAGES =================
+// 🔒 THIS CLOSES THE BYPASS FOR /admin-board AND /client-board
 app.use((req, res, next) => {
-  if (req.path === "/admin-board.html") {
+  const blocked = new Set([
+    "/admin-board",
+    "/admin-board.html",
+    "/client-board",
+    "/client-board.html"
+  ]);
+
+  if (blocked.has(req.path)) {
     return res.redirect("/portal");
   }
+
   next();
 });
 
@@ -99,13 +112,16 @@ app.get("/portal", (req, res) =>
   res.sendFile(path.join(__dirname, "portal.html"))
 );
 
+// CLIENT BOARD (COOKIE-BASED)
 app.get("/client-board", (req, res) => {
   const role = parseCookies(req).role || "";
-  if (role !== "client" && role !== "admin") return res.redirect("/portal");
-  return res.sendFile(path.join(__dirname, "client-board.html"));
+  if (role !== "client" && role !== "admin") {
+    return res.redirect("/portal");
+  }
+  res.sendFile(path.join(__dirname, "client-board.html"));
 });
 
-// 🔒 ADMIN BOARD (PROTECTED)
+// ADMIN BOARD (SESSION-BASED)
 app.get("/admin-board", requireAdmin, (req, res) =>
   res.sendFile(path.join(__dirname, "admin-board.html"))
 );
