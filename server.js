@@ -11,11 +11,9 @@ const __dirname = path.dirname(__filename);
 // ================= CORE =================
 
 app.use(express.json());
-app.use(express.static(__dirname, { extensions: ["html"] }));
 
-// ================= SIMPLE SESSION SYSTEM (NO DEPENDENCIES) =================
+// ================= SIMPLE SESSION SYSTEM =================
 
-// In-memory admin sessions (clears on restart — OK)
 const adminSessions = new Map();
 
 function createSession() {
@@ -34,12 +32,7 @@ function parseCookies(req) {
   return out;
 }
 
-function setCookie(res, name, value, opts = {}) {
-  const {
-    maxAgeSeconds = 60 * 60 * 6,
-    httpOnly = true
-  } = opts;
-
+function setCookie(res, name, value, { maxAgeSeconds = 60 * 60 * 6, httpOnly = true } = {}) {
   res.setHeader(
     "Set-Cookie",
     `${name}=${value}; Path=/; Max-Age=${maxAgeSeconds}; SameSite=Lax; ${httpOnly ? "HttpOnly;" : ""}`
@@ -54,13 +47,25 @@ function clearCookie(res, name) {
 }
 
 function requireAdmin(req, res, next) {
-  const cookies = parseCookies(req);
-  const sid = cookies.admin_session;
+  const sid = parseCookies(req).admin_session;
   if (!sid || !adminSessions.has(sid)) {
     return res.redirect("/portal");
   }
   next();
 }
+
+// ================= BLOCK STATIC ADMIN FILE =================
+// 🔒 THIS IS THE CRITICAL FIX
+app.use((req, res, next) => {
+  if (req.path === "/admin-board.html") {
+    return res.redirect("/portal");
+  }
+  next();
+});
+
+// ================= STATIC FILES =================
+
+app.use(express.static(__dirname, { extensions: ["html"] }));
 
 // ================= PAGE ROUTES =================
 
@@ -100,6 +105,7 @@ app.get("/client-board", (req, res) => {
   return res.sendFile(path.join(__dirname, "client-board.html"));
 });
 
+// 🔒 ADMIN BOARD (PROTECTED)
 app.get("/admin-board", requireAdmin, (req, res) =>
   res.sendFile(path.join(__dirname, "admin-board.html"))
 );
