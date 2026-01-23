@@ -1,11 +1,10 @@
-<!-- portal.html (FULL FILE) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Order Portal – Nugget Studios</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 
 <body class="page-layout">
@@ -32,20 +31,33 @@
 
   <!-- CONTENT -->
   <main class="page-content fade-in">
-    <section class="portal">
-      <div class="portal-shell">
-        <h1 class="portal-title">Order Portal</h1>
-        <p class="portal-sub">Enter your access password to continue.</p>
-
-        <div class="portal-card">
-          <label class="portal-label" for="pw">Password</label>
-          <input id="pw" class="portal-input" type="password" placeholder="Enter password..." autocomplete="off" />
-          <button class="portal-btn" id="goBtn" type="button">Continue</button>
-          <div class="portal-hint" id="hint"></div>
+    <section class="board">
+      <div class="board-shell">
+        <div class="board-head" style="justify-content:center; flex-direction:column; text-align:center;">
+          <div>
+            <h1 class="board-title" style="margin:0 0 10px;">Client Portal</h1>
+            <p class="board-sub" style="margin:0;">Enter the password you were given to view your order status.</p>
+          </div>
         </div>
 
-        <p class="portal-mini">
-          Clients: read-only order status • Admin: manage orders and statuses
+        <div class="contact-wrap" style="margin-top:18px;">
+          <div class="contact-card">
+            <div class="field" style="margin-bottom:0;">
+              <label for="pw">Password</label>
+              <input id="pw" type="password" placeholder="Enter password..." autocomplete="current-password" />
+            </div>
+
+            <div class="contact-actions" style="margin-top:14px;">
+              <button class="cta contact-submit" id="goBtn" type="button">Open</button>
+              <a class="cta secondary contact-discord" href="/contact">Contact</a>
+            </div>
+
+            <div class="form-status" id="msg" aria-live="polite"></div>
+          </div>
+        </div>
+
+        <p class="board-mini" style="text-align:center;">
+          If you don’t have a password, message me on Discord and I’ll send you one.
         </p>
       </div>
     </section>
@@ -61,31 +73,38 @@
   </footer>
 
   <script>
-    const clientPw = "nuggetstudios67";
-    const adminPw = "passwordpass123";
-
-    const pw = document.getElementById("pw");
+    const input = document.getElementById("pw");
+    const msg = document.getElementById("msg");
     const goBtn = document.getElementById("goBtn");
-    const hint = document.getElementById("hint");
 
-    function go(){
-      const v = (pw.value || "").trim();
-      hint.textContent = "";
+    const CLIENT_PW = "nuggetstudios67";
+    const ADMIN_PW  = "passwordpass123";
 
-      if (v === clientPw) {
+    function go() {
+      const v = String(input.value || "").trim();
+      msg.textContent = "";
+      msg.style.opacity = "1";
+
+      if (!v) {
+        msg.textContent = "Please enter a password.";
+        return;
+      }
+
+      if (v === CLIENT_PW) {
         window.location.href = "/client-board";
         return;
       }
-      if (v === adminPw) {
+
+      if (v === ADMIN_PW) {
         window.location.href = "/admin-board";
         return;
       }
 
-      hint.textContent = "Incorrect password. Please try again.";
+      msg.textContent = "Wrong password.";
     }
 
     goBtn.addEventListener("click", go);
-    pw.addEventListener("keydown", (e) => {
+    input.addEventListener("keydown", (e) => {
       if (e.key === "Enter") go();
     });
   </script>
