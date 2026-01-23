@@ -6,207 +6,54 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Board – Nugget Studios</title>
   <link rel="stylesheet" href="css/style.css">
-  <style>
-    .board-wrap{ width:min(1180px, calc(100vw - 40px)); margin:0 auto; }
-    .board-top{
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      gap:14px;
-      flex-wrap:wrap;
-      margin-bottom:16px;
-    }
-    .board-title{ margin:0; font-size:34px; letter-spacing:.2px; }
-    .board-sub{ margin:0; opacity:.72; font-size:14px; }
-
-    .admin-panel{
-      width:100%;
-      border-radius:22px;
-      padding:14px;
-      background:linear-gradient(180deg,#141414,#000);
-      border:1px solid rgba(255,255,255,.07);
-      box-shadow:
-        0 16px 46px rgba(0,0,0,.70),
-        inset 0 2px 4px rgba(255,255,255,.08),
-        inset 0 -2px 4px rgba(255,255,255,.06);
-      margin-bottom:14px;
-    }
-
-    .admin-row{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      align-items:stretch;
-    }
-
-    .admin-row input, .admin-row select{
-      border-radius:16px;
-      padding:12px 14px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(0,0,0,.55);
-      color:white;
-      outline:none;
-      font-size:14px;
-      flex:1;
-      min-width:200px;
-    }
-
-    .admin-row button{
-      border-radius:16px;
-      padding:12px 14px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.04);
-      color:white;
-      cursor:pointer;
-      opacity:.9;
-      transition:transform .15s ease, opacity .15s ease;
-      font-size:14px;
-      font-weight:700;
-      min-width:160px;
-    }
-    .admin-row button:hover{ transform:translateY(-2px); opacity:1; }
-    .admin-row button:active{ transform:translateY(0px) scale(.99); }
-
-    .board-actions{ display:flex; gap:10px; align-items:center; }
-    .tiny-btn{
-      border-radius:16px;
-      padding:10px 14px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.04);
-      color:white;
-      cursor:pointer;
-      opacity:.9;
-      transition:transform .15s ease, opacity .15s ease;
-      text-decoration:none;
-      font-size:13px;
-    }
-    .tiny-btn:hover{ transform:translateY(-2px); opacity:1; }
-
-    .board-grid{
-      display:grid;
-      grid-template-columns:repeat(4, minmax(0, 1fr));
-      gap:14px;
-    }
-    .col{
-      border-radius:22px;
-      padding:14px;
-      background:linear-gradient(180deg,#141414,#000);
-      border:1px solid rgba(255,255,255,.07);
-      box-shadow:
-        0 16px 46px rgba(0,0,0,.70),
-        inset 0 2px 4px rgba(255,255,255,.08),
-        inset 0 -2px 4px rgba(255,255,255,.06);
-      min-height:52vh;
-    }
-    .col h3{
-      margin:4px 0 10px;
-      font-size:13px;
-      text-transform:uppercase;
-      letter-spacing:.18px;
-      opacity:.75;
-    }
-    .list{ min-height:32px; }
-
-    .card{
-      border-radius:18px;
-      padding:12px 12px 10px;
-      background:rgba(255,255,255,.03);
-      border:1px solid rgba(255,255,255,.07);
-      box-shadow:
-        0 14px 32px rgba(0,0,0,.55),
-        inset 0 2px 4px rgba(255,255,255,.06),
-        inset 0 -2px 4px rgba(255,255,255,.05);
-      margin-bottom:10px;
-
-      cursor:grab;
-      user-select:none;
-      outline:none;
-
-      transition:transform .12s ease, box-shadow .12s ease, opacity .12s ease;
-    }
-    .card:hover{
-      transform:translateY(-2px);
-      box-shadow:
-        0 18px 36px rgba(0,0,0,.70),
-        inset 0 2px 4px rgba(255,255,255,.08),
-        inset 0 -2px 4px rgba(255,255,255,.06);
-    }
-    .card:active{ cursor:grabbing; }
-
-    .card-title{ margin:0; font-size:14px; font-weight:800; opacity:.95; }
-    .card-meta{ margin-top:6px; font-size:12px; opacity:.7; line-height:1.5; }
-
-    .drop-hint{
-      border:1px dashed rgba(255,255,255,.16);
-      border-radius:18px;
-      padding:10px;
-      opacity:.55;
-      font-size:12px;
-      margin-bottom:10px;
-      display:none;
-    }
-    .col.is-over .drop-hint{ display:block; }
-    .col.is-over{ outline:2px solid rgba(255,255,255,.12); outline-offset:4px; }
-
-    @media (max-width:1000px){ .board-grid{ grid-template-columns:repeat(2, minmax(0, 1fr)); } }
-    @media (max-width:520px){ .board-grid{ grid-template-columns:1fr; } }
-  </style>
 </head>
 
 <body class="page-layout">
+  <!-- NAVBAR -->
   <nav class="navbar fade-in">
     <div class="nav-inner">
       <a href="/" class="nav-home">
         <img src="images/logo2.png" alt="Navbar Logo" class="nav-logo">
       </a>
+
       <span class="divider"></span>
       <a href="/about" class="nav-link">About</a>
+
       <span class="divider"></span>
       <a href="/clients" class="nav-link">Clients</a>
+
       <span class="divider"></span>
       <a href="/past-work" class="nav-link">Past Work</a>
+
       <span class="divider"></span>
       <a href="/contact" class="nav-link">Contact</a>
     </div>
   </nav>
 
+  <!-- CONTENT -->
   <main class="page-content fade-in">
-    <div class="board-wrap">
-      <div class="board-top">
-        <div>
-          <h1 class="board-title">Admin board</h1>
-          <p class="board-sub">Add orders and drag cards between columns to update status.</p>
-        </div>
-        <div class="board-actions">
-          <a class="tiny-btn" href="/client-board">Client view</a>
-          <a class="tiny-btn" href="/api/logout">Logout</a>
-        </div>
-      </div>
+    <section class="board-page">
+      <div class="board-shell">
+        <h1 class="board-title">Editor Panel</h1>
+        <p class="board-sub">Drag cards to change status • Delivered → Archive to hide from clients</p>
 
-      <div class="admin-panel">
-        <form id="addForm" class="admin-row">
-          <input id="client" placeholder="Client / Server name (e.g. GTRP)" />
-          <input id="title" placeholder="Order title (e.g. Discord banner)" />
-          <select id="status">
-            <option>Queued</option>
-            <option>In Progress</option>
-            <option>Review</option>
-            <option>Delivered</option>
-          </select>
-          <button type="submit">Add order</button>
-        </form>
-        <div id="msg" style="margin-top:10px;font-size:13px;opacity:.7;min-height:18px;"></div>
-      </div>
+        <!-- add order -->
+        <div class="admin-add">
+          <div class="admin-row">
+            <input id="title" class="admin-input" placeholder="Order title (e.g. Discord Banner)" />
+            <input id="client" class="admin-input" placeholder="Client / Server name" />
+          </div>
+          <textarea id="notes" class="admin-textarea" placeholder="Notes (optional)"></textarea>
+          <button class="admin-btn" id="addBtn" type="button">Add Order</button>
+          <div class="admin-hint" id="adminHint"></div>
+        </div>
 
-      <div class="board-grid" id="grid">
-        <div class="col" data-status="Queued"><h3>Queued</h3><div class="drop-hint">Drop here</div><div class="list"></div></div>
-        <div class="col" data-status="In Progress"><h3>In progress</h3><div class="drop-hint">Drop here</div><div class="list"></div></div>
-        <div class="col" data-status="Review"><h3>Review</h3><div class="drop-hint">Drop here</div><div class="list"></div></div>
-        <div class="col" data-status="Delivered"><h3>Delivered</h3><div class="drop-hint">Drop here</div><div class="list"></div></div>
+        <div class="board" id="board" aria-label="Admin order board"></div>
       </div>
-    </div>
+    </section>
   </main>
 
+  <!-- FOOTER -->
   <footer class="footer-strip">
     <div class="footer-divider"></div>
     <div class="footer-inner">
@@ -216,142 +63,165 @@
   </footer>
 
   <script>
-  // --- CONFIG ---
-  const STATUSES = ["Queued", "In Progress", "Review", "Delivered", "Archived"];
+    // ✅ Admin sees Archived column too
+    const STATUSES = ["Queued", "In Progress", "Review", "Delivered", "Archived"];
+    const board = document.getElementById("board");
 
-  // --- ELEMENTS ---
-  const board = document.getElementById("board");
-  const editorTitle = document.getElementById("editorTitle"); // if exists
-  const editorSub = document.getElementById("editorSub");     // if exists
+    const titleEl = document.getElementById("title");
+    const clientEl = document.getElementById("client");
+    const notesEl = document.getElementById("notes");
+    const addBtn = document.getElementById("addBtn");
+    const adminHint = document.getElementById("adminHint");
 
-  // --- HELPERS ---
-  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-  }[c]));
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[c]));
 
-  function groupByStatus(items) {
-    const map = {};
-    STATUSES.forEach(s => (map[s] = []));
-    items.forEach(o => {
-      if (map[o.status]) map[o.status].push(o);
-      else map["Queued"].push(o);
-    });
-    return map;
-  }
-
-  async function apiUpdateStatus(id, newStatus) {
-    await fetch(`/api/orders/${encodeURIComponent(id)}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: newStatus })
-    });
-  }
-
-  async function apiArchive(id) {
-    return apiUpdateStatus(id, "Archived");
-  }
-
-  // --- RENDER ---
-  function renderBoard(items) {
-    const grouped = groupByStatus(items);
-
-    board.innerHTML = STATUSES.map((status) => {
-      const cards = grouped[status].map((o) => `
-        <article class="order-card is-draggable" draggable="true" data-id="${esc(o.id)}">
-          <div class="order-top">
-            <div class="order-title">${esc(o.title)}</div>
-            <div class="order-badge">${esc(o.status)}</div>
-          </div>
-
-          <div class="order-meta">
-            <div class="order-line"><span>Client:</span> ${esc(o.client)}</div>
-            <div class="order-line"><span>Updated:</span> ${esc(o.updatedAt || "—")}</div>
-          </div>
-
-          <p class="order-notes">${esc(o.notes || "")}</p>
-
-          <!-- ✅ quick archive button (only show when Delivered) -->
-          ${o.status === "Delivered" ? `
-            <button class="order-archive" type="button" data-archive="${esc(o.id)}">
-              Archive
-            </button>
-          ` : ""}
-        </article>
-      `).join("");
-
-      return `
-        <section class="col" data-status="${esc(status)}">
-          <div class="col-head">
-            <div class="col-title">${esc(status)}</div>
-            <div class="col-sub">${grouped[status].length} orders</div>
-          </div>
-
-          <div class="col-body dropzone" data-status="${esc(status)}">
-            ${cards || `<div class="col-empty">Drop orders here.</div>`}
-          </div>
-        </section>
-      `;
-    }).join("");
-
-    wireDnD();
-    wireArchiveButtons();
-  }
-
-  // --- DRAG & DROP ---
-  function wireDnD() {
-    const cards = document.querySelectorAll(".order-card.is-draggable");
-    const zones = document.querySelectorAll(".dropzone");
-
-    cards.forEach((card) => {
-      card.addEventListener("dragstart", (e) => {
-        e.dataTransfer.setData("text/plain", card.dataset.id);
-        card.classList.add("dragging");
+    function groupByStatus(items) {
+      const map = {};
+      STATUSES.forEach(s => (map[s] = []));
+      items.forEach(o => {
+        if (map[o.status]) map[o.status].push(o);
+        else map["Queued"].push(o);
       });
-      card.addEventListener("dragend", () => card.classList.remove("dragging"));
-    });
+      return map;
+    }
 
-    zones.forEach((zone) => {
-      zone.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        zone.classList.add("drop-over");
+    async function apiGet() {
+      const res = await fetch("/api/orders", { cache: "no-store" });
+      return res.json();
+    }
+
+    async function apiAdd(payload) {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type":"application/json" },
+        body: JSON.stringify(payload)
+      });
+      return res.json();
+    }
+
+    async function apiPatch(id, body) {
+      const res = await fetch(`/api/orders/${encodeURIComponent(id)}`, {
+        method: "PATCH",
+        headers: { "Content-Type":"application/json" },
+        body: JSON.stringify(body)
+      });
+      return res.json();
+    }
+
+    function renderBoard(items) {
+      const grouped = groupByStatus(items);
+
+      board.innerHTML = STATUSES.map((status) => {
+        const cards = grouped[status].map((o) => `
+          <article class="order-card is-draggable" draggable="true" data-id="${esc(o.id)}">
+            <div class="order-top">
+              <div class="order-title">${esc(o.title)}</div>
+              <div class="order-badge">${esc(o.status)}</div>
+            </div>
+
+            <div class="order-meta">
+              <div class="order-line"><span>Client:</span> ${esc(o.client)}</div>
+              <div class="order-line"><span>Updated:</span> ${esc(o.updatedAt || "—")}</div>
+            </div>
+
+            <p class="order-notes">${esc(o.notes || "")}</p>
+
+            ${o.status === "Delivered" ? `
+              <button class="order-archive" type="button" data-archive="${esc(o.id)}">Archive</button>
+            ` : ""}
+          </article>
+        `).join("");
+
+        return `
+          <section class="col" data-status="${esc(status)}">
+            <div class="col-head">
+              <div class="col-title">${esc(status)}</div>
+              <div class="col-sub">${grouped[status].length} orders</div>
+            </div>
+
+            <div class="col-body dropzone" data-status="${esc(status)}">
+              ${cards || `<div class="col-empty">Drop orders here.</div>`}
+            </div>
+          </section>
+        `;
+      }).join("");
+
+      wireDnD();
+      wireArchiveButtons();
+    }
+
+    function wireDnD() {
+      const cards = document.querySelectorAll(".order-card.is-draggable");
+      const zones = document.querySelectorAll(".dropzone");
+
+      cards.forEach((card) => {
+        card.addEventListener("dragstart", (e) => {
+          e.dataTransfer.setData("text/plain", card.dataset.id);
+          card.classList.add("dragging");
+        });
+        card.addEventListener("dragend", () => card.classList.remove("dragging"));
       });
 
-      zone.addEventListener("dragleave", () => zone.classList.remove("drop-over"));
+      zones.forEach((zone) => {
+        zone.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          zone.classList.add("drop-over");
+        });
+        zone.addEventListener("dragleave", () => zone.classList.remove("drop-over"));
 
-      zone.addEventListener("drop", async (e) => {
-        e.preventDefault();
-        zone.classList.remove("drop-over");
+        zone.addEventListener("drop", async (e) => {
+          e.preventDefault();
+          zone.classList.remove("drop-over");
 
-        const id = e.dataTransfer.getData("text/plain");
-        const newStatus = zone.dataset.status;
+          const id = e.dataTransfer.getData("text/plain");
+          const newStatus = zone.dataset.status;
+          if (!id || !newStatus) return;
 
-        if (!id || !newStatus) return;
-
-        await apiUpdateStatus(id, newStatus);
-        await loadOrders();
+          await apiPatch(id, { status: newStatus });
+          await loadOrders();
+        });
       });
-    });
-  }
+    }
 
-  // --- ARCHIVE BUTTON ---
-  function wireArchiveButtons() {
-    document.querySelectorAll("[data-archive]").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        const id = btn.getAttribute("data-archive");
-        await apiArchive(id);
-        await loadOrders();
+    function wireArchiveButtons() {
+      document.querySelectorAll("[data-archive]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-archive");
+          await apiPatch(id, { status: "Archived" });
+          await loadOrders();
+        });
       });
+    }
+
+    async function loadOrders() {
+      const data = await apiGet();
+      renderBoard(data.items || []);
+    }
+
+    addBtn.addEventListener("click", async () => {
+      adminHint.textContent = "";
+      const title = (titleEl.value || "").trim();
+      const client = (clientEl.value || "").trim();
+      const notes = (notesEl.value || "").trim();
+
+      if (!title || !client) {
+        adminHint.textContent = "Title and Client are required.";
+        return;
+      }
+
+      await apiAdd({ title, client, notes, status: "Queued" });
+
+      titleEl.value = "";
+      clientEl.value = "";
+      notesEl.value = "";
+
+      await loadOrders();
     });
-  }
 
-  // --- LOAD (admin) ---
-  async function loadOrders() {
-    const res = await fetch("/api/orders");
-    const data = await res.json();
-    renderBoard(data.items || []);
-  }
-
-  loadOrders();
-</script>
+    loadOrders();
+    setInterval(loadOrders, 4000);
+  </script>
 </body>
 </html>
