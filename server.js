@@ -295,6 +295,24 @@ app.patch("/api/orders/:id", (req, res) => {
   return res.json({ ok: true });
 });
 
+// ✅ admin: DELETE (true delete, removes from orders.json)
+app.delete("/api/orders/:id", (req, res) => {
+  if (!isAdmin(req)) {
+    return res.status(401).json({ ok: false, error: "Admin only" });
+  }
+
+  const { id } = req.params;
+  const items = readOrders();
+  const next = items.filter(o => o.id !== id);
+
+  if (next.length === items.length) {
+    return res.status(404).json({ ok: false, error: "Not found" });
+  }
+
+  writeOrders(next);
+  return res.json({ ok: true });
+});
+
 // ================= START SERVER =================
 
 const port = process.env.PORT || 3000;
