@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Order Status – Nugget Studios</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <title>Order Board – Nugget Studios</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body class="page-layout">
@@ -29,27 +29,44 @@
     </div>
   </nav>
 
-  <!-- CONTENT -->
   <main class="page-content fade-in">
     <section class="board">
       <div class="board-shell">
-        <div class="board-head" style="justify-content:center; flex-direction:column; text-align:center;">
+        <div class="board-head">
           <div>
-            <h1 class="board-title" style="margin:0 0 10px;">Order Status</h1>
-            <p class="board-sub" style="margin:0;">Read-only view</p>
+            <h1 class="board-title">Order Status</h1>
+            <p class="board-sub">Live progress board for your order.</p>
+          </div>
+
+          <div class="board-actions">
+            <button class="board-btn" id="refreshBtn" type="button">Refresh</button>
+            <a class="board-btn" href="/api/logout">Logout</a>
           </div>
         </div>
 
-        <div id="board" style="margin-top:18px;"></div>
+        <div class="kanban" id="kanban">
+          <!-- columns injected by JS -->
+        </div>
 
-        <p class="board-mini" style="text-align:center;">
-          This board updates automatically. If something looks wrong, message me.
+        <p class="board-mini">
+          Tip: If you don’t see your order yet, it may still be getting queued.
         </p>
       </div>
     </section>
+
+    <!-- card modal -->
+    <div class="kmodal" id="kmodal" aria-hidden="true">
+      <div class="kmodal-backdrop" id="kmodalBackdrop"></div>
+      <div class="kmodal-card" role="dialog" aria-modal="true" aria-label="Order details">
+        <button class="kmodal-close" id="kmodalClose" aria-label="Close">×</button>
+        <div class="kmodal-title" id="kmodalTitle"></div>
+        <div class="kmodal-meta" id="kmodalMeta"></div>
+        <div class="kmodal-divider"></div>
+        <div class="kmodal-status" id="kmodalStatus"></div>
+      </div>
+    </div>
   </main>
 
-  <!-- FOOTER -->
   <footer class="footer-strip">
     <div class="footer-divider"></div>
     <div class="footer-inner">
@@ -59,76 +76,143 @@
   </footer>
 
   <script>
-    // --- CONFIG (client never shows Archived) ---
-    const STATUSES = ["Queued", "In Progress", "Review", "Delivered"];
+    const STATUSES = ["Queued", "In Progress", "Waiting Client", "Delivered"];
 
-    // --- ELEMENTS ---
-    const board = document.getElementById("board");
+    const kanban = document.getElementById("kanban");
+    const refreshBtn = document.getElementById("refreshBtn");
 
-    // --- HELPERS ---
-    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-    }[c]));
+    // modal
+    const kmodal = document.getElementById("kmodal");
+    const kmodalBackdrop = document.getElementById("kmodalBackdrop");
+    const kmodalClose = document.getElementById("kmodalClose");
+    const kmodalTitle = document.getElementById("kmodalTitle");
+    const kmodalMeta = document.getElementById("kmodalMeta");
+    const kmodalStatus = document.getElementById("kmodalStatus");
+    let lastFocus = null;
 
-    function groupByStatus(items) {
-      const map = {};
-      STATUSES.forEach(s => (map[s] = []));
-      items.forEach(o => {
-        if (map[o.status]) map[o.status].push(o);
-      });
-      return map;
+    function esc(s){
+      return String(s ?? "").replace(/[&<>"']/g, (m) => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[m]));
     }
 
-    // --- RENDER (OLD STYLE) ---
-    function renderBoard(orders) {
-      const grouped = groupByStatus(orders);
+    function fmtDate(iso){
+      try { return new Date(iso).toLocaleString(); } catch { return ""; }
+    }
 
-      board.innerHTML = `
-        <div class="kanban">
-          ${STATUSES.map((status) => {
-            const cards = (grouped[status] || []).map((o) => `
-              <article class="order-card">
-                <div class="order-top">
-                  <div class="order-title">${esc(o.title)}</div>
-                  <div class="order-badge">${esc(o.status)}</div>
-                </div>
-                <div class="order-meta">
-                  <div class="order-line"><span>Client:</span> ${esc(o.client)}</div>
-                  <div class="order-line"><span>Updated:</span> ${esc(o.updatedAt || "—")}</div>
-                </div>
-                <p class="order-notes">${esc(o.notes || "")}</p>
-              </article>
-            `).join("");
+    function openModal(order){
+      lastFocus = document.activeElement;
+      kmodalTitle.innerHTML = esc(order.title);
+      kmodalMeta.innerHTML = `<span class="kbadge">${esc(order.client)}</span>
+                              <span class="kmuted">Updated: ${esc(fmtDate(order.updatedAt))}</span>`;
+      kmodalStatus.innerHTML = `Status: <span class="kstatus">${esc(order.status)}</span>`;
+      kmodal.classList.add("open");
+      kmodal.setAttribute("aria-hidden", "false");
+      kmodalClose.focus();
+    }
 
-            return `
-              <section class="col">
-                <div class="col-head">
-                  <div class="col-title">${esc(status)}</div>
-                  <div class="col-sub">${(grouped[status] || []).length} orders</div>
-                </div>
-                <div class="col-body">
-                  ${cards || `<div class="col-empty">No orders here yet.</div>`}
-                </div>
-              </section>
-            `;
-          }).join("")}
+    function closeModal(){
+      kmodal.classList.remove("open");
+      kmodal.setAttribute("aria-hidden", "true");
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
+    }
+
+    kmodalBackdrop.addEventListener("click", closeModal);
+    kmodalClose.addEventListener("click", closeModal);
+    document.addEventListener("keydown", (e) => {
+      if (!kmodal.classList.contains("open")) return;
+      if (e.key === "Escape") closeModal();
+    });
+
+    function buildColumns(){
+      kanban.innerHTML = STATUSES.map(s => `
+        <div class="kcol">
+          <div class="kcol-head">
+            <div class="kcol-title">${esc(s)}</div>
+            <div class="kcol-count" data-count-for="${esc(s)}">0</div>
+          </div>
+          <div class="kcol-body" data-status="${esc(s)}"></div>
         </div>
-      `;
+      `).join("");
     }
 
-    // --- LOAD (client) ---
-    async function loadOrders() {
+    async function loadBoard(){
+      buildColumns();
+
       const res = await fetch("/api/orders");
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
-      // ✅ hide archived for clients
-      const visible = (data.items || []).filter(o => o.status !== "Archived");
+      if (!res.ok || !data.ok) {
+        kanban.innerHTML = `<div class="kerror">Failed to load orders.</div>`;
+        return;
+      }
 
-      renderBoard(visible);
+      const items = Array.isArray(data.items) ? data.items : [];
+      const byStatus = Object.fromEntries(STATUSES.map(s => [s, []]));
+      for (const it of items){
+        const st = STATUSES.includes(it.status) ? it.status : "Queued";
+        byStatus[st].push(it);
+      }
+
+      // render cards
+      for (const st of STATUSES){
+        const body = kanban.querySelector(`.kcol-body[data-status="${CSS.escape(st)}"]`);
+        const countEl = kanban.querySelector(`[data-count-for="${CSS.escape(st)}"]`);
+        const list = byStatus[st];
+
+        countEl.textContent = String(list.length);
+
+        body.innerHTML = list.map(o => `
+          <article class="kcard" tabindex="0" role="button"
+            data-id="${esc(o.id)}"
+            data-client="${esc(o.client)}"
+            data-title="${esc(o.title)}"
+            data-status="${esc(o.status)}"
+            data-updated="${esc(o.updatedAt)}">
+            <div class="kcard-top">
+              <span class="kbadge">${esc(o.client)}</span>
+              <span class="kdot"></span>
+            </div>
+            <div class="kcard-title">${esc(o.title)}</div>
+            <div class="kcard-foot">
+              <span class="kmuted">${esc(fmtDate(o.updatedAt))}</span>
+            </div>
+          </article>
+        `).join("");
+      }
     }
 
-    loadOrders();
-    setInterval(loadOrders, 4000);
+    // click / keyboard open
+    kanban.addEventListener("click", (e) => {
+      const card = e.target.closest(".kcard");
+      if (!card) return;
+      openModal({
+        id: card.dataset.id,
+        client: card.dataset.client,
+        title: card.dataset.title,
+        status: card.dataset.status,
+        updatedAt: card.dataset.updated
+      });
+    });
+
+    kanban.addEventListener("keydown", (e) => {
+      const card = e.target.closest(".kcard");
+      if (!card) return;
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        openModal({
+          id: card.dataset.id,
+          client: card.dataset.client,
+          title: card.dataset.title,
+          status: card.dataset.status,
+          updatedAt: card.dataset.updated
+        });
+      }
+    });
+
+    refreshBtn.addEventListener("click", loadBoard);
+
+    loadBoard();
   </script>
 </body>
 </html>
