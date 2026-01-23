@@ -12,7 +12,7 @@ const __dirname = path.dirname(__filename);
 
 app.use(express.json());
 
-// ================= SESSION SYSTEM =================
+// ================= SIMPLE SESSION SYSTEM =================
 
 const adminSessions = new Map();
 
@@ -20,6 +20,7 @@ function createSession() {
   return crypto.randomBytes(32).toString("hex");
 }
 
+// ---- Cookie helpers ----
 function parseCookies(req) {
   const header = req.headers.cookie || "";
   const out = {};
@@ -35,14 +36,14 @@ function parseCookies(req) {
 function setCookie(res, name, value, { maxAgeSeconds = 60 * 60 * 6, httpOnly = true } = {}) {
   res.setHeader(
     "Set-Cookie",
-    `${name}=${value}; Path=/; Max-Age=${maxAgeSeconds}; SameSite=Lax; ${httpOnly ? "HttpOnly;" : ""}`
+    `${encodeURIComponent(name)}=${encodeURIComponent(value)}; Path=/; Max-Age=${maxAgeSeconds}; SameSite=Lax; ${httpOnly ? "HttpOnly;" : ""}`
   );
 }
 
 function clearCookie(res, name) {
   res.setHeader(
     "Set-Cookie",
-    `${name}=; Path=/; Max-Age=0; SameSite=Lax`
+    `${encodeURIComponent(name)}=; Path=/; Max-Age=0; SameSite=Lax`
   );
 }
 
@@ -56,69 +57,53 @@ function isClient(req) {
   return role === "client" || role === "admin";
 }
 
-// ================= BLOCK STATIC BYPASS (FIXED) =================
+// ================= STATIC FILES (PUBLIC ONLY) =================
+// No auto HTML resolution — protected pages are NOT static
+app.use(express.static(__dirname));
 
-app.use((req, res, next) => {
-  // Admin protection
-  if (req.path === "/admin-board" || req.path === "/admin-board.html") {
-    if (!isAdmin(req)) return res.redirect("/portal");
-    return next();
-  }
+// ================= PUBLIC PAGES =================
 
-  // Client protection
-  if (req.path === "/client-board" || req.path === "/client-board.html") {
-    if (!isClient(req)) return res.redirect("/portal");
-    return next();
-  }
-
-  next();
-});
-
-// ================= STATIC FILES =================
-
-app.use(express.static(__dirname, { extensions: ["html"] }));
-
-// ================= PAGE ROUTES =================
-
-app.get("/", (req, res) =>
+app.get("/", (_, res) =>
   res.sendFile(path.join(__dirname, "index.html"))
 );
 
-app.get("/about", (req, res) =>
+app.get("/about", (_, res) =>
   res.sendFile(path.join(__dirname, "about.html"))
 );
 
-app.get("/clients", (req, res) =>
+app.get("/clients", (_, res) =>
   res.sendFile(path.join(__dirname, "clients.html"))
 );
 
-app.get("/past-work", (req, res) =>
+app.get("/past-work", (_, res) =>
   res.sendFile(path.join(__dirname, "past-work.html"))
 );
 
-app.get("/past-work/:workId", (req, res) =>
+app.get("/past-work/:workId", (_, res) =>
   res.sendFile(path.join(__dirname, "past-work.html"))
 );
 
-app.get("/contact", (req, res) =>
+app.get("/contact", (_, res) =>
   res.sendFile(path.join(__dirname, "contact.html"))
 );
 
-app.get("/portal", (req, res) =>
+app.get("/portal", (_, res) =>
   res.sendFile(path.join(__dirname, "portal.html"))
 );
 
-// ================= BOARDS =================
+// ================= PROTECTED BOARDS =================
 
-app.get("/client-board", (req, res) =>
-  res.sendFile(path.join(__dirname, "client-board.html"))
-);
+app.get("/client-board", (req, res) => {
+  if (!isClient(req)) return res.redirect("/portal");
+  res.sendFile(path.join(__dirname, "client-board.html"));
+});
 
-app.get("/admin-board", (req, res) =>
-  res.sendFile(path.join(__dirname, "admin-board.html"))
-);
+app.get("/admin-board", (req, res) => {
+  if (!isAdmin(req)) return res.redirect("/portal");
+  res.sendFile(path.join(__dirname, "admin-board.html"));
+});
 
-// ================= PAST WORK API =================
+// ================= PAST WORK API (RESTORED) =================
 
 app.get("/api/past-work", (req, res) => {
   try {
@@ -137,17 +122,20 @@ app.get("/api/past-work", (req, res) => {
         id: f.replace(/\.[^.]+$/, "")
       }))
     });
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ ok: false });
   }
 });
 
-// ================= CONTACT API =================
+// ================= CONTACT FORM (DISCORD WEBHOOK – RESTORED) =================
 
 app.post("/api/contact", async (req, res) => {
   try {
     const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
-    if (!webhookUrl) return res.status(500).json({ ok: false });
+    if (!webhookUrl) {
+      return res.status(500).json({ ok: false, error: "Webhook not set" });
+    }
 
     const { discordUsername, discordId, service, budget, message } = req.body || {};
     if (!discordUsername || !discordId || !message) {
@@ -177,7 +165,8 @@ app.post("/api/contact", async (req, res) => {
     });
 
     res.json({ ok: true });
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ ok: false });
   }
 });
@@ -187,13 +176,13 @@ app.post("/api/contact", async (req, res) => {
 app.post("/api/login", (req, res) => {
   const { password } = req.body || {};
 
-  // CLIENT
+  // CLIENT LOGIN
   if (password === "nuggetstudios67") {
     setCookie(res, "role", "client", { httpOnly: false });
     return res.json({ ok: true, go: "/client-board" });
   }
 
-  // ADMIN
+  // ADMIN LOGIN
   if (password === "passwordpass123") {
     const sid = createSession();
     adminSessions.set(sid, { created: Date.now() });
@@ -207,15 +196,13 @@ app.post("/api/login", (req, res) => {
 
 app.get("/api/logout", (req, res) => {
   const cookies = parseCookies(req);
-  if (cookies.admin_session) {
-    adminSessions.delete(cookies.admin_session);
-  }
+  if (cookies.admin_session) adminSessions.delete(cookies.admin_session);
   clearCookie(res, "admin_session");
   clearCookie(res, "role");
   res.redirect("/portal");
 });
 
-// ================= ORDERS =================
+// ================= ORDERS API (RESTORED) =================
 
 const ORDERS_PATH = path.join(__dirname, "orders.json");
 
@@ -272,7 +259,7 @@ app.patch("/api/orders/:id", (req, res) => {
   res.json({ ok: true });
 });
 
-// ================= START =================
+// ================= START SERVER =================
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
