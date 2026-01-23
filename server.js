@@ -7,6 +7,9 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// ✅ Admin path from Railway env (falls back to /admin-board)
+const ADMIN_PATH = process.env.ADMIN_PATH || "/admin-board";
+
 // Parse JSON bodies (for contact form)
 app.use(express.json());
 
@@ -56,7 +59,7 @@ app.get("/client-board", (req, res) => {
 });
 
 // Admin board (must be logged in as admin)
-app.get("/admin-board", (req, res) => {
+app.get(ADMIN_PATH, (req, res) => {
   const cookies = parseCookies(req);
   const role = cookies.role || "";
   if (role !== "admin") return res.redirect("/portal");
@@ -211,7 +214,7 @@ app.post("/api/login", (req, res) => {
 
   if (password === "RyanWasHere") {
     setCookie(res, "role", "admin");
-    return res.json({ ok: true, go: "/admin-board" });
+    return res.json({ ok: true, go: ADMIN_PATH });
   }
 
   return res.status(401).json({ ok: false, error: "Wrong password" });
