@@ -1459,12 +1459,18 @@ input:focus, select:focus, textarea:focus{
   .kanban{ grid-template-columns: 1fr; }
 }
 
+/* Force board header to truly center */
 .board-head {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* centers the block */
+  text-align: center;    /* centers the text */
 }
 
-.board-title,
-.board-sub {
-  margin-left: auto;
-  margin-right: auto;
+/* Make sure nothing offsets either line */
+.board-head .board-title,
+.board-head .board-sub {
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
 }
