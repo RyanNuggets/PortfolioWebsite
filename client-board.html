@@ -1,118 +1,55 @@
-<!-- client-board.html (FULL FILE) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Client Board – Nugget Studios</title>
-  <link rel="stylesheet" href="css/style.css">
-  <style>
-    .board-wrap{ width:min(1180px, calc(100vw - 40px)); margin:0 auto; }
-    .board-top{
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      gap:14px;
-      flex-wrap:wrap;
-      margin-bottom:16px;
-    }
-    .board-title{ margin:0; font-size:34px; letter-spacing:.2px; }
-    .board-sub{ margin:0; opacity:.72; font-size:14px; }
-    .board-actions{ display:flex; gap:10px; align-items:center; }
-    .tiny-btn{
-      border-radius:16px;
-      padding:10px 14px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.04);
-      color:white;
-      cursor:pointer;
-      opacity:.9;
-      transition:transform .15s ease, opacity .15s ease;
-      text-decoration:none;
-      font-size:13px;
-    }
-    .tiny-btn:hover{ transform:translateY(-2px); opacity:1; }
-    .board-grid{
-      display:grid;
-      grid-template-columns:repeat(4, minmax(0, 1fr));
-      gap:14px;
-    }
-    .col{
-      border-radius:22px;
-      padding:14px;
-      background:linear-gradient(180deg,#141414,#000);
-      border:1px solid rgba(255,255,255,.07);
-      box-shadow:
-        0 16px 46px rgba(0,0,0,.70),
-        inset 0 2px 4px rgba(255,255,255,.08),
-        inset 0 -2px 4px rgba(255,255,255,.06);
-      min-height:52vh;
-    }
-    .col h3{
-      margin:4px 0 10px;
-      font-size:13px;
-      text-transform:uppercase;
-      letter-spacing:.18px;
-      opacity:.75;
-    }
-    .card{
-      border-radius:18px;
-      padding:12px 12px 10px;
-      background:rgba(255,255,255,.03);
-      border:1px solid rgba(255,255,255,.07);
-      box-shadow:
-        0 14px 32px rgba(0,0,0,.55),
-        inset 0 2px 4px rgba(255,255,255,.06),
-        inset 0 -2px 4px rgba(255,255,255,.05);
-      margin-bottom:10px;
-    }
-    .card-title{ margin:0; font-size:14px; font-weight:800; opacity:.95; }
-    .card-meta{ margin-top:6px; font-size:12px; opacity:.7; line-height:1.5; }
-    .empty{ opacity:.55; font-size:13px; padding:10px 2px; }
-
-    @media (max-width:1000px){ .board-grid{ grid-template-columns:repeat(2, minmax(0, 1fr)); } }
-    @media (max-width:520px){ .board-grid{ grid-template-columns:1fr; } }
-  </style>
+  <title>Order Status – Nugget Studios</title>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 
 <body class="page-layout">
+  <!-- NAVBAR -->
   <nav class="navbar fade-in">
     <div class="nav-inner">
       <a href="/" class="nav-home">
         <img src="images/logo2.png" alt="Navbar Logo" class="nav-logo">
       </a>
+
       <span class="divider"></span>
       <a href="/about" class="nav-link">About</a>
+
       <span class="divider"></span>
       <a href="/clients" class="nav-link">Clients</a>
+
       <span class="divider"></span>
       <a href="/past-work" class="nav-link">Past Work</a>
+
       <span class="divider"></span>
       <a href="/contact" class="nav-link">Contact</a>
     </div>
   </nav>
 
+  <!-- CONTENT -->
   <main class="page-content fade-in">
-    <div class="board-wrap">
-      <div class="board-top">
-        <div>
-          <h1 class="board-title">Order status</h1>
-          <p class="board-sub">Read-only view. For updates, we move your order through stages.</p>
+    <section class="board">
+      <div class="board-shell">
+        <div class="board-head" style="justify-content:center; flex-direction:column; text-align:center;">
+          <div>
+            <h1 class="board-title" style="margin:0 0 10px;">Order Status</h1>
+            <p class="board-sub" style="margin:0;">Read-only view</p>
+          </div>
         </div>
-        <div class="board-actions">
-          <a class="tiny-btn" href="/api/logout">Logout</a>
-        </div>
-      </div>
 
-      <div class="board-grid" id="grid">
-        <div class="col" data-status="Queued"><h3>Queued</h3><div class="list"></div></div>
-        <div class="col" data-status="In Progress"><h3>In progress</h3><div class="list"></div></div>
-        <div class="col" data-status="Review"><h3>Review</h3><div class="list"></div></div>
-        <div class="col" data-status="Delivered"><h3>Delivered</h3><div class="list"></div></div>
+        <div id="board" style="margin-top:18px;"></div>
+
+        <p class="board-mini" style="text-align:center;">
+          This board updates automatically. If something looks wrong, message me.
+        </p>
       </div>
-    </div>
+    </section>
   </main>
 
+  <!-- FOOTER -->
   <footer class="footer-strip">
     <div class="footer-divider"></div>
     <div class="footer-inner">
@@ -122,72 +59,76 @@
   </footer>
 
   <script>
-  // --- CONFIG ---
-  const STATUSES = ["Queued", "In Progress", "Review", "Delivered"]; // client never shows Archived
+    // --- CONFIG (client never shows Archived) ---
+    const STATUSES = ["Queued", "In Progress", "Review", "Delivered"];
 
-  // --- ELEMENTS ---
-  const board = document.getElementById("board"); // your container
-  const statusText = document.getElementById("statusText"); // "Order status" text (if you have it)
-  const viewText = document.getElementById("viewText");     // "Read-only view" text (if you have it)
+    // --- ELEMENTS ---
+    const board = document.getElementById("board");
 
-  // --- HELPERS ---
-  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-  }[c]));
+    // --- HELPERS ---
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[c]));
 
-  function groupByStatus(items) {
-    const map = {};
-    STATUSES.forEach(s => (map[s] = []));
-    items.forEach(o => {
-      if (map[o.status]) map[o.status].push(o);
-    });
-    return map;
-  }
+    function groupByStatus(items) {
+      const map = {};
+      STATUSES.forEach(s => (map[s] = []));
+      items.forEach(o => {
+        if (map[o.status]) map[o.status].push(o);
+      });
+      return map;
+    }
 
-  // --- RENDER ---
-  function renderBoard(orders) {
-    const grouped = groupByStatus(orders);
+    // --- RENDER (OLD STYLE) ---
+    function renderBoard(orders) {
+      const grouped = groupByStatus(orders);
 
-    board.innerHTML = STATUSES.map((status) => {
-      const cards = grouped[status].map((o) => `
-        <article class="order-card">
-          <div class="order-top">
-            <div class="order-title">${esc(o.title)}</div>
-            <div class="order-badge">${esc(o.status)}</div>
-          </div>
-          <div class="order-meta">
-            <div class="order-line"><span>Client:</span> ${esc(o.client)}</div>
-            <div class="order-line"><span>Updated:</span> ${esc(o.updatedAt || "—")}</div>
-          </div>
-          <p class="order-notes">${esc(o.notes || "")}</p>
-        </article>
-      `).join("");
+      board.innerHTML = `
+        <div class="kanban">
+          ${STATUSES.map((status) => {
+            const cards = (grouped[status] || []).map((o) => `
+              <article class="order-card">
+                <div class="order-top">
+                  <div class="order-title">${esc(o.title)}</div>
+                  <div class="order-badge">${esc(o.status)}</div>
+                </div>
+                <div class="order-meta">
+                  <div class="order-line"><span>Client:</span> ${esc(o.client)}</div>
+                  <div class="order-line"><span>Updated:</span> ${esc(o.updatedAt || "—")}</div>
+                </div>
+                <p class="order-notes">${esc(o.notes || "")}</p>
+              </article>
+            `).join("");
 
-      return `
-        <section class="col">
-          <div class="col-head">
-            <div class="col-title">${esc(status)}</div>
-            <div class="col-sub">${grouped[status].length} orders</div>
-          </div>
-          <div class="col-body">${cards || `<div class="col-empty">No orders here yet.</div>`}</div>
-        </section>
+            return `
+              <section class="col">
+                <div class="col-head">
+                  <div class="col-title">${esc(status)}</div>
+                  <div class="col-sub">${(grouped[status] || []).length} orders</div>
+                </div>
+                <div class="col-body">
+                  ${cards || `<div class="col-empty">No orders here yet.</div>`}
+                </div>
+              </section>
+            `;
+          }).join("")}
+        </div>
       `;
-    }).join("");
-  }
+    }
 
-  // --- LOAD (client) ---
-  async function loadOrders() {
-    const res = await fetch("/api/orders");
-    const data = await res.json();
+    // --- LOAD (client) ---
+    async function loadOrders() {
+      const res = await fetch("/api/orders");
+      const data = await res.json();
 
-    // ✅ hide archived for clients
-    const visible = (data.items || []).filter(o => o.status !== "Archived");
+      // ✅ hide archived for clients
+      const visible = (data.items || []).filter(o => o.status !== "Archived");
 
-    renderBoard(visible);
-  }
+      renderBoard(visible);
+    }
 
-  loadOrders();
-  setInterval(loadOrders, 4000); // optional refresh
-</script>
+    loadOrders();
+    setInterval(loadOrders, 4000);
+  </script>
 </body>
 </html>
