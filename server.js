@@ -310,12 +310,23 @@ app.post("/api/orders", (req, res) => {
   const items = readOrders();
   const id = "order-" + Date.now();
   const now = new Date().toISOString();
+  const st = String(status || "Queued").trim();
+
+  // ✅ queueRank: only for Queued; new queued orders go to end of queue
+  let queueRank = null;
+  if (st === "Queued") {
+    const maxRank = items
+      .filter(o => o.status === "Queued" && Number.isFinite(o.queueRank))
+      .reduce((m, o) => Math.max(m, o.queueRank), 0);
+    queueRank = maxRank + 1;
+  }
 
   items.unshift({
     id,
     client: String(client).trim(),
     title: String(title).trim(),
-    status: String(status || "Queued").trim(),
+    status: st,
+    queueRank,
     updatedAt: now
   });
 
@@ -336,9 +347,71 @@ app.patch("/api/orders/:id", (req, res) => {
   const idx = items.findIndex(o => o.id === id);
   if (idx === -1) return res.status(404).json({ ok: false, error: "Not found" });
 
-  if (typeof status === "string") items[idx].status = status;
+  const prevStatus = items[idx].status;
+
   if (typeof title === "string") items[idx].title = title;
+
+  if (typeof status === "string") {
+    const nextStatus = status;
+    items[idx].status = nextStatus;
+
+    // Leaving queue -> clear rank
+    if (prevStatus === "Queued" && nextStatus !== "Queued") {
+      items[idx].queueRank = null;
+    }
+
+    // Entering queue -> put at end
+    if (prevStatus !== "Queued" && nextStatus === "Queued") {
+      const maxRank = items
+        .filter(o => o.status === "Queued" && Number.isFinite(o.queueRank))
+        .reduce((m, o) => Math.max(m, o.queueRank), 0);
+      items[idx].queueRank = maxRank + 1;
+    }
+  }
+
   items[idx].updatedAt = new Date().toISOString();
+
+  writeOrders(items);
+  return res.json({ ok: true });
+});
+
+// ✅ admin: REORDER QUEUE (Queued column only)
+app.post("/api/orders/queue-reorder", (req, res) => {
+  if (!isAdmin(req)) {
+    return res.status(401).json({ ok: false, error: "Admin only" });
+  }
+
+  const { ids } = req.body || {};
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return res.status(400).json({ ok: false, error: "ids array required" });
+  }
+
+  const items = readOrders();
+
+  const set = new Set(ids.map(String));
+  let rank = 1;
+
+  // Apply rank to queued orders in the provided order
+  for (const id of ids) {
+    const idx = items.findIndex(o => o.id === id);
+    if (idx !== -1 && items[idx].status === "Queued") {
+      items[idx].queueRank = rank++;
+      items[idx].updatedAt = new Date().toISOString();
+    }
+  }
+
+  // Any queued orders not included get pushed to end
+  const rest = items
+    .filter(o => o.status === "Queued" && !set.has(o.id))
+    .sort((a, b) => (a.queueRank ?? 999999) - (b.queueRank ?? 999999));
+
+  for (const o of rest) {
+    const idx = items.findIndex(x => x.id === o.id);
+    if (idx !== -1) {
+      items[idx].queueRank = rank++;
+      items[idx].updatedAt = new Date().toISOString();
+    }
+  }
 
   writeOrders(items);
   return res.json({ ok: true });
