@@ -40,6 +40,29 @@ app.get("/contact", (req, res) =>
   res.sendFile(path.join(__dirname, "contact.html"))
 );
 
+// ================= PORTAL / BOARD PAGES (ADDED) =================
+
+// Portal (password entry)
+app.get("/portal", (req, res) =>
+  res.sendFile(path.join(__dirname, "portal.html"))
+);
+
+// Client board (must be logged in as client OR admin)
+app.get("/client-board", (req, res) => {
+  const cookies = parseCookies(req);
+  const role = cookies.role || "";
+  if (role !== "client" && role !== "admin") return res.redirect("/portal");
+  return res.sendFile(path.join(__dirname, "client-board.html"));
+});
+
+// Admin board (must be logged in as admin)
+app.get("/admin-board", (req, res) => {
+  const cookies = parseCookies(req);
+  const role = cookies.role || "";
+  if (role !== "admin") return res.redirect("/portal");
+  return res.sendFile(path.join(__dirname, "admin-board.html"));
+});
+
 // ================= PAST WORK API (ADDED) =================
 
 // Lists files in /images that start with "work-" so past-work.html can auto-render.
@@ -136,6 +159,140 @@ app.post("/api/contact", async (req, res) => {
       error: "Server error"
     });
   }
+});
+
+// ================= PORTAL / ORDERS API (ADDED) =================
+
+// ---- Cookie helpers (no extra packages needed) ----
+function parseCookies(req) {
+  const header = req.headers.cookie || "";
+  const out = {};
+  header.split(";").map(v => v.trim()).filter(Boolean).forEach(pair => {
+    const idx = pair.indexOf("=");
+    const k = idx >= 0 ? pair.slice(0, idx) : pair;
+    const val = idx >= 0 ? pair.slice(idx + 1) : "";
+    out[decodeURIComponent(k)] = decodeURIComponent(val);
+  });
+  return out;
+}
+
+function setCookie(res, name, value, { maxAgeSeconds = 60 * 60 * 24 } = {}) {
+  res.setHeader(
+    "Set-Cookie",
+    `${encodeURIComponent(name)}=${encodeURIComponent(value)}; Path=/; Max-Age=${maxAgeSeconds}; SameSite=Lax`
+  );
+}
+
+function clearCookie(res, name) {
+  res.setHeader(
+    "Set-Cookie",
+    `${encodeURIComponent(name)}=; Path=/; Max-Age=0; SameSite=Lax`
+  );
+}
+
+function hasClientAccess(req) {
+  const role = (parseCookies(req).role || "");
+  return role === "client" || role === "admin";
+}
+
+function isAdmin(req) {
+  const role = (parseCookies(req).role || "");
+  return role === "admin";
+}
+
+// ---- Login / logout ----
+app.post("/api/login", (req, res) => {
+  const { password } = req.body || {};
+
+  if (password === "nuggetstudios67") {
+    setCookie(res, "role", "client");
+    return res.json({ ok: true, go: "/client-board" });
+  }
+
+  if (password === "passwordpass123") {
+    setCookie(res, "role", "admin");
+    return res.json({ ok: true, go: "/admin-board" });
+  }
+
+  return res.status(401).json({ ok: false, error: "Wrong password" });
+});
+
+app.get("/api/logout", (req, res) => {
+  clearCookie(res, "role");
+  return res.redirect("/portal");
+});
+
+// ---- Orders storage (orders.json) ----
+const ORDERS_PATH = path.join(__dirname, "orders.json");
+
+function readOrders() {
+  try {
+    const raw = fs.readFileSync(ORDERS_PATH, "utf8");
+    const json = JSON.parse(raw);
+    return Array.isArray(json.items) ? json.items : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeOrders(items) {
+  fs.writeFileSync(ORDERS_PATH, JSON.stringify({ items }, null, 2), "utf8");
+}
+
+// client + admin: READ
+app.get("/api/orders", (req, res) => {
+  if (!hasClientAccess(req)) {
+    return res.status(401).json({ ok: false, error: "Not authorized" });
+  }
+  return res.json({ ok: true, items: readOrders() });
+});
+
+// admin: CREATE
+app.post("/api/orders", (req, res) => {
+  if (!isAdmin(req)) {
+    return res.status(401).json({ ok: false, error: "Admin only" });
+  }
+
+  const { client, title, status } = req.body || {};
+  if (!client || !title) {
+    return res.status(400).json({ ok: false, error: "client and title required" });
+  }
+
+  const items = readOrders();
+  const id = "order-" + Date.now();
+  const now = new Date().toISOString();
+
+  items.unshift({
+    id,
+    client: String(client).trim(),
+    title: String(title).trim(),
+    status: String(status || "Queued").trim(),
+    updatedAt: now
+  });
+
+  writeOrders(items);
+  return res.json({ ok: true, id });
+});
+
+// admin: UPDATE (status/title/etc)
+app.patch("/api/orders/:id", (req, res) => {
+  if (!isAdmin(req)) {
+    return res.status(401).json({ ok: false, error: "Admin only" });
+  }
+
+  const { id } = req.params;
+  const { status, title } = req.body || {};
+
+  const items = readOrders();
+  const idx = items.findIndex(o => o.id === id);
+  if (idx === -1) return res.status(404).json({ ok: false, error: "Not found" });
+
+  if (typeof status === "string") items[idx].status = status;
+  if (typeof title === "string") items[idx].title = title;
+  items[idx].updatedAt = new Date().toISOString();
+
+  writeOrders(items);
+  return res.json({ ok: true });
 });
 
 // ================= START SERVER =================
