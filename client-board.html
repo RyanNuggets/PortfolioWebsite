@@ -90,6 +90,9 @@
     const kmodalStatus = document.getElementById("kmodalStatus");
     let lastFocus = null;
 
+    // ✅ we keep latest items here so modal can show "3rd in queue" and update on refresh
+    let LATEST_ITEMS = [];
+
     function esc(s){
       return String(s ?? "").replace(/[&<>"']/g, (m) => ({
         "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
@@ -100,12 +103,51 @@
       try { return new Date(iso).toLocaleString(); } catch { return ""; }
     }
 
+    // ✅ ordinal helper: 1st, 2nd, 3rd, 4th...
+    function ordinal(n){
+      const v = n % 100;
+      if (v >= 11 && v <= 13) return `${n}th`;
+      switch (n % 10) {
+        case 1: return `${n}st`;
+        case 2: return `${n}nd`;
+        case 3: return `${n}rd`;
+        default: return `${n}th`;
+      }
+    }
+
+    // ✅ compute "3rd in Queue" based on queueRank ordering (fallback to created order)
+    function getQueueText(orderId){
+      const queued = (LATEST_ITEMS || [])
+        .filter(o => o && o.status === "Queued")
+        .slice()
+        .sort((a, b) => {
+          const ar = Number.isFinite(a.queueRank) ? a.queueRank : 999999;
+          const br = Number.isFinite(b.queueRank) ? b.queueRank : 999999;
+          if (ar !== br) return ar - br;
+          // fallback stable order if ranks missing
+          const at = String(a.updatedAt || "");
+          const bt = String(b.updatedAt || "");
+          return at.localeCompare(bt);
+        });
+
+      const idx = queued.findIndex(o => o.id === orderId);
+      if (idx === -1) return "Queued";
+      return `${ordinal(idx + 1)} in Queue`;
+    }
+
     function openModal(order){
       lastFocus = document.activeElement;
+
       kmodalTitle.innerHTML = esc(order.title);
       kmodalMeta.innerHTML = `<span class="kbadge">${esc(order.client)}</span>
                               <span class="kmuted">Updated: ${esc(fmtDate(order.updatedAt))}</span>`;
-      kmodalStatus.innerHTML = `Status: <span class="kstatus">${esc(order.status)}</span>`;
+
+      const statusText = (order.status === "Queued")
+        ? getQueueText(order.id)
+        : order.status;
+
+      kmodalStatus.innerHTML = `Status: <span class="kstatus">${esc(statusText)}</span>`;
+
       kmodal.classList.add("open");
       kmodal.setAttribute("aria-hidden", "false");
       kmodalClose.focus();
@@ -148,11 +190,16 @@
       }
 
       const items = Array.isArray(data.items) ? data.items : [];
+      LATEST_ITEMS = items;
+
       const byStatus = Object.fromEntries(STATUSES.map(s => [s, []]));
       for (const it of items){
         const st = STATUSES.includes(it.status) ? it.status : "Queued";
         byStatus[st].push(it);
       }
+
+      // ✅ Queued sorted by queueRank (top = 1st)
+      byStatus["Queued"].sort((a,b) => (a.queueRank ?? 999999) - (b.queueRank ?? 999999));
 
       // render cards
       for (const st of STATUSES){
@@ -180,12 +227,33 @@
           </article>
         `).join("");
       }
+
+      // ✅ if modal is open, refresh its status text automatically on refresh
+      if (kmodal.classList.contains("open")) {
+        const openId = kmodal.getAttribute("data-open-id");
+        if (openId) {
+          const fresh = (LATEST_ITEMS || []).find(o => o.id === openId);
+          if (fresh) {
+            const statusText = (fresh.status === "Queued")
+              ? getQueueText(fresh.id)
+              : fresh.status;
+
+            kmodalTitle.innerHTML = esc(fresh.title);
+            kmodalMeta.innerHTML = `<span class="kbadge">${esc(fresh.client)}</span>
+                                    <span class="kmuted">Updated: ${esc(fmtDate(fresh.updatedAt))}</span>`;
+            kmodalStatus.innerHTML = `Status: <span class="kstatus">${esc(statusText)}</span>`;
+          }
+        }
+      }
     }
 
     // click / keyboard open
     kanban.addEventListener("click", (e) => {
       const card = e.target.closest(".kcard");
       if (!card) return;
+
+      kmodal.setAttribute("data-open-id", card.dataset.id);
+
       openModal({
         id: card.dataset.id,
         client: card.dataset.client,
@@ -200,6 +268,9 @@
       if (!card) return;
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
+
+        kmodal.setAttribute("data-open-id", card.dataset.id);
+
         openModal({
           id: card.dataset.id,
           client: card.dataset.client,
@@ -209,6 +280,13 @@
         });
       }
     });
+
+    // make sure we clear open-id on close
+    const _closeModalOriginal = closeModal;
+    function closeModal(){
+      kmodal.removeAttribute("data-open-id");
+      _closeModalOriginal();
+    }
 
     refreshBtn.addEventListener("click", loadBoard);
 
