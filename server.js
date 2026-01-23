@@ -2,15 +2,33 @@ import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
+import session from "express-session";
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Parse JSON bodies (for contact form)
+// ================= CORE MIDDLEWARE =================
+
 app.use(express.json());
 
-// Serve static files (css, images, js, html)
+// ✅ SESSION SYSTEM (ADDED)
+app.use(
+  session({
+    name: "nuggets_admin_session",
+    secret: process.env.SESSION_SECRET || "super-secret-session-key",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 1000 * 60 * 60 * 6 // 6 hours
+    }
+  })
+);
+
+// Serve static files
 app.use(express.static(__dirname, { extensions: ["html"] }));
 
 // ================= PAGE ROUTES =================
@@ -31,7 +49,6 @@ app.get("/past-work", (req, res) =>
   res.sendFile(path.join(__dirname, "past-work.html"))
 );
 
-// ✅ Past work detail URL (still serves same HTML; client JS focuses the matching item)
 app.get("/past-work/:workId", (req, res) =>
   res.sendFile(path.join(__dirname, "past-work.html"))
 );
@@ -40,14 +57,13 @@ app.get("/contact", (req, res) =>
   res.sendFile(path.join(__dirname, "contact.html"))
 );
 
-// ================= PORTAL / BOARD PAGES (ADDED) =================
+// ================= PORTAL / BOARD PAGES =================
 
-// Portal (password entry)
 app.get("/portal", (req, res) =>
   res.sendFile(path.join(__dirname, "portal.html"))
 );
 
-// Client board (must be logged in as client OR admin)
+// Client board (cookie-based – unchanged)
 app.get("/client-board", (req, res) => {
   const cookies = parseCookies(req);
   const role = cookies.role || "";
@@ -55,18 +71,13 @@ app.get("/client-board", (req, res) => {
   return res.sendFile(path.join(__dirname, "client-board.html"));
 });
 
-// Admin board (must be logged in as admin)
-app.get("/admin-board", (req, res) => {
-  const cookies = parseCookies(req);
-  const role = cookies.role || "";
-  if (role !== "admin") return res.redirect("/portal");
+// ✅ ADMIN BOARD (SESSION PROTECTED)
+app.get("/admin-board", requireAdminSession, (req, res) => {
   return res.sendFile(path.join(__dirname, "admin-board.html"));
 });
 
-// ================= PAST WORK API (ADDED) =================
+// ================= PAST WORK API =================
 
-// Lists files in /images that start with "work-" so past-work.html can auto-render.
-// Example filenames: work-1.png, work-abc.jpg, work-banner.webp
 app.get("/api/past-work", (req, res) => {
   try {
     const imagesDir = path.join(__dirname, "images");
@@ -107,7 +118,6 @@ app.post("/api/contact", async (req, res) => {
 
     const { discordUsername, discordId, service, budget, message } = req.body || {};
 
-    // Basic validation
     if (!discordUsername || !discordId || !message) {
       return res.status(400).json({
         ok: false,
@@ -161,9 +171,16 @@ app.post("/api/contact", async (req, res) => {
   }
 });
 
-// ================= PORTAL / ORDERS API (ADDED) =================
+// ================= AUTH HELPERS =================
 
-// ---- Cookie helpers (no extra packages needed) ----
+function requireAdminSession(req, res, next) {
+  if (!req.session?.isAdmin) {
+    return res.redirect("/portal");
+  }
+  next();
+}
+
+// ---- Cookie helpers (UNCHANGED) ----
 function parseCookies(req) {
   const header = req.headers.cookie || "";
   const out = {};
@@ -196,11 +213,11 @@ function hasClientAccess(req) {
 }
 
 function isAdmin(req) {
-  const role = (parseCookies(req).role || "");
-  return role === "admin";
+  return req.session?.isAdmin === true;
 }
 
-// ---- Login / logout ----
+// ================= LOGIN / LOGOUT =================
+
 app.post("/api/login", (req, res) => {
   const { password } = req.body || {};
 
@@ -210,6 +227,7 @@ app.post("/api/login", (req, res) => {
   }
 
   if (password === "passwordpass123") {
+    req.session.isAdmin = true;
     setCookie(res, "role", "admin");
     return res.json({ ok: true, go: "/admin-board" });
   }
@@ -218,11 +236,13 @@ app.post("/api/login", (req, res) => {
 });
 
 app.get("/api/logout", (req, res) => {
+  req.session.destroy(() => {});
   clearCookie(res, "role");
   return res.redirect("/portal");
 });
 
-// ---- Orders storage (orders.json) ----
+// ================= ORDERS API =================
+
 const ORDERS_PATH = path.join(__dirname, "orders.json");
 
 function readOrders() {
@@ -239,7 +259,6 @@ function writeOrders(items) {
   fs.writeFileSync(ORDERS_PATH, JSON.stringify({ items }, null, 2), "utf8");
 }
 
-// client + admin: READ
 app.get("/api/orders", (req, res) => {
   if (!hasClientAccess(req)) {
     return res.status(401).json({ ok: false, error: "Not authorized" });
@@ -247,12 +266,7 @@ app.get("/api/orders", (req, res) => {
   return res.json({ ok: true, items: readOrders() });
 });
 
-// admin: CREATE
-app.post("/api/orders", (req, res) => {
-  if (!isAdmin(req)) {
-    return res.status(401).json({ ok: false, error: "Admin only" });
-  }
-
+app.post("/api/orders", requireAdminSession, (req, res) => {
   const { client, title, status } = req.body || {};
   if (!client || !title) {
     return res.status(400).json({ ok: false, error: "client and title required" });
@@ -274,12 +288,7 @@ app.post("/api/orders", (req, res) => {
   return res.json({ ok: true, id });
 });
 
-// admin: UPDATE (status/title/etc)
-app.patch("/api/orders/:id", (req, res) => {
-  if (!isAdmin(req)) {
-    return res.status(401).json({ ok: false, error: "Admin only" });
-  }
-
+app.patch("/api/orders/:id", requireAdminSession, (req, res) => {
   const { id } = req.params;
   const { status, title } = req.body || {};
 
