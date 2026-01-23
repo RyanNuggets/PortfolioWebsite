@@ -2,25 +2,168 @@ import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
-import crypto from "crypto";
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ================= CORE =================
-
+// Parse JSON bodies (for contact form)
 app.use(express.json());
 
-// ================= SIMPLE SESSION SYSTEM =================
+// Serve static files (css, images, js, html)
+app.use(express.static(__dirname, { extensions: ["html"] }));
 
-const adminSessions = new Map();
+// ================= PAGE ROUTES =================
 
-function createSession() {
-  return crypto.randomBytes(32).toString("hex");
-}
+app.get("/", (req, res) =>
+  res.sendFile(path.join(__dirname, "index.html"))
+);
 
-// ---- Cookie helpers ----
+app.get("/about", (req, res) =>
+  res.sendFile(path.join(__dirname, "about.html"))
+);
+
+app.get("/clients", (req, res) =>
+  res.sendFile(path.join(__dirname, "clients.html"))
+);
+
+app.get("/past-work", (req, res) =>
+  res.sendFile(path.join(__dirname, "past-work.html"))
+);
+
+// ✅ Past work detail URL (still serves same HTML; client JS focuses the matching item)
+app.get("/past-work/:workId", (req, res) =>
+  res.sendFile(path.join(__dirname, "past-work.html"))
+);
+
+app.get("/contact", (req, res) =>
+  res.sendFile(path.join(__dirname, "contact.html"))
+);
+
+// ================= PORTAL / BOARD PAGES (ADDED) =================
+
+// Portal (password entry)
+app.get("/portal", (req, res) =>
+  res.sendFile(path.join(__dirname, "portal.html"))
+);
+
+// Client board (must be logged in as client OR admin)
+app.get("/client-board", (req, res) => {
+  const cookies = parseCookies(req);
+  const role = cookies.role || "";
+  if (role !== "client" && role !== "admin") return res.redirect("/portal");
+  return res.sendFile(path.join(__dirname, "client-board.html"));
+});
+
+// Admin board (must be logged in as admin)
+app.get("/admin-board", (req, res) => {
+  const cookies = parseCookies(req);
+  const role = cookies.role || "";
+  if (role !== "admin") return res.redirect("/portal");
+  return res.sendFile(path.join(__dirname, "admin-board.html"));
+});
+
+// ================= PAST WORK API (ADDED) =================
+
+// Lists files in /images that start with "work-" so past-work.html can auto-render.
+// Example filenames: work-1.png, work-abc.jpg, work-banner.webp
+app.get("/api/past-work", (req, res) => {
+  try {
+    const imagesDir = path.join(__dirname, "images");
+    const files = fs.readdirSync(imagesDir);
+
+    const workFiles = files
+      .filter((f) => /^work-.+\.(png|jpg|jpeg|webp|gif)$/i.test(f))
+      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+
+    return res.json({
+      ok: true,
+      items: workFiles.map((f) => ({
+        file: f,
+        url: `/images/${f}`,
+        id: f.replace(/\.[^.]+$/, ""),
+      })),
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      ok: false,
+      error: "Failed to read images folder."
+    });
+  }
+});
+
+// ================= CONTACT FORM API =================
+
+app.post("/api/contact", async (req, res) => {
+  try {
+    const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+    if (!webhookUrl) {
+      return res.status(500).json({
+        ok: false,
+        error: "DISCORD_WEBHOOK_URL not set"
+      });
+    }
+
+    const { discordUsername, discordId, service, budget, message } = req.body || {};
+
+    // Basic validation
+    if (!discordUsername || !discordId || !message) {
+      return res.status(400).json({
+        ok: false,
+        error: "Discord Username, Discord ID, and message are required"
+      });
+    }
+
+    const safe = (v, max = 1024) => String(v ?? "").trim().slice(0, max);
+
+    const payload = {
+      username: "Nuggets Customs • Contact",
+      embeds: [
+        {
+          title: "New Contact Form Submission",
+          color: 0x111111,
+          fields: [
+            { name: "Discord Username", value: safe(discordUsername, 256), inline: true },
+            { name: "Discord ID", value: safe(discordId, 256), inline: true },
+            { name: "Service", value: safe(service, 256) || "—", inline: true },
+            { name: "Budget", value: safe(budget, 256) || "—", inline: true },
+            { name: "Message", value: safe(message, 1500), inline: false }
+          ],
+          footer: { text: "Nuggets Customs Website" },
+          timestamp: new Date().toISOString()
+        }
+      ]
+    };
+
+    const discordRes = await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!discordRes.ok) {
+      const text = await discordRes.text().catch(() => "");
+      return res.status(502).json({
+        ok: false,
+        error: "Discord webhook failed",
+        details: text.slice(0, 300)
+      });
+    }
+
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      ok: false,
+      error: "Server error"
+    });
+  }
+});
+
+// ================= PORTAL / ORDERS API (ADDED) =================
+
+// ---- Cookie helpers (no extra packages needed) ----
 function parseCookies(req) {
   const header = req.headers.cookie || "";
   const out = {};
@@ -33,10 +176,10 @@ function parseCookies(req) {
   return out;
 }
 
-function setCookie(res, name, value, { maxAgeSeconds = 60 * 60 * 6, httpOnly = true } = {}) {
+function setCookie(res, name, value, { maxAgeSeconds = 60 * 60 * 24 } = {}) {
   res.setHeader(
     "Set-Cookie",
-    `${encodeURIComponent(name)}=${encodeURIComponent(value)}; Path=/; Max-Age=${maxAgeSeconds}; SameSite=Lax; ${httpOnly ? "HttpOnly;" : ""}`
+    `${encodeURIComponent(name)}=${encodeURIComponent(value)}; Path=/; Max-Age=${maxAgeSeconds}; SameSite=Lax`
   );
 }
 
@@ -47,163 +190,39 @@ function clearCookie(res, name) {
   );
 }
 
-function isAdmin(req) {
-  const sid = parseCookies(req).admin_session;
-  return sid && adminSessions.has(sid);
-}
-
-function isClient(req) {
-  const role = parseCookies(req).role || "";
+function hasClientAccess(req) {
+  const role = (parseCookies(req).role || "");
   return role === "client" || role === "admin";
 }
 
-// ================= STATIC FILES (PUBLIC ONLY) =================
-// No auto HTML resolution — protected pages are NOT static
-app.use(express.static(__dirname));
+function isAdmin(req) {
+  const role = (parseCookies(req).role || "");
+  return role === "admin";
+}
 
-// ================= PUBLIC PAGES =================
-
-app.get("/", (_, res) =>
-  res.sendFile(path.join(__dirname, "index.html"))
-);
-
-app.get("/about", (_, res) =>
-  res.sendFile(path.join(__dirname, "about.html"))
-);
-
-app.get("/clients", (_, res) =>
-  res.sendFile(path.join(__dirname, "clients.html"))
-);
-
-app.get("/past-work", (_, res) =>
-  res.sendFile(path.join(__dirname, "past-work.html"))
-);
-
-app.get("/past-work/:workId", (_, res) =>
-  res.sendFile(path.join(__dirname, "past-work.html"))
-);
-
-app.get("/contact", (_, res) =>
-  res.sendFile(path.join(__dirname, "contact.html"))
-);
-
-app.get("/portal", (_, res) =>
-  res.sendFile(path.join(__dirname, "portal.html"))
-);
-
-// ================= PROTECTED BOARDS =================
-
-app.get("/client-board", (req, res) => {
-  if (!isClient(req)) return res.redirect("/portal");
-  res.sendFile(path.join(__dirname, "client-board.html"));
-});
-
-app.get("/admin-board", (req, res) => {
-  if (!isAdmin(req)) return res.redirect("/portal");
-  res.sendFile(path.join(__dirname, "admin-board.html"));
-});
-
-// ================= PAST WORK API (RESTORED) =================
-
-app.get("/api/past-work", (req, res) => {
-  try {
-    const imagesDir = path.join(__dirname, "images");
-    const files = fs.readdirSync(imagesDir);
-
-    const workFiles = files
-      .filter(f => /^work-.+\.(png|jpg|jpeg|webp|gif)$/i.test(f))
-      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
-
-    res.json({
-      ok: true,
-      items: workFiles.map(f => ({
-        file: f,
-        url: `/images/${f}`,
-        id: f.replace(/\.[^.]+$/, "")
-      }))
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ ok: false });
-  }
-});
-
-// ================= CONTACT FORM (DISCORD WEBHOOK – RESTORED) =================
-
-app.post("/api/contact", async (req, res) => {
-  try {
-    const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
-    if (!webhookUrl) {
-      return res.status(500).json({ ok: false, error: "Webhook not set" });
-    }
-
-    const { discordUsername, discordId, service, budget, message } = req.body || {};
-    if (!discordUsername || !discordId || !message) {
-      return res.status(400).json({ ok: false });
-    }
-
-    const payload = {
-      username: "Nuggets Customs • Contact",
-      embeds: [{
-        title: "New Contact Form Submission",
-        color: 0x111111,
-        fields: [
-          { name: "Discord Username", value: discordUsername, inline: true },
-          { name: "Discord ID", value: discordId, inline: true },
-          { name: "Service", value: service || "—", inline: true },
-          { name: "Budget", value: budget || "—", inline: true },
-          { name: "Message", value: message }
-        ],
-        timestamp: new Date().toISOString()
-      }]
-    };
-
-    await fetch(webhookUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-
-    res.json({ ok: true });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ ok: false });
-  }
-});
-
-// ================= LOGIN / LOGOUT =================
-
+// ---- Login / logout ----
 app.post("/api/login", (req, res) => {
   const { password } = req.body || {};
 
-  // CLIENT LOGIN
   if (password === "nuggetstudios67") {
-    setCookie(res, "role", "client", { httpOnly: false });
+    setCookie(res, "role", "client");
     return res.json({ ok: true, go: "/client-board" });
   }
 
-  // ADMIN LOGIN
   if (password === "passwordpass123") {
-    const sid = createSession();
-    adminSessions.set(sid, { created: Date.now() });
-    setCookie(res, "admin_session", sid);
-    setCookie(res, "role", "admin", { httpOnly: false });
+    setCookie(res, "role", "admin");
     return res.json({ ok: true, go: "/admin-board" });
   }
 
-  res.status(401).json({ ok: false });
+  return res.status(401).json({ ok: false, error: "Wrong password" });
 });
 
 app.get("/api/logout", (req, res) => {
-  const cookies = parseCookies(req);
-  if (cookies.admin_session) adminSessions.delete(cookies.admin_session);
-  clearCookie(res, "admin_session");
   clearCookie(res, "role");
-  res.redirect("/portal");
+  return res.redirect("/portal");
 });
 
-// ================= ORDERS API (RESTORED) =================
-
+// ---- Orders storage (orders.json) ----
 const ORDERS_PATH = path.join(__dirname, "orders.json");
 
 function readOrders() {
@@ -217,46 +236,63 @@ function readOrders() {
 }
 
 function writeOrders(items) {
-  fs.writeFileSync(ORDERS_PATH, JSON.stringify({ items }, null, 2));
+  fs.writeFileSync(ORDERS_PATH, JSON.stringify({ items }, null, 2), "utf8");
 }
 
+// client + admin: READ
 app.get("/api/orders", (req, res) => {
-  if (!isClient(req)) return res.status(401).json({ ok: false });
-  res.json({ ok: true, items: readOrders() });
+  if (!hasClientAccess(req)) {
+    return res.status(401).json({ ok: false, error: "Not authorized" });
+  }
+  return res.json({ ok: true, items: readOrders() });
 });
 
+// admin: CREATE
 app.post("/api/orders", (req, res) => {
-  if (!isAdmin(req)) return res.status(401).json({ ok: false });
+  if (!isAdmin(req)) {
+    return res.status(401).json({ ok: false, error: "Admin only" });
+  }
 
   const { client, title, status } = req.body || {};
-  if (!client || !title) return res.status(400).json({ ok: false });
+  if (!client || !title) {
+    return res.status(400).json({ ok: false, error: "client and title required" });
+  }
 
   const items = readOrders();
+  const id = "order-" + Date.now();
+  const now = new Date().toISOString();
+
   items.unshift({
-    id: "order-" + Date.now(),
-    client,
-    title,
-    status: status || "Queued",
-    updatedAt: new Date().toISOString()
+    id,
+    client: String(client).trim(),
+    title: String(title).trim(),
+    status: String(status || "Queued").trim(),
+    updatedAt: now
   });
 
   writeOrders(items);
-  res.json({ ok: true });
+  return res.json({ ok: true, id });
 });
 
+// admin: UPDATE (status/title/etc)
 app.patch("/api/orders/:id", (req, res) => {
-  if (!isAdmin(req)) return res.status(401).json({ ok: false });
+  if (!isAdmin(req)) {
+    return res.status(401).json({ ok: false, error: "Admin only" });
+  }
+
+  const { id } = req.params;
+  const { status, title } = req.body || {};
 
   const items = readOrders();
-  const order = items.find(o => o.id === req.params.id);
-  if (!order) return res.status(404).json({ ok: false });
+  const idx = items.findIndex(o => o.id === id);
+  if (idx === -1) return res.status(404).json({ ok: false, error: "Not found" });
 
-  if (req.body.status) order.status = req.body.status;
-  if (req.body.title) order.title = req.body.title;
-  order.updatedAt = new Date().toISOString();
+  if (typeof status === "string") items[idx].status = status;
+  if (typeof title === "string") items[idx].title = title;
+  items[idx].updatedAt = new Date().toISOString();
 
   writeOrders(items);
-  res.json({ ok: true });
+  return res.json({ ok: true });
 });
 
 // ================= START SERVER =================
