@@ -3,17 +3,19 @@
 :root{
   --brand:#f24578;
 
-  /* TRUE glass (mostly neutral/white), only tiny pink hints via subtle shadows */
-  --glassA: rgba(255,255,255,.24);
-  --glassB: rgba(255,255,255,.14);
-  --glassBorder: rgba(255,255,255,.32);
-  --glassBorderSoft: rgba(255,255,255,.22);
+  /* Glass: LESS milky (better contrast for white text) */
+  --glassA: rgba(255,255,255,.16);
+  --glassB: rgba(255,255,255,.08);
+  --glassBorder: rgba(255,255,255,.30);
 
-  /* Reduce “blackness” hard — keep shadows super soft */
+  /* Shadows: very low “blackness” */
   --shadowPink: rgba(242,69,120,.10);
   --shadowPinkStrong: rgba(242,69,120,.14);
-  --shadowBlack: rgba(0,0,0,.12);
-  --shadowBlackStrong: rgba(0,0,0,.18);
+  --shadowBlack: rgba(0,0,0,.14);
+  --shadowBlackStrong: rgba(0,0,0,.20);
+
+  /* Readability */
+  --textGlow: 0 1px 10px rgba(0,0,0,.12);
 }
 
 *{ box-sizing:border-box; }
@@ -23,18 +25,17 @@ body{
   font-family:sans-serif;
   min-height:100vh;
 
-  /* plain pink, no black */
+  /* Plain pink */
   background:#f24578;
-  color:white;
+  color:#fff;
 
   overflow-x:hidden;
   overflow-y:auto;
   scroll-behavior:smooth;
-
   position:relative;
 }
 
-/* soft “premium” bloom WITHOUT black */
+/* Soft premium bloom (no black) */
 body::before{
   content:"";
   position:fixed;
@@ -44,11 +45,10 @@ body::before{
     radial-gradient(1200px 700px at 20% 10%, rgba(255,255,255,.20), transparent 62%),
     radial-gradient(900px 600px at 85% 20%, rgba(255,255,255,.14), transparent 60%),
     radial-gradient(1100px 800px at 50% 90%, rgba(255,255,255,.10), transparent 60%);
-  opacity:1;
   z-index:0;
 }
 
-/* Keep content above the background blooms */
+/* keep content above bg bloom */
 .hero, .page-layout, .footer-strip{ position:relative; z-index:1; }
 
 /* fade in */
@@ -57,13 +57,10 @@ body::before{
   transform:translateY(10px);
   animation:fadeUp .7s ease forwards;
 }
-@keyframes fadeUp{
-  to{opacity:1;transform:none}
-}
+@keyframes fadeUp{ to{opacity:1;transform:none} }
 
 /* ================= GLASS BASE ================= */
 
-/* Neutral “Apple glass” for all cards/buttons/inputs */
 .glass,
 .navbar,
 .cta,
@@ -89,11 +86,27 @@ input, select, textarea{
   box-shadow:
     0 18px 50px var(--shadowPink),
     0 16px 46px var(--shadowBlack),
-    inset 0 1px 0 rgba(255,255,255,.28),
-    inset 0 0 0 1px rgba(255,255,255,.12);
+    inset 0 1px 0 rgba(255,255,255,.26),
+    inset 0 0 0 1px rgba(255,255,255,.10);
 }
 
-/* Specular highlight on hover (glass-y) */
+/* Make text readable on glass */
+.cta,
+.rail-card,
+.metric-card,
+.client-card,
+.review-modal-card,
+.work-item,
+.kcol,
+.kcard,
+.kmodal-card,
+.board-btn,
+.kmini,
+input, select, textarea{
+  text-shadow: var(--textGlow);
+}
+
+/* Specular highlight */
 .cta:hover,
 .rail-card:hover,
 .metric-card:hover,
@@ -105,7 +118,10 @@ input, select, textarea{
 .kmodal-card:hover,
 .contact-card:hover,
 .about-shell:hover,
-.board-shell:hover{
+.board-shell:hover,
+.clients-shell:hover,
+.admin-shell:hover,
+.portal-shell:hover{
   background:
     radial-gradient(900px 240px at 50% 0%, rgba(255,255,255,.22), transparent 62%),
     linear-gradient(180deg, var(--glassA), var(--glassB));
@@ -114,7 +130,102 @@ input, select, textarea{
     0 20px 56px var(--shadowPinkStrong),
     0 18px 50px var(--shadowBlackStrong),
     inset 0 1px 0 rgba(255,255,255,.30),
-    inset 0 0 0 1px rgba(255,255,255,.14);
+    inset 0 0 0 1px rgba(255,255,255,.12);
+}
+
+/* ================= BIG SURROUNDING SHELLS ================= */
+/* These are the “big box that surrounds the page content”. Apply to any wrapper you have. */
+
+.about-shell,
+.contact-card,
+.clients-shell,
+.admin-shell,
+.portal-shell{
+  border-radius:26px;
+  padding:44px 26px 30px;
+
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.07));
+  border:1px solid rgba(255,255,255,.28);
+
+  backdrop-filter: blur(22px) saturate(125%);
+  -webkit-backdrop-filter: blur(22px) saturate(125%);
+
+  box-shadow:
+    0 22px 62px var(--shadowPinkStrong),
+    0 18px 54px var(--shadowBlack),
+    inset 0 1px 0 rgba(255,255,255,.26),
+    inset 0 0 0 1px rgba(255,255,255,.10);
+
+  position:relative;
+  overflow:hidden;
+}
+
+/* If your Clients/Admin pages don’t have a wrapper element,
+   this gives them a big surrounding shell anyway. */
+.clients,
+.admin{
+  width:min(1180px, calc(100vw - 40px));
+  margin:0 auto;
+  border-radius:26px;
+  padding:44px 26px 30px;
+
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.07));
+  border:1px solid rgba(255,255,255,.28);
+
+  backdrop-filter: blur(22px) saturate(125%);
+  -webkit-backdrop-filter: blur(22px) saturate(125%);
+
+  box-shadow:
+    0 22px 62px var(--shadowPinkStrong),
+    0 18px 54px var(--shadowBlack),
+    inset 0 1px 0 rgba(255,255,255,.26),
+    inset 0 0 0 1px rgba(255,255,255,.10);
+
+  position:relative;
+  overflow:hidden;
+}
+
+/* Portal page black box fix (force any common “black gradient” containers to glass) */
+.portal,
+.portal-card,
+.portal-box,
+.portal-panel{
+  background: linear-gradient(180deg, var(--glassA), var(--glassB)) !important;
+  border:1px solid var(--glassBorder) !important;
+  box-shadow:
+    0 18px 50px var(--shadowPink),
+    0 16px 46px var(--shadowBlack),
+    inset 0 1px 0 rgba(255,255,255,.26),
+    inset 0 0 0 1px rgba(255,255,255,.10) !important;
+  backdrop-filter: blur(22px) saturate(125%);
+  -webkit-backdrop-filter: blur(22px) saturate(125%);
+}
+
+/* Subtle shine sweep inside big shells */
+.about-shell::before,
+.contact-card::before,
+.clients::before,
+.admin::before,
+.portal-shell::before{
+  content:"";
+  position:absolute;
+  top:-40%;
+  left:-60%;
+  width:50%;
+  height:200%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);
+  transform:rotate(18deg);
+  animation:bigShine 10s ease-in-out infinite;
+  pointer-events:none;
+  opacity:.50;
+}
+@keyframes bigShine{
+  0%{left:-70%;opacity:0}
+  12%{opacity:.25}
+  35%{left:130%;opacity:0}
+  100%{left:130%;opacity:0}
 }
 
 /* ================= NAVBAR ================= */
@@ -124,17 +235,12 @@ input, select, textarea{
   top:22px;
   left:50%;
   translate:-50% 0;
-
   border-radius:22px;
   padding:22px 40px;
-
   overflow:hidden;
   z-index:9999;
-
-  transition: background .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;
 }
 
-/* shine (navbar) */
 .navbar::before{
   content:"";
   position:absolute;
@@ -163,14 +269,8 @@ input, select, textarea{
   z-index:1;
   white-space:nowrap;
 }
-
 .nav-logo{ height:18px; width:auto; }
-
-.divider{
-  width:1px;
-  height:18px;
-  background:rgba(255,255,255,.55);
-}
+.divider{ width:1px; height:18px; background:rgba(255,255,255,.55); }
 
 .nav-link{
   font-size:15px;
@@ -184,9 +284,7 @@ input, select, textarea{
   filter:drop-shadow(0 2px 6px rgba(0,0,0,.10));
   opacity:1;
 }
-.nav-link:active{
-  transform:translateY(2px) scale(.98);
-}
+.nav-link:active{ transform:translateY(2px) scale(.98); }
 
 /* ================= HERO ================= */
 
@@ -207,16 +305,8 @@ input, select, textarea{
   filter:drop-shadow(0 0 26px rgba(255,255,255,.55));
 }
 
-h1{
-  font-size:46px;
-  margin:0;
-}
-
-p{
-  margin:4px 0 28px;
-  font-size:16px;
-  opacity:.90;
-}
+h1{ font-size:46px; margin:0; text-shadow: var(--textGlow); }
+p{ margin:4px 0 28px; font-size:16px; opacity:.92; text-shadow: var(--textGlow); }
 
 /* ================= CTA BUTTONS ================= */
 
@@ -229,13 +319,11 @@ p{
 
 .cta{
   flex:1;
-  min-width:95px;
-
-  /* Fix “Past\nWork” wrapping */
+  min-width:140px;              /* helps prevent wrapping */
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  white-space:nowrap;
+  white-space:nowrap;           /* keeps “Past Work” on one line */
   line-height:1;
 
   padding:12px 38px;
@@ -244,7 +332,7 @@ p{
   color:white;
   text-decoration:none;
   font-size:14px;
-  font-weight:500;
+  font-weight:600;
 
   position:relative;
   overflow:hidden;
@@ -252,7 +340,6 @@ p{
   transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease, border-color .15s ease, background .15s ease;
 }
 
-/* ✅ Shine ONLY for primary button */
 .cta::before{
   content:"";
   position:absolute;
@@ -267,22 +354,16 @@ p{
   z-index:0;
 }
 
-/* ✅ Subtle top sheen */
 .cta::after{
   content:"";
   position:absolute;
   inset:0;
-  background: radial-gradient(520px 160px at 50% -30%, rgba(255,255,255,.20), transparent 62%);
+  background: radial-gradient(520px 160px at 50% -30%, rgba(255,255,255,.18), transparent 62%);
   pointer-events:none;
   opacity:.9;
   z-index:0;
 }
 
-/* Keep CTA text crisp */
-.cta{ z-index:1; }
-.cta::before, .cta::after{ z-index:0; }
-
-/* ❌ No shine on secondary button */
 .cta.secondary::before{ content:none; }
 
 @keyframes ctaShine{
@@ -294,23 +375,19 @@ p{
 
 .cta:hover{ transform:translateY(-2px); }
 .cta:active{ transform:translateY(0px) scale(.99); }
-.cta.secondary{ opacity:.94; }
+.cta.secondary{ opacity:.95; }
 .cta.secondary:hover{ opacity:1; }
 
 /* ================= FOOTER STRIP ================= */
 
 .footer-strip{ padding:8px 0; }
-
 .footer-divider{
-  width:100vw;
-  height:1px;
+  width:100vw; height:1px;
   background:rgba(255,255,255,.55);
   margin:0;
-  position:relative;
-  left:50%;
+  position:relative; left:50%;
   transform:translateX(-50%);
 }
-
 .footer-inner{
   padding:24px 20px;
   display:flex;
@@ -318,20 +395,10 @@ p{
   align-items:center;
   text-align:center;
 }
+.footer-logo{ height:24px; width:auto; margin-bottom:16px; opacity:.95; }
+.footer-text{ font-size:13px; opacity:.80; text-shadow: var(--textGlow); }
 
-.footer-logo{
-  height:24px;
-  width:auto;
-  margin-bottom:16px;
-  opacity:.95;
-}
-
-.footer-text{
-  font-size:13px;
-  opacity:.75;
-}
-
-/* ================= MOBILE FRIENDLY ================= */
+/* ================= MOBILE ================= */
 
 @media (max-width:800px){
   .navbar{ padding:18px 26px; border-radius:20px; }
@@ -359,7 +426,7 @@ p{
     gap:12px;
     width:min(420px, calc(100vw - 40px));
   }
-  .cta{ width:100%; }
+  .cta{ width:100%; min-width:0; }
 }
 
 /* ================= INNER PAGE LAYOUT ================= */
@@ -389,15 +456,7 @@ p{
   margin:0 auto;
 }
 
-/* Big sections: keep neutral glass, only tiny pink hint via shadow */
-.contact-card{
-  width:100%;
-  border-radius:22px;
-  padding:22px;
-}
-
 .row{ display:flex; gap:16px; }
-
 .field{
   flex:1;
   display:flex;
@@ -405,8 +464,7 @@ p{
   gap:8px;
   margin-bottom:16px;
 }
-
-label{ font-size:13px; opacity:.9; }
+label{ font-size:13px; opacity:.92; text-shadow: var(--textGlow); }
 
 input, select, textarea{
   border-radius:16px;
@@ -414,14 +472,8 @@ input, select, textarea{
   color:white;
   outline:none;
 }
-
-input::placeholder, textarea::placeholder{
-  color:rgba(255,255,255,.65);
-}
-
-input:focus, select:focus, textarea:focus{
-  border-color:rgba(255,255,255,.44);
-}
+input::placeholder, textarea::placeholder{ color:rgba(255,255,255,.70); }
+input:focus, select:focus, textarea:focus{ border-color:rgba(255,255,255,.44); }
 
 .contact-actions{
   display:flex;
@@ -430,48 +482,26 @@ input:focus, select:focus, textarea:focus{
   justify-content:center;
   margin-top:6px;
 }
-
-.contact-submit, .contact-discord{
-  flex:1;
-  min-width:160px;
-}
-
-.form-status{
-  margin-top:14px;
-  font-size:13px;
-  opacity:.85;
-  text-align:center;
-}
+.contact-submit, .contact-discord{ flex:1; min-width:160px; }
+.form-status{ margin-top:14px; font-size:13px; opacity:.88; text-shadow: var(--textGlow); }
 
 /* ===== Discord ID help icon ===== */
 
 .label-with-help{ display:flex; align-items:center; gap:8px; }
-
 .help-icon{
   display:inline-flex;
   align-items:center;
   justify-content:center;
-
-  width:16px;
-  height:16px;
+  width:16px; height:16px;
   border-radius:50%;
-
-  font-size:12px;
-  font-weight:700;
-  line-height:1;
-
+  font-size:12px; font-weight:700; line-height:1;
   color:#000;
   background:#fff;
   text-decoration:none;
-
-  opacity:.75;
+  opacity:.80;
   transition:opacity .15s ease, transform .15s ease;
 }
-
-.help-icon:hover{
-  opacity:1;
-  transform:scale(1.1);
-}
+.help-icon:hover{ opacity:1; transform:scale(1.1); }
 
 @media (max-width:520px){
   .row{ flex-direction:column; }
@@ -479,7 +509,7 @@ input:focus, select:focus, textarea:focus{
   .contact-submit, .contact-discord{ width:100%; }
 }
 
-/* ================= ABOUT PAGE (UPDATED) ================= */
+/* ================= ABOUT PAGE ================= */
 
 .about{
   width:min(1100px, calc(100vw - 40px));
@@ -487,56 +517,19 @@ input:focus, select:focus, textarea:focus{
   position:relative;
 }
 
-/* One big box around EVERYTHING */
-.about-shell{
-  width:100%;
-  border-radius:26px;
-  padding:44px 26px 30px;
-  position:relative;
-  overflow:hidden;
-}
-
-/* subtle shine sweep inside big box */
-.about-shell::before{
-  content:"";
-  position:absolute;
-  top:-40%;
-  left:-60%;
-  width:50%;
-  height:200%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);
-  transform:rotate(18deg);
-  animation:aboutShine 10s ease-in-out infinite;
-  pointer-events:none;
-  opacity:.55;
-}
-@keyframes aboutShine{
-  0%{left:-70%;opacity:0}
-  12%{opacity:.25}
-  35%{left:130%;opacity:0}
-  100%{left:130%;opacity:0}
-}
-
-.about-hero{
-  position:relative;
-  text-align:center;
-  padding-top:6px;
-  margin-bottom:22px;
-}
-
-.about-title{ font-size:48px; margin:0 0 14px; letter-spacing:.2px; }
-
+.about-hero{ position:relative; text-align:center; padding-top:6px; margin-bottom:22px; }
+.about-title{ font-size:48px; margin:0 0 14px; letter-spacing:.2px; text-shadow: var(--textGlow); }
 .about-sub{
   width:min(860px, 100%);
   margin:0 auto 16px;
   font-size:16px;
   line-height:1.65;
-  opacity:.92;
+  opacity:.94;
+  text-shadow: var(--textGlow);
 }
 
 .about-chips{
-  display:flex;
-  gap:10px;
+  display:flex; gap:10px;
   flex-wrap:wrap;
   justify-content:center;
   margin-top:10px;
@@ -546,19 +539,21 @@ input:focus, select:focus, textarea:focus{
   font-size:12px;
   padding:8px 12px;
   border-radius:999px;
-  border:1px solid rgba(255,255,255,.26);
-  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.28);
+  background:rgba(255,255,255,.10);
   backdrop-filter: blur(14px) saturate(120%);
   -webkit-backdrop-filter: blur(14px) saturate(120%);
-  opacity:.95;
+  opacity:.98;
+  text-shadow: var(--textGlow);
 }
 
 .about-h2{
   font-size:13px;
   letter-spacing:.18px;
   text-transform:uppercase;
-  opacity:.78;
+  opacity:.82;
   margin:0 0 12px;
+  text-shadow: var(--textGlow);
 }
 
 .about-grid{
@@ -569,12 +564,9 @@ input:focus, select:focus, textarea:focus{
   align-items:start;
 }
 
-/* ===== Timeline / rail ===== */
-
+/* rail */
 .about-rail{ position:relative; }
-
 .rail{ position:relative; padding-left:18px; }
-
 .rail::before{
   content:"";
   position:absolute;
@@ -593,7 +585,6 @@ input:focus, select:focus, textarea:focus{
   grid-template-columns:18px 1fr;
   gap:12px;
   margin-bottom:14px;
-
   opacity:0;
   transform:translateY(10px);
   transition:opacity .55s ease, transform .55s ease;
@@ -601,12 +592,11 @@ input:focus, select:focus, textarea:focus{
 .rail-item.is-in{ opacity:1; transform:none; }
 
 .rail-dot{
-  width:12px;
-  height:12px;
+  width:12px; height:12px;
   border-radius:50%;
   margin-top:10px;
   border:1px solid rgba(255,255,255,.36);
-  background:rgba(255,255,255,.16);
+  background:rgba(255,255,255,.14);
   box-shadow:0 0 0 6px rgba(255,255,255,.06);
   position:relative;
 }
@@ -626,33 +616,21 @@ input:focus, select:focus, textarea:focus{
   100%{transform:scale(1.25);opacity:0}
 }
 
-.rail-card{
-  border-radius:22px;
-  padding:16px 16px 14px;
-  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
-}
+.rail-card{ border-radius:22px; padding:16px 16px 14px; transition:transform .18s ease; }
 .rail-card:hover{ transform:translateY(-2px); }
 
 .rail-top{ display:flex; align-items:center; gap:10px; margin-bottom:6px; }
 .rail-icon{ font-size:18px; opacity:.95; filter:drop-shadow(0 0 10px rgba(255,255,255,.20)); }
+.rail-title{ margin:0; font-size:14px; font-weight:800; letter-spacing:.12px; text-shadow: var(--textGlow); }
+.rail-text{ margin:0; font-size:13px; line-height:1.55; opacity:.90; text-shadow: var(--textGlow); }
 
-.rail-title{ margin:0; font-size:14px; font-weight:800; letter-spacing:.12px; }
-.rail-text{ margin:0; font-size:13px; line-height:1.55; opacity:.86; }
-
-/* ===== Metrics ===== */
-
+/* metrics */
 .about-metrics{ position:relative; }
+.metric-card{ border-radius:22px; padding:18px 18px 16px; margin-bottom:14px; }
 
-.metric-card{
-  border-radius:22px;
-  padding:18px 18px 16px;
-  margin-bottom:14px;
-}
-
-/* ✅ REMOVE the little box: icon becomes just the symbol */
+/* Remove little icon box: icon becomes only symbol */
 .metric-icon{
-  width:auto;
-  height:auto;
+  width:auto; height:auto;
   padding:0;
   border:0;
   background:transparent;
@@ -661,39 +639,31 @@ input:focus, select:focus, textarea:focus{
   opacity:.95;
 }
 
-.metric-head{
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-
+.metric-head{ display:flex; align-items:center; gap:12px; }
 .metric-number{
   font-size:46px;
   font-weight:800;
   line-height:1;
   margin:0 0 6px;
-  text-shadow:0 0 16px rgba(255,255,255,.16);
+  text-shadow: 0 1px 14px rgba(0,0,0,.14);
 }
-
-.metric-label{ font-size:14px; font-weight:700; opacity:.95; }
-.metric-mini{ margin:10px 0 12px; font-size:13px; opacity:.88; line-height:1.5; }
+.metric-label{ font-size:14px; font-weight:700; opacity:.96; text-shadow: var(--textGlow); }
+.metric-mini{ margin:10px 0 12px; font-size:13px; opacity:.90; line-height:1.5; text-shadow: var(--textGlow); }
 
 .meter{
   height:10px;
   border-radius:999px;
-  background:rgba(255,255,255,.18);
-  border:1px solid rgba(255,255,255,.26);
+  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.22);
   overflow:hidden;
 }
-
 .meter-fill{
   display:block;
   height:100%;
   width:0%;
-  background:linear-gradient(90deg, rgba(255,255,255,.32), rgba(255,255,255,.14));
+  background:linear-gradient(90deg, rgba(255,255,255,.28), rgba(255,255,255,.12));
 }
 
-/* Responsive */
 @media (max-width:900px){ .about-grid{ grid-template-columns:1fr; } }
 @media (max-width:700px){ .about-title{ font-size:40px; } }
 @media (max-width:520px){
@@ -702,46 +672,34 @@ input:focus, select:focus, textarea:focus{
   .about-chips{ gap:8px; }
 }
 
-/* ================= CLIENTS PAGE (NEW GRID) ================= */
-
-.clients{ width:100%; }
+/* ================= CLIENTS PAGE ================= */
 
 .clients-title{
   margin:6px 0 6px;
   text-align:center;
   font-size:34px;
   letter-spacing:.2px;
-  position:relative;
-  z-index:1;
+  text-shadow: var(--textGlow);
 }
-
 .clients-sub{
   margin:0 0 18px;
   text-align:center;
-  opacity:.86;
+  opacity:.90;
   font-size:14px;
-  position:relative;
-  z-index:1;
+  text-shadow: var(--textGlow);
 }
-
 .clients-foot{
   margin:18px 0 0;
   text-align:center;
   font-size:13px;
-  opacity:.80;
-  position:relative;
-  z-index:1;
+  opacity:.84;
+  text-shadow: var(--textGlow);
 }
 
-/* grid */
 .client-grid{
-  position:relative;
-  z-index:1;
-
   display:grid;
   grid-template-columns:repeat(5, minmax(0, 1fr));
   gap:14px;
-
   margin-top:18px;
   padding:6px 6px 4px;
 }
@@ -752,101 +710,52 @@ input:focus, select:focus, textarea:focus{
   color:inherit;
   font:inherit;
   text-align:left;
-
   cursor:pointer;
   border-radius:22px;
   padding:14px;
-
   outline:none;
   position:relative;
   overflow:hidden;
-
-  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease, background .16s ease;
+  transition: transform .16s ease, border-color .16s ease;
 }
 
 .client-card::after{
   content:"";
   position:absolute;
   inset:0;
-  background:radial-gradient(500px 220px at 30% 20%, rgba(255,255,255,.22), transparent 60%);
+  background:radial-gradient(500px 220px at 30% 20%, rgba(255,255,255,.20), transparent 60%);
   opacity:0;
   transition:opacity .16s ease;
   pointer-events:none;
 }
-
-.client-card:hover{
-  transform:translateY(-3px);
-  border-color:rgba(255,255,255,.44);
-}
+.client-card:hover{ transform:translateY(-3px); border-color:rgba(255,255,255,.40); }
 .client-card:hover::after{ opacity:1; }
-
 .client-card:active{ transform:translateY(-1px) scale(.995); }
-
-.client-card:focus-visible{
-  box-shadow:
-    0 0 0 2px rgba(255,255,255,.26),
-    0 18px 42px rgba(0,0,0,.14),
-    inset 0 1px 0 rgba(255,255,255,.26),
-    inset 0 0 0 1px rgba(255,255,255,.12);
-}
-
-.client-badge{
-  position:absolute;
-  top:12px;
-  right:12px;
-  font-size:11px;
-  padding:7px 10px;
-  border-radius:999px;
-  opacity:.92;
-}
 
 .client-logo-wrap{
   width:100%;
   aspect-ratio:1 / 1;
   border-radius:18px;
-
   display:grid;
   place-items:center;
-
-  background:rgba(255,255,255,.10);
-  border:1px solid rgba(255,255,255,.20);
-
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.22);
-
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.18);
   overflow:hidden;
 }
-
 .client-logo{
   width:72%;
   height:72%;
   object-fit:contain;
   filter:drop-shadow(0 0 16px rgba(255,255,255,.18));
-  opacity:.95;
+  opacity:.96;
   transition:transform .16s ease, opacity .16s ease;
 }
-
-.client-card:hover .client-logo{
-  transform:scale(1.03);
-  opacity:1;
-}
+.client-card:hover .client-logo{ transform:scale(1.03); opacity:1; }
 
 .client-meta{ padding-top:12px; }
+.client-name{ font-size:14px; font-weight:800; opacity:.98; letter-spacing:.12px; text-shadow: var(--textGlow); }
+.client-role{ margin-top:5px; font-size:12px; opacity:.86; text-shadow: var(--textGlow); }
 
-.client-name{
-  font-size:14px;
-  font-weight:800;
-  opacity:.96;
-  letter-spacing:.12px;
-}
-
-.client-role{
-  margin-top:5px;
-  font-size:12px;
-  opacity:.80;
-}
-
-/* Modal (shared) */
 .review-modal{
   position:fixed;
   inset:0;
@@ -855,7 +764,7 @@ input:focus, select:focus, textarea:focus{
 }
 .review-modal.open{ display:block; }
 
-/* ✅ Make it LIGHT when opening a review */
+/* Light modal */
 .review-modal-backdrop{
   position:absolute;
   inset:0;
@@ -868,74 +777,26 @@ input:focus, select:focus, textarea:focus{
   position:relative;
   width:min(760px, calc(100vw - 30px));
   margin:min(12vh, 120px) auto 0;
-
   border-radius:22px;
   padding:54px 22px 22px;
 
-  /* lighter glass than before */
-  background: linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,.18));
-  border:1px solid rgba(255,255,255,.44);
+  background: linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.12));
+  border:1px solid rgba(255,255,255,.36);
+
   backdrop-filter: blur(26px) saturate(125%);
   -webkit-backdrop-filter: blur(26px) saturate(125%);
+
   box-shadow:
-    0 26px 70px rgba(0,0,0,.10),
+    0 26px 70px rgba(0,0,0,.12),
     0 18px 60px rgba(242,69,120,.10),
-    inset 0 1px 0 rgba(255,255,255,.30),
-    inset 0 0 0 1px rgba(255,255,255,.14);
+    inset 0 1px 0 rgba(255,255,255,.26),
+    inset 0 0 0 1px rgba(255,255,255,.12);
 }
-
-.review-modal-close{
-  position:absolute;
-  top:16px;
-  right:16px;
-  width:36px;
-  height:36px;
-  border-radius:14px;
-  color:white;
-  font-size:22px;
-  cursor:pointer;
-  opacity:.92;
-}
-.review-modal-close:hover{ opacity:1; }
-
-.review-modal-top{
-  display:flex;
-  align-items:center;
-  gap:14px;
-  margin-top:-6px;
-}
-
-.review-modal-logoWrap{
-  width:54px;
-  height:54px;
-  border-radius:18px;
-  display:grid;
-  place-items:center;
-  overflow:hidden;
-}
-
-.review-modal-logo{
-  width:80%;
-  height:80%;
-  object-fit:contain;
-  opacity:.95;
-  filter:drop-shadow(0 0 14px rgba(255,255,255,.18));
-}
-
-.review-modal-name{ font-weight:900; font-size:14px; opacity:.96; }
-.review-modal-role{ font-size:12px; opacity:.82; margin-top:4px; }
 
 .review-modal-divider{
   height:1px;
   margin:18px 0 12px;
   background:rgba(255,255,255,.22);
-}
-
-.review-modal-quote{
-  margin-top:4px;
-  font-size:16px;
-  line-height:1.7;
-  opacity:.95;
 }
 
 /* Responsive */
@@ -947,36 +808,16 @@ input:focus, select:focus, textarea:focus{
 /* ================= PAST WORK PAGE ================= */
 
 .pastwork{ width:100%; }
-
 .pastwork-shell{
   width:min(1180px, calc(100vw - 40px));
   margin:0 auto;
   padding:30px 0 10px;
 }
+.pastwork-title{ margin:8px 0 6px; text-align:center; font-size:34px; letter-spacing:.2px; text-shadow: var(--textGlow); }
+.pastwork-sub{ margin:0 0 18px; text-align:center; opacity:.90; font-size:14px; text-shadow: var(--textGlow); }
 
-.pastwork-title{
-  margin:8px 0 6px;
-  text-align:center;
-  font-size:34px;
-  letter-spacing:.2px;
-}
+.pastwork-feed{ display:flex; flex-direction:column; gap:22px; padding:18px 0 26px; }
 
-.pastwork-sub{
-  margin:0 0 18px;
-  text-align:center;
-  opacity:.86;
-  font-size:14px;
-}
-
-/* The feed */
-.pastwork-feed{
-  display:flex;
-  flex-direction:column;
-  gap:22px;
-  padding:18px 0 26px;
-}
-
-/* Each card */
 .work-item{
   width:100%;
   border-radius:22px;
@@ -984,132 +825,49 @@ input:focus, select:focus, textarea:focus{
   cursor:pointer;
   outline:none;
 
-  opacity:.45;
-  filter:grayscale(1) contrast(.98) brightness(.92);
+  opacity:.55;
+  filter:grayscale(1) contrast(.98) brightness(.94);
   transform:scale(.985);
 
-  transition:
-    opacity .22s ease,
-    filter .22s ease,
-    transform .22s ease,
-    box-shadow .18s ease,
-    border-color .18s ease,
-    background .18s ease;
+  transition: opacity .22s ease, filter .22s ease, transform .22s ease;
 }
-
-.work-item.is-active{
-  opacity:1;
-  filter:none;
-  transform:scale(1);
-}
-
+.work-item.is-active{ opacity:1; filter:none; transform:scale(1); }
 .work-img{
   display:block;
   width:100%;
   height:auto;
   max-height:72vh;
   object-fit:contain;
-
-  background:rgba(255,255,255,.10);
+  background:rgba(255,255,255,.08);
 }
-
-.work-item:focus-visible{
-  box-shadow:
-    0 0 0 2px rgba(255,255,255,.26),
-    0 18px 50px rgba(0,0,0,.14),
-    inset 0 1px 0 rgba(255,255,255,.22),
-    inset 0 0 0 1px rgba(255,255,255,.12);
-}
-
 @media (max-width:520px){ .work-img{ max-height:62vh; } }
 
-/* ================= CUSTOM KANBAN BOARD ================= */
+/* ================= KANBAN / PORTAL BOARD ================= */
 
 .board{
   width:min(1180px, calc(100vw - 40px));
   margin:0 auto;
 }
 
-/* Big shell */
+/* board shell should NOT be black */
 .board-shell{
-  width:100%;
   border-radius:26px;
   padding:44px 26px 30px;
-
   position:relative;
   overflow:hidden;
 }
 
-.board-shell::before{
-  content:"";
-  position:absolute;
-  top:-40%;
-  left:-60%;
-  width:50%;
-  height:200%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent);
-  transform:rotate(18deg);
-  animation:boardShine 11s ease-in-out infinite;
-  pointer-events:none;
-  opacity:.45;
-}
-@keyframes boardShine{
-  0%{left:-70%;opacity:0}
-  12%{opacity:.22}
-  35%{left:130%;opacity:0}
-  100%{left:130%;opacity:0}
-}
-
-.board-head{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:14px;
-}
-
-.board-title{ margin:0 0 10px; font-size:34px; letter-spacing:.2px; }
-.board-sub{ margin:0; opacity:.86; font-size:14px; }
-
-.board-actions{
-  display:flex;
-  gap:10px;
-  align-items:center;
-  justify-content:flex-end;
-}
-
-.board-btn{
-  text-decoration:none;
-  color:white;
-  opacity:.92;
-  padding:10px 14px;
-  border-radius:14px;
-  cursor:pointer;
-}
+/* Buttons inside */
+.board-actions{ display:flex; gap:10px; align-items:center; justify-content:flex-end; }
+.board-btn{ text-decoration:none; color:white; opacity:.94; padding:10px 14px; border-radius:14px; cursor:pointer; }
 .board-btn:hover{ opacity:1; }
 
-.board-mini{ margin:16px 0 0; font-size:12px; opacity:.78; }
-
-.board-msg{ margin-top:10px; font-size:13px; opacity:.90; }
-.board-msg.is-err{ color:#ffe2ea; opacity:1; }
-.board-msg.is-ok{ color:#e9fff1; opacity:1; }
-
-/* Admin add */
-.admin-add{ margin-top:18px; }
-.admin-add-form{
-  display:grid;
-  grid-template-columns: 1fr 1.2fr 220px 120px;
-  gap:10px;
-  align-items:center;
-}
-
-/* Board grid */
+/* Grid */
 .kanban{
   margin-top:20px;
   display:grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap:14px;
-  position:relative;
-  z-index:1;
 }
 
 .kcol{
@@ -1120,202 +878,31 @@ input:focus, select:focus, textarea:focus{
   flex-direction:column;
 }
 
-.kcol-head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  padding:2px 4px 10px;
-}
-
-.kcol-title{
-  font-size:13px;
-  letter-spacing:.16px;
-  text-transform:uppercase;
-  opacity:.86;
-  font-weight:800;
-}
-
+.kcol-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:2px 4px 10px; }
+.kcol-title{ font-size:13px; letter-spacing:.16px; text-transform:uppercase; opacity:.90; font-weight:800; text-shadow: var(--textGlow); }
 .kcol-count{
   font-size:12px;
-  opacity:.86;
-  border:1px solid rgba(255,255,255,.28);
-  background:rgba(255,255,255,.14);
+  opacity:.92;
+  border:1px solid rgba(255,255,255,.24);
+  background:rgba(255,255,255,.10);
   padding:6px 10px;
   border-radius:999px;
+  text-shadow: var(--textGlow);
 }
 
-.kcol-body{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  padding:2px;
-  flex:1;
-}
+.kcol-body{ display:flex; flex-direction:column; gap:10px; padding:2px; flex:1; }
 
-.kcol-body.is-over{
-  outline:2px dashed rgba(255,255,255,.30);
-  outline-offset:6px;
-  border-radius:14px;
-}
-
-/* Cards */
 .kcard{
   border-radius:18px;
   padding:12px 12px 10px;
   cursor:pointer;
   outline:none;
-  transition:transform .16s ease, box-shadow .16s ease, opacity .16s ease, border-color .16s ease, background .16s ease;
+  transition:transform .16s ease;
 }
-
 .kcard:hover{ transform:translateY(-2px); }
 
-.kcard:focus-visible{
-  box-shadow:
-    0 0 0 2px rgba(255,255,255,.26),
-    0 18px 38px rgba(0,0,0,.14),
-    inset 0 1px 0 rgba(255,255,255,.22),
-    inset 0 0 0 1px rgba(255,255,255,.12);
-}
-
-.kcard.is-dragging{
-  opacity:.65;
-  transform:scale(.98);
-}
-
-.kcard-top{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:10px;
-}
-
-.kbadge{
-  font-size:12px;
-  padding:6px 10px;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.26);
-  background:rgba(255,255,255,.14);
-  opacity:.95;
-  white-space:nowrap;
-}
-
-.kdot{
-  width:8px;
-  height:8px;
-  border-radius:50%;
-  background:rgba(255,255,255,.38);
-  box-shadow:0 0 12px rgba(255,255,255,.16);
-}
-
-.kcard-title{
-  font-size:13px;
-  line-height:1.55;
-  opacity:.94;
-  font-weight:700;
-}
-
-.kcard-foot{
-  margin-top:10px;
-  display:flex;
-  justify-content:flex-end;
-}
-
-.kmuted{ font-size:12px; opacity:.78; }
-
-/* Admin mini buttons */
-.kadmin-actions{ display:flex; gap:8px; align-items:center; }
-
-.kmini{
-  border-radius:12px;
-  padding:6px 10px;
-  color:white;
-  cursor:pointer;
-  opacity:.90;
-  font-size:12px;
-}
-.kmini:hover{ opacity:1; }
-.kmini.danger{ border-color:rgba(255,255,255,.26); }
-
-/* Modal */
-.kmodal{
-  position:fixed;
-  inset:0;
-  display:none;
-  z-index:10000;
-}
-.kmodal.open{ display:block; }
-
-/* light modal backdrop */
-.kmodal-backdrop{
-  position:absolute;
-  inset:0;
-  background:rgba(255,255,255,.22);
-  backdrop-filter: blur(12px) saturate(120%);
-  -webkit-backdrop-filter: blur(12px) saturate(120%);
-}
-
-.kmodal-card{
-  position:relative;
-  width:min(680px, calc(100vw - 30px));
-  margin: min(12vh, 120px) auto 0;
-  border-radius:22px;
-  padding:54px 22px 22px;
-
-  background: linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,.18));
-  border:1px solid rgba(255,255,255,.44);
-  backdrop-filter: blur(26px) saturate(125%);
-  -webkit-backdrop-filter: blur(26px) saturate(125%);
-  box-shadow:
-    0 26px 70px rgba(0,0,0,.10),
-    0 18px 60px rgba(242,69,120,.10),
-    inset 0 1px 0 rgba(255,255,255,.30),
-    inset 0 0 0 1px rgba(255,255,255,.14);
-}
-
-.kmodal-close{
-  position:absolute;
-  top:16px;
-  right:16px;
-  width:36px;
-  height:36px;
-  border-radius:14px;
-  color:white;
-  font-size:22px;
-  cursor:pointer;
-  opacity:.92;
-}
-.kmodal-close:hover{ opacity:1; }
-
-.kmodal-title{
-  font-weight:900;
-  font-size:18px;
-  line-height:1.5;
-  margin-top:4px;
-}
-
-.kmodal-meta{
-  margin-top:12px;
-  display:flex;
-  gap:10px;
-  align-items:center;
-  flex-wrap:wrap;
-}
-
-.kmodal-divider{
-  height:1px;
-  margin:18px 0 12px;
-  background:rgba(255,255,255,.22);
-}
-
-.kmodal-status{ font-size:14px; opacity:.95; }
-.kstatus{ font-weight:900; text-shadow:0 0 12px rgba(255,255,255,.18); }
-
-/* responsive */
 @media (max-width:1050px){
   .kanban{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .admin-add-form{ grid-template-columns: 1fr 1fr; }
 }
 @media (max-width:520px){
   .board-shell{ padding:34px 18px 22px; }
