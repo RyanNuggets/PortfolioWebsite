@@ -4,7 +4,7 @@ body{
   margin:0;
   font-family:sans-serif;
   min-height:100vh;
-  background:linear-gradient(180deg,#0a0a0a,#000000);
+  background: radial-gradient(circle at top, #ff6b9a 0%, #f24578 35%, #1a0b12 100%);
   color:white;
 
   overflow-x:hidden;
@@ -35,6 +35,7 @@ body{
 
   background:linear-gradient(180deg,#1a1a1a,#000000);
   box-shadow:
+    0 10px 26px rgba(242,69,120,.18),
     0 12px 28px rgba(0,0,0,.75),
     inset 0 2px 4px rgba(255,255,255,.12),
     inset 0 -2px 4px rgba(255,255,255,.10);
@@ -148,6 +149,7 @@ p{
   background:linear-gradient(180deg,#1a1a1a,#000000);
 
   box-shadow:
+    0 10px 26px rgba(242,69,120,.16),
     0 12px 28px rgba(0,0,0,.75),
     inset 0 2px 4px rgba(255,255,255,.14),
     inset 0 -2px 4px rgba(255,255,255,.10);
