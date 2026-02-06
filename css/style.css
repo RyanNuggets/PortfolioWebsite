@@ -1464,3 +1464,36 @@ input:focus, select:focus, textarea:focus{
   .board-shell{ padding:34px 18px 22px; }
   .kanban{ grid-template-columns: 1fr; }
 }
+
+/* ===============================
+   Apple-ish Liquid Glass
+   (requires SVG filter in HTML)
+================================ */
+
+.liquid-glass {
+  position: relative;
+  overflow: hidden;
+
+  /* keep your rounding */
+  border-radius: 28px;
+
+  /* depth */
+  filter: drop-shadow(-8px -10px 46px rgba(0,0,0,0.25));
+
+  /* liquid distortion + blur */
+  backdrop-filter: brightness(1.1) blur(2px) url(#displacementFilter);
+  -webkit-backdrop-filter: brightness(1.1) blur(2px) url(#displacementFilter);
+}
+
+.liquid-glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+
+  /* glossy highlight */
+  box-shadow:
+    inset 6px 6px 0px -6px rgba(255, 255, 255, 0.65),
+    inset 0 0 10px 1px rgba(255, 255, 255, 0.55);
+}
