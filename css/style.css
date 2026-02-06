@@ -138,6 +138,42 @@ body{
     inset 0 12px 22px rgba(255,255,255,0.05);
 }
 
+/* ================= UNIVERSAL GLASS (same vibe as navbar) ================= */
+
+.glass{
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.07);
+
+  box-shadow:
+    0 18px 45px rgba(0,0,0,0.16),
+    inset 0 1px 0 rgba(255,255,255,0.45),
+    inset 0 -1px 0 rgba(255,255,255,0.12);
+
+  overflow:hidden;
+}
+
+/* optional shine sweep (only if you want it on big shells) */
+.glass.shine::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:-60%;
+  width:45%;
+  height:100%;
+  border-radius:inherit;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,255,255,0.00) 35%,
+    rgba(255,255,255,0.10) 50%,
+    rgba(255,255,255,0.00) 65%,
+    transparent 100%
+  );
+  transform: skewX(-18deg);
+  opacity:.65;
+  animation:shine 9s ease-in-out infinite;
+  pointer-events:none;
+}
+
 /* ================= HERO ================= */
 
 .hero{
@@ -1491,6 +1527,103 @@ input:focus, select:focus, textarea:focus{
   text-shadow:0 0 14px rgba(255,255,255,.10);
 }
 
+/* ================= APPLY NAVBAR-STYLE GLASS EVERYWHERE ================= */
+
+/* shells / big panels */
+.clients-shell,
+.about-shell,
+.board-shell,
+.contact-card,
+.review-modal-card,
+.kmodal-card{
+  position:relative;
+  border-radius:26px;
+  background: rgba(255,255,255,0.02) !important;
+  border: 1px solid rgba(255,255,255,0.07) !important;
+  box-shadow:
+    0 18px 45px rgba(0,0,0,0.16),
+    inset 0 1px 0 rgba(255,255,255,0.45),
+    inset 0 -1px 0 rgba(255,255,255,0.12) !important;
+}
+
+/* cards */
+.client-card,
+.work-item,
+.rail-card,
+.metric-card,
+.kcol,
+.kcard{
+  background: rgba(255,255,255,0.02) !important;
+  border: 1px solid rgba(255,255,255,0.07) !important;
+  box-shadow:
+    0 18px 45px rgba(0,0,0,0.16),
+    inset 0 1px 0 rgba(255,255,255,0.35),
+    inset 0 -1px 0 rgba(255,255,255,0.10) !important;
+}
+
+/* buttons that currently use black gradients */
+.cta,
+.board-btn.is-primary{
+  background: rgba(255,255,255,0.02) !important;
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  box-shadow:
+    0 18px 45px rgba(0,0,0,0.16),
+    inset 0 1px 0 rgba(255,255,255,0.45),
+    inset 0 -1px 0 rgba(255,255,255,0.12) !important;
+}
+
+/* ================= APPLY NAVBAR-STYLE GLASS EVERYWHERE ================= */
+
+/* Panels / shells / modals */
+.clients-shell,
+.about-shell,
+.board-shell,
+.contact-card,
+.review-modal-card,
+.kmodal-card{
+  position:relative;
+  overflow:hidden;
+
+  background: rgba(255,255,255,0.02) !important;
+  border: 1px solid rgba(255,255,255,0.07) !important;
+  box-shadow:
+    0 18px 45px rgba(0,0,0,0.16),
+    inset 0 1px 0 rgba(255,255,255,0.45),
+    inset 0 -1px 0 rgba(255,255,255,0.12) !important;
+}
+
+/* Card surfaces */
+.client-card,
+.work-item,
+.rail-card,
+.metric-card,
+.kcol,
+.kcard{
+  position:relative;
+  overflow:hidden;
+
+  background: rgba(255,255,255,0.02) !important;
+  border: 1px solid rgba(255,255,255,0.07) !important;
+  box-shadow:
+    0 18px 45px rgba(0,0,0,0.16),
+    inset 0 1px 0 rgba(255,255,255,0.35),
+    inset 0 -1px 0 rgba(255,255,255,0.10) !important;
+}
+
+/* Buttons / primary actions */
+.cta,
+.board-btn.is-primary,
+.kmini,
+.review-modal-close,
+.kmodal-close{
+  background: rgba(255,255,255,0.02) !important;
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  box-shadow:
+    0 18px 45px rgba(0,0,0,0.16),
+    inset 0 1px 0 rgba(255,255,255,0.45),
+    inset 0 -1px 0 rgba(255,255,255,0.12) !important;
+}
+
 /* responsive */
 @media (max-width:1050px){
   .kanban{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -1499,37 +1632,4 @@ input:focus, select:focus, textarea:focus{
 @media (max-width:520px){
   .board-shell{ padding:34px 18px 22px; }
   .kanban{ grid-template-columns: 1fr; }
-}
-
-/* ===============================
-   Apple-ish Liquid Glass
-   (requires SVG filter in HTML)
-================================ */
-
-.liquid-glass {
-  position: relative;
-  overflow: hidden;
-
-  /* keep your rounding */
-  border-radius: 28px;
-
-  /* depth */
-  filter: drop-shadow(-8px -10px 46px rgba(0,0,0,0.25));
-
-  /* liquid distortion + blur */
-  backdrop-filter: brightness(1.1) blur(2px) url(#displacementFilter);
-  -webkit-backdrop-filter: brightness(1.1) blur(2px) url(#displacementFilter);
-}
-
-.liquid-glass::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-
-  /* glossy highlight */
-  box-shadow:
-    inset 6px 6px 0px -6px rgba(255, 255, 255, 0.65),
-    inset 0 0 10px 1px rgba(255, 255, 255, 0.55);
 }
