@@ -30,17 +30,20 @@ body{
   left:50%;
   translate:-50% 0;
 
+  /* ✅ stops it becoming full-width */
+  width: fit-content;
+  max-width: calc(100vw - 40px);
+  box-sizing: border-box;
+
   border-radius:22px;
   padding:22px 40px;
 
-  /* tuned: slightly clearer top + richer pink pooling bottom */
   background: linear-gradient(180deg,
     rgba(255, 255, 255, 0.18) 0%,
     rgba(255, 255, 255, 0.07) 48%,
     rgba(242, 69, 120, 0.20) 100%
   );
 
-  /* tuned: cleaner depth + pink glow, less "black box" */
   box-shadow:
     0 16px 40px rgba(0, 0, 0, 0.14),
     0 10px 22px rgba(242, 69, 120, 0.20),
@@ -88,7 +91,7 @@ body{
   gap:22px;
   position:relative;
   z-index:1;
-  white-space:nowrap; /* helps mobile */
+  white-space:nowrap;
 }
 
 .nav-logo{ height:18px; width:auto; }
@@ -117,11 +120,8 @@ body{
 
 /* Liquid effect only when liquid-glass class is present */
 .navbar.liquid-glass{
-  /* stronger blur + saturation to pop against pink bg */
   backdrop-filter: brightness(1.08) saturate(175%) blur(10px) url(#displacementFilter);
   -webkit-backdrop-filter: brightness(1.08) saturate(175%) blur(10px) url(#displacementFilter);
-
-  /* extra depth without going "black theme" */
   filter: drop-shadow(0 18px 45px rgba(0,0,0,0.16));
 }
 
