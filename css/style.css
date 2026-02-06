@@ -543,6 +543,10 @@ input:focus, select:focus, textarea:focus{
   width:min(1100px, calc(100vw - 40px));
   margin:0 auto;
   position:relative;
+
+  /* hard-centers the shell */
+  display:flex;
+  justify-content:center;
 }
 
 /* One big box around EVERYTHING */
