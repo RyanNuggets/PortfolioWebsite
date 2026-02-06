@@ -5,6 +5,7 @@ body{
   font-family:sans-serif;
   min-height:100vh;
 
+  /* keep the background image */
   background: url("../images/webbackground.webp") center/cover no-repeat;
 
   color:white;
@@ -12,17 +13,22 @@ body{
   overflow-x:hidden;
   overflow-y:auto;
   scroll-behavior:smooth;
+
+  /* needed for the blur overlay */
+  position:relative;
 }
 
-/* fade in */
-.fade-in{
-  opacity:0;
-  transform:translateY(10px);
-  animation:fadeUp .7s ease forwards;
-}
+/* blur overlay */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
 
-@keyframes fadeUp{
-  to{opacity:1;transform:none}
+  background: inherit; /* uses the same bg image */
+  filter: blur(6px);
+  transform: scale(1.08); /* prevents blur edges showing */
+
+  z-index:-1;
 }
 
 /* ================= NAVBAR ================= */
