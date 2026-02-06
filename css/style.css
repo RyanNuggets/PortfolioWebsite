@@ -5,11 +5,12 @@ body{
   font-family:sans-serif;
   min-height:100vh;
 
+  /* background image */
   background:
-    radial-gradient(900px 500px at 20% 15%, rgba(255,255,255,0.22), transparent 60%),
-    radial-gradient(800px 500px at 80% 25%, rgba(255,255,255,0.14), transparent 62%),
-    radial-gradient(900px 700px at 55% 85%, rgba(242,69,120,0.28), transparent 60%),
-    linear-gradient(180deg, #d63a68 0%, #f24578 100%);
+    radial-gradient(900px 500px at 20% 15%, rgba(255,255,255,0.16), transparent 60%),
+    radial-gradient(800px 500px at 80% 25%, rgba(255,255,255,0.10), transparent 62%),
+    radial-gradient(900px 700px at 55% 85%, rgba(242,69,120,0.22), transparent 60%),
+    url("images/webbackground.webp") center/cover no-repeat;
 
   color:white;
 
