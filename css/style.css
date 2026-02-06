@@ -1,8 +1,7 @@
 /* ================= GLOBAL ================= */
 
 :root{
-  /* adjust this until the seam is perfect */
-  --bgTileH: 1440px;
+  --bgTileH: 1440px; /* your image height */
 }
 
 body{
@@ -10,22 +9,58 @@ body{
   font-family:sans-serif;
   min-height:100vh;
 
-  background-image:
-    url("../images/webbackground.webp"),
-    url("../images/webbackground_flip.webp");
-
-  /* each layer repeats, but offset so it alternates */
-  background-repeat: repeat-y, repeat-y;
-  background-size: 100% var(--bgTileH), 100% var(--bgTileH);
-  background-position: center 0, center var(--bgTileH);
-
-  /* prevents white showing anywhere */
-  background-color: transparent;
+  /* IMPORTANT: no background image here anymore */
+  background: transparent;
 
   color:white;
   overflow-x:hidden;
   overflow-y:auto;
   scroll-behavior:smooth;
+  position:relative;
+}
+body::before,
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+
+  background-repeat:repeat-y;
+  background-position:center top;
+  background-size:100% var(--bgTileH);
+}
+
+/* Normal image only on tiles 1,3,5... */
+body::before{
+  background-image:url("../images/webbackground.webp");
+  -webkit-mask-image: repeating-linear-gradient(
+    to bottom,
+    #000 0 var(--bgTileH),
+    transparent var(--bgTileH) calc(var(--bgTileH) * 2)
+  );
+  mask-image: repeating-linear-gradient(
+    to bottom,
+    #000 0 var(--bgTileH),
+    transparent var(--bgTileH) calc(var(--bgTileH) * 2)
+  );
+}
+
+/* Flipped image only on tiles 2,4,6... */
+body::after{
+  background-image:url("../images/webbackground_flip.webp");
+  background-position:center var(--bgTileH);
+
+  -webkit-mask-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0 var(--bgTileH),
+    #000 var(--bgTileH) calc(var(--bgTileH) * 2)
+  );
+  mask-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0 var(--bgTileH),
+    #000 var(--bgTileH) calc(var(--bgTileH) * 2)
+  );
 }
 
 /* fade in */
