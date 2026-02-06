@@ -25,7 +25,7 @@ body::before{
   inset:0;
 
   background: inherit; /* uses the same bg image */
-  filter: blur(6px);
+  filter: blur(2px);
   transform: scale(1.08); /* prevents blur edges showing */
 
   z-index:-1;
