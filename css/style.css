@@ -1529,51 +1529,6 @@ input:focus, select:focus, textarea:focus{
 
 /* ================= APPLY NAVBAR-STYLE GLASS EVERYWHERE ================= */
 
-/* shells / big panels */
-.clients-shell,
-.about-shell,
-.board-shell,
-.contact-card,
-.review-modal-card,
-.kmodal-card{
-  position:relative;
-  border-radius:26px;
-  background: rgba(255,255,255,0.02) !important;
-  border: 1px solid rgba(255,255,255,0.07) !important;
-  box-shadow:
-    0 18px 45px rgba(0,0,0,0.16),
-    inset 0 1px 0 rgba(255,255,255,0.45),
-    inset 0 -1px 0 rgba(255,255,255,0.12) !important;
-}
-
-/* cards */
-.client-card,
-.work-item,
-.rail-card,
-.metric-card,
-.kcol,
-.kcard{
-  background: rgba(255,255,255,0.02) !important;
-  border: 1px solid rgba(255,255,255,0.07) !important;
-  box-shadow:
-    0 18px 45px rgba(0,0,0,0.16),
-    inset 0 1px 0 rgba(255,255,255,0.35),
-    inset 0 -1px 0 rgba(255,255,255,0.10) !important;
-}
-
-/* buttons that currently use black gradients */
-.cta,
-.board-btn.is-primary{
-  background: rgba(255,255,255,0.02) !important;
-  border: 1px solid rgba(255,255,255,0.10) !important;
-  box-shadow:
-    0 18px 45px rgba(0,0,0,0.16),
-    inset 0 1px 0 rgba(255,255,255,0.45),
-    inset 0 -1px 0 rgba(255,255,255,0.12) !important;
-}
-
-/* ================= APPLY NAVBAR-STYLE GLASS EVERYWHERE ================= */
-
 /* Panels / shells / modals */
 .clients-shell,
 .about-shell,
@@ -1624,13 +1579,17 @@ input:focus, select:focus, textarea:focus{
     inset 0 -1px 0 rgba(255,255,255,0.12) !important;
 }
 
-/* HOME PAGE: no big glass shell */
+/* HOME ONLY (index): remove the big centered shell/layout */
 body:not(.page-layout) .page-content{
   padding-top: 0 !important;
   padding-bottom: 0 !important;
   background: transparent !important;
   border: 0 !important;
   box-shadow: none !important;
+  display:block !important;
+  align-items:unset !important;
+  justify-content:unset !important;
+  text-align:unset !important;
 }
 
 /* responsive */
