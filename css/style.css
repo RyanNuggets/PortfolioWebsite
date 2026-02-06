@@ -33,29 +33,28 @@ body{
   left:50%;
   translate:-50% 0;
 
-  border-radius:22px;
-  padding:22px 40px;
-
-  /* keeps it from going full width */
+  /* stops it becoming full-width */
   width: fit-content;
   max-width: calc(100vw - 40px);
   box-sizing: border-box;
 
-  /* REAL clear glass */
-  background: rgba(255,255,255,0.14);
+  border-radius:22px;
+  padding:22px 40px;
 
-  backdrop-filter: blur(14px) saturate(170%) brightness(1.05);
-  -webkit-backdrop-filter: blur(14px) saturate(170%) brightness(1.05);
+  /* ✅ almost no paint (lets blur do the work) */
+  background: rgba(255,255,255,0.02);
 
+  /* cleaner Apple-ish depth (no pink tint) */
   box-shadow:
-    0 16px 40px rgba(0,0,0,.18),
-    inset 0 1px 0 rgba(255,255,255,.55);
+    0 18px 45px rgba(0,0,0,0.16),
+    inset 0 1px 0 rgba(255,255,255,0.45),
+    inset 0 -1px 0 rgba(255,255,255,0.12);
 
   overflow:hidden;
   z-index:9999;
 }
 
-/* shine (navbar) — clean highlight band */
+/* shine (navbar) */
 .navbar::before{
   content:"";
   position:absolute;
@@ -68,20 +67,20 @@ body{
   background: linear-gradient(90deg,
     transparent 0%,
     rgba(255,255,255,0.00) 35%,
-    rgba(255,255,255,0.16) 50%,
+    rgba(255,255,255,0.14) 50%,
     rgba(255,255,255,0.00) 65%,
     transparent 100%
   );
 
   transform: skewX(-18deg);
-  opacity:.9;
+  opacity:.85;
   animation:shine 7s ease-in-out infinite;
   pointer-events:none;
 }
 
 @keyframes shine{
   0%{ left:-70%; opacity:0; }
-  12%{ opacity:.55; }
+  12%{ opacity:.50; }
   35%{ left:120%; opacity:0; }
   100%{ left:120%; opacity:0; }
 }
@@ -100,7 +99,7 @@ body{
 .divider{
   width:1px;
   height:18px;
-  background:rgba(255,255,255,.45);
+  background:rgba(255,255,255,.40);
 }
 
 .nav-link{
