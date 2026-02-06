@@ -1118,7 +1118,13 @@ input:focus, select:focus, textarea:focus{
 .pastwork-shell{
   width:min(1180px, calc(100vw - 40px));
   margin:0 auto;
-  padding:30px 0 10px;
+
+  /* ✅ give the whole page breathing room so you see the sides */
+  padding:30px 18px 10px;
+
+  /* keeps things clean if any effects/overlays exist */
+  position:relative;
+  box-sizing:border-box;
 }
 
 .pastwork-title{
@@ -1140,7 +1146,10 @@ input:focus, select:focus, textarea:focus{
   display:flex;
   flex-direction:column;
   gap:22px;
-  padding:18px 0 26px;
+
+  /* ✅ add side padding so cards never touch the “shell” edges */
+  padding:18px 6px 26px;
+  box-sizing:border-box;
 }
 
 /* Each card */
@@ -1196,6 +1205,8 @@ input:focus, select:focus, textarea:focus{
 }
 
 @media (max-width:520px){
+  .pastwork-shell{ padding:26px 12px 8px; }
+  .pastwork-feed{ padding:16px 4px 22px; }
   .work-img{ max-height:62vh; }
 }
 
