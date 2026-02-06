@@ -25,36 +25,43 @@ body{
   to{opacity:1;transform:none}
 }
 
-/* ================= NAVBAR (LIQUID GLASS) ================= */
+/* ================= NAVBAR (LOCKED) ================= */
 
 .navbar{
   position:fixed;
   top:22px;
   left:50%;
-  translate:-50% 0;
+  transform:translateX(-50%);   /* safer than translate: */
+  translate: none;              /* prevent weird overrides */
 
-  width: fit-content;
-  max-width: calc(100vw - 40px);
-  box-sizing: border-box;
-
+  width:auto;                   /* hard stop: not full width */
+  display:inline-block;         /* prevents stretching */
+  padding:14px 22px;            /* normal navbar padding */
   border-radius:22px;
-  padding:22px 40px;
 
-  /* neutral glass layer (no pink paint) */
   background: rgba(255,255,255,0.10);
-
   overflow:hidden;
   z-index:9999;
 }
 
-/* ✅ liquid glass (repo-style) */
-.navbar.liquid-glass{
-  filter: drop-shadow(-8px -10px 46px rgba(0,0,0,0.37));
-  backdrop-filter: brightness(1.10) blur(8px) url(#displacementFilter);
-  -webkit-backdrop-filter: brightness(1.10) blur(8px) url(#displacementFilter);
+/* keep inner layout */
+.nav-inner{
+  display:flex;
+  align-items:center;
+  gap:18px;
+  position:relative;
+  z-index:1;
+  white-space:nowrap;
 }
 
-/* glossy inner highlight (repo-style) */
+/* Liquid glass ONLY on navbar */
+.navbar.liquid-glass{
+  filter: drop-shadow(0 18px 45px rgba(0,0,0,0.18));
+  backdrop-filter: brightness(1.10) blur(10px) url(#displacementFilter);
+  -webkit-backdrop-filter: brightness(1.10) blur(10px) url(#displacementFilter);
+}
+
+/* glossy edge */
 .navbar.liquid-glass::after{
   content:"";
   position:absolute;
@@ -62,25 +69,37 @@ body{
   border-radius:inherit;
   pointer-events:none;
   box-shadow:
-    inset 6px 6px 0px -6px rgba(255, 255, 255, 0.70),
-    inset 0 0 8px 1px rgba(255, 255, 255, 0.70);
+    inset 1px 1px 0 rgba(255,255,255,0.55),
+    inset -1px -1px 0 rgba(255,255,255,0.18);
 }
 
-/* ================= SCROLL FIX =================
-   remove displacement entirely while scrolling
-*/
-body.is-scrolling .navbar.liquid-glass{
-  backdrop-filter: brightness(1.10) blur(8px);
-  -webkit-backdrop-filter: brightness(1.10) blur(8px);
+/* shine band (optional) */
+.navbar::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:-60%;
+  width:45%;
+  height:100%;
+  border-radius:inherit;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,255,255,0.00) 35%,
+    rgba(255,255,255,0.14) 50%,
+    rgba(255,255,255,0.00) 65%,
+    transparent 100%
+  );
+  transform: skewX(-18deg);
+  opacity:.9;
+  animation: shine 7s ease-in-out infinite;
+  pointer-events:none;
 }
 
-
-/* ================= SCROLL FIX =================
-   disables displacement while scrolling
-*/
-body.is-scrolling .navbar.liquid-glass{
-  backdrop-filter: brightness(1.08) saturate(175%) blur(10px);
-  -webkit-backdrop-filter: brightness(1.08) saturate(175%) blur(10px);
+@keyframes shine{
+  0%{ left:-70%; opacity:0; }
+  12%{ opacity:.55; }
+  35%{ left:120%; opacity:0; }
+  100%{ left:120%; opacity:0; }
 }
 
 /* ================= HERO ================= */
