@@ -1,17 +1,28 @@
 /* ================= GLOBAL ================= */
 
+:root{
+  /* adjust this until the seam is perfect */
+  --bgTileH: 1400px;
+}
+
 body{
   margin:0;
   font-family:sans-serif;
   min-height:100vh;
 
-  background-image: url("../images/webbackground.webp");
-  background-position: center top;
-  background-repeat: no-repeat;
-  background-size: 100% auto;
+  background-image:
+    url("../images/webbackground.webp"),
+    url("../images/webbackground_flip.webp");
+
+  /* each layer repeats, but offset so it alternates */
+  background-repeat: repeat-y, repeat-y;
+  background-size: 100% var(--bgTileH), 100% var(--bgTileH);
+  background-position: center 0, center var(--bgTileH);
+
+  /* prevents white showing anywhere */
+  background-color: transparent;
 
   color:white;
-
   overflow-x:hidden;
   overflow-y:auto;
   scroll-behavior:smooth;
