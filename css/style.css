@@ -5,7 +5,10 @@ body{
   font-family:sans-serif;
   min-height:100vh;
 
-  background: url("../images/webbackground.webp") center/cover no-repeat;
+  background-image: url("../images/webbackground.webp");
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-size: 100% auto;
 
   color:white;
 
