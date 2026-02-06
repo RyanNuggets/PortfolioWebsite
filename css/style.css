@@ -1568,6 +1568,16 @@ input:focus, select:focus, textarea:focus{
   text-shadow:0 0 14px rgba(255,255,255,.10);
 }
 
+/* responsive */
+@media (max-width:1050px){
+  .kanban{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .admin-add-form{ grid-template-columns: 1fr 1fr; }
+}
+@media (max-width:520px){
+  .board-shell{ padding:34px 18px 22px; }
+  .kanban{ grid-template-columns: 1fr; }
+}
+
 /* ================= APPLY NAVBAR-STYLE GLASS EVERYWHERE ================= */
 
 /* Panels / shells / modals */
@@ -1618,39 +1628,4 @@ input:focus, select:focus, textarea:focus{
     0 18px 45px rgba(0,0,0,0.16),
     inset 0 1px 0 rgba(255,255,255,0.45),
     inset 0 -1px 0 rgba(255,255,255,0.12) !important;
-}
-
-/* ===== PORTAL PAGE: remove remaining black fills ===== */
-
-/* non-primary portal buttons were not included */
-.board-btn{
-  background: rgba(255,255,255,0.02) !important;
-  border: 1px solid rgba(255,255,255,0.10) !important;
-  box-shadow:
-    0 18px 45px rgba(0,0,0,0.16),
-    inset 0 1px 0 rgba(255,255,255,0.45),
-    inset 0 -1px 0 rgba(255,255,255,0.12) !important;
-}
-
-/* admin add form fields are still dark */
-.admin-add-form input,
-.admin-add-form select{
-  background: rgba(255,255,255,0.03) !important;
-  border: 1px solid rgba(255,255,255,0.12) !important;
-  color: #fff !important;
-}
-
-/* optional: if the modal itself looked dark it’s usually the backdrop */
-.kmodal-backdrop{
-  background: rgba(0,0,0,0.55) !important; /* slightly lighter */
-}
-
-/* responsive */
-@media (max-width:1050px){
-  .kanban{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .admin-add-form{ grid-template-columns: 1fr 1fr; }
-}
-@media (max-width:520px){
-  .board-shell{ padding:34px 18px 22px; }
-  .kanban{ grid-template-columns: 1fr; }
 }
