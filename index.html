@@ -11,14 +11,15 @@
   <!-- Styles -->
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+
+<body class="page-layout">
 
   <!-- ================= NAVBAR ================= -->
   <nav class="navbar fade-in liquid-glass">
     <div class="nav-inner">
       <a href="/" class="nav-home">
-  <img src="images/logo2.png" alt="Navbar Logo" class="nav-logo">
-</a>
+        <img src="images/logo2.png" alt="Navbar Logo" class="nav-logo">
+      </a>
 
       <span class="divider"></span>
       <a href="/about" class="nav-link">About</a>
@@ -34,40 +35,41 @@
     </div>
   </nav>
 
-  <!-- ================= HERO ================= -->
-  <section class="hero fade-in">
-    <img src="images/logo.png" alt="Main Logo" class="hero-logo">
+  <!-- ================= CONTENT ================= -->
+  <main class="page-content fade-in">
+    <!-- reuse the same shell style you like from Clients page -->
+    <section class="clients">
+      <div class="clients-shell">
 
-    <h1>Nugget Studios</h1>
-    <p>Premium graphics, built to impress</p>
+        <!-- ================= HERO ================= -->
+        <section class="hero">
+          <img src="images/logo.png" alt="Main Logo" class="hero-logo">
 
-    <!-- CTA BUTTONS -->
-    <div class="cta-group">
-      <a href="/contact" class="cta">Get Started</a>
-      <a href="/past-work" class="cta secondary">Past Work</a>
-    </div>
-  </section>
+          <h1>Nugget Studios</h1>
+          <p>Premium graphics, built to impress</p>
+
+          <!-- CTA BUTTONS -->
+          <div class="cta-group">
+            <a href="/contact" class="cta">Get Started</a>
+            <a href="/past-work" class="cta secondary">Past Work</a>
+          </div>
+        </section>
+
+      </div>
+    </section>
+  </main>
 
   <!-- ================= FOOTER STRIP ================= -->
-  <section class="footer-strip">
+  <footer class="footer-strip">
     <div class="footer-divider"></div>
 
     <div class="footer-inner">
       <img src="images/logo2.png" alt="Footer Logo" class="footer-logo">
-
       <p class="footer-text">
-        Copyright © 2026 Nuggets Studios. All rights reserved.
+        Copyright © 2026 Nugget Studios. All rights reserved.
       </p>
     </div>
-  </section>
-
-  <!-- JS (kept for future use) -->
-<svg style="display:none;">
-  <filter id="displacementFilter">
-    <feTurbulence type="turbulence" baseFrequency="0.01" numOctaves="2" result="turbulence" />
-    <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="80" xChannelSelector="R" yChannelSelector="G" />
-  </filter>
-</svg>
+  </footer>
 
 </body>
 </html>
