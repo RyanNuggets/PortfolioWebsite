@@ -33,11 +33,16 @@ body{
   border-radius:22px;
   padding:22px 40px;
 
-  background: linear-gradient(180deg, #e33f73, #f24578);
+background: linear-gradient(180deg,
+  rgba(255, 255, 255, 0.55),
+  rgba(255, 255, 255, 0.28)
+);
+
 box-shadow:
-  0 12px 28px rgba(242, 69, 120, .35),
-  inset 0 2px 4px rgba(255,255,255,.20),
-  inset 0 -2px 4px rgba(0,0,0,.08);
+  0 18px 40px rgba(0, 0, 0, 0.10),
+  0 8px 18px rgba(242, 69, 120, 0.18),
+  inset 0 1px 0 rgba(255, 255, 255, 0.55),
+  inset 0 -1px 0 rgba(255, 255, 255, 0.18);
 
   overflow:hidden;
   z-index:9999;
