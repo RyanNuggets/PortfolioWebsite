@@ -799,10 +799,21 @@ input:focus, select:focus, textarea:focus{
 
 /* ================= CLIENTS PAGE (NEW GRID) ================= */
 
-.clients{ width:100%; }
+.clients{
+  width:100%;
+}
+
+/* ✅ add a proper centered shell so the big rounded box shows on the sides */
+.clients-shell{
+  width: min(1180px, calc(100vw - 80px));  /* gives side breathing room */
+  margin: 0 auto;
+  padding: 34px 34px 26px;                /* fixes text hugging edges */
+  border-radius: 26px;
+  box-sizing: border-box;
+}
 
 .clients-title{
-  margin:6px 0 6px;
+  margin:6px 0 10px;
   text-align:center;
   font-size:34px;
   letter-spacing:.2px;
@@ -838,7 +849,8 @@ input:focus, select:focus, textarea:focus{
   gap:14px;
 
   margin-top:18px;
-  padding:6px 6px 4px;
+  padding:12px;                 /* ✅ more inner spacing */
+  box-sizing:border-box;         /* ✅ prevents edge clipping */
 }
 
 .client-card{
@@ -905,16 +917,28 @@ input:focus, select:focus, textarea:focus{
     inset 0 -2px 4px rgba(255,255,255,.07);
 }
 
+/* ✅ featured badge more visible */
 .client-badge{
   position:absolute;
   top:12px;
   right:12px;
+
   font-size:11px;
   padding:7px 10px;
   border-radius:999px;
-  border:1px solid rgba(255,255,255,.10);
-  background:rgba(255,255,255,.05);
-  opacity:.85;
+
+  color:rgba(255,255,255,.95);
+  background:rgba(0,0,0,.28);
+  border:1px solid rgba(255,255,255,.22);
+
+  backdrop-filter: blur(10px) brightness(1.1);
+  -webkit-backdrop-filter: blur(10px) brightness(1.1);
+
+  box-shadow:
+    0 10px 22px rgba(0,0,0,.22),
+    inset 0 1px 0 rgba(255,255,255,.22);
+
+  opacity:.95;
 }
 
 .client-logo-wrap{
@@ -1073,7 +1097,13 @@ input:focus, select:focus, textarea:focus{
   .client-grid{ grid-template-columns:repeat(3, minmax(0, 1fr)); }
 }
 
+/* ✅ tighter gutters on smaller screens so shell still shows */
 @media (max-width:620px){
+  .clients-shell{
+    width: min(1180px, calc(100vw - 32px));
+    padding: 22px 18px 18px;
+    border-radius: 22px;
+  }
   .client-grid{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
 }
 
