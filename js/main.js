@@ -1,4 +1,3 @@
-// reserved
 let t;
 
 window.addEventListener(
@@ -6,7 +5,7 @@ window.addEventListener(
   () => {
     document.body.classList.add("is-scrolling");
     clearTimeout(t);
-    t = setTimeout(() => document.body.classList.remove("is-scrolling"), 120);
+    t = setTimeout(() => document.body.classList.remove("is-scrolling"), 150);
   },
   { passive: true }
 );
