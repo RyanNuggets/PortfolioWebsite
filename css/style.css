@@ -1767,3 +1767,24 @@ body{
   }
   */
 }
+
+/* ================= iPAD / TABLET CTA FIX ================= */
+@media (max-width:1024px){
+  /* keep buttons from wrapping text */
+  .cta{
+    white-space:nowrap;
+  }
+
+  /* make the row behave nicer if space is tight */
+  .cta-group{
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:12px;
+  }
+
+  /* ensure each button has enough width to fit its label */
+  .cta{
+    min-width:160px; /* tweak: 150-190 depending on your font/padding */
+    text-align:center;
+  }
+}
