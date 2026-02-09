@@ -1648,7 +1648,6 @@ input:focus, select:focus, textarea:focus{
     inset 0 -1px 0 rgba(255,255,255,0.12) !important;
 }
 
-
 /* ================= MOBILE FRIENDLY (NO NAV SCROLL) + BACKGROUND CROP ================= */
 
 /* basics */
@@ -1680,87 +1679,63 @@ body{
 
   .nav-inner{
     gap:16px;
-    align-items:center;     /* centers logo + text vertically */
+    align-items:center;
     flex-wrap:nowrap;
     white-space:nowrap;
   }
 
   .nav-link{ font-size:14px; }
-
-  /* keep dividers visible */
-  .divider{
-    height:16px;
-    width:1px;
-    background:rgba(255,255,255,.40);
-    flex:0 0 1px;
-    opacity:1;
-  }
+  .divider{ height:16px; }
 }
 
+/* ---- PHONE ---- */
 @media (max-width:520px){
   /* keep navbar inside screen - NO scrolling */
   .navbar{
     left:12px;
     translate:0 0;
     max-width:calc(100vw - 24px);
-    overflow:hidden; /* cleaner for glass */
+    overflow:hidden; /* cleaner than visible */
   }
 
-  /* shrink everything to fit + CENTER inside the bar */
+  /* shrink spacing */
   .nav-inner{
     flex-wrap:nowrap;
     white-space:nowrap;
     gap:clamp(6px, 2vw, 12px);
-
-    align-items:center;      /* vertical centering */
-    justify-content:center;  /* horizontal centering */
-  }
-
-  /* ✅ Logo shrinks proportionally */
-  .nav-home{
-    flex:0 0 auto;
-    display:flex;
-    align-items:center;      /* centers logo inside its slot */
-  }
-  .nav-logo{
-    height:clamp(14px, 3.6vw, 18px);
-    width:auto;
-    object-fit:contain;
-    display:block;
-    flex:0 0 auto;
-    flex-shrink:0;
-    max-width:none;
-  }
-
-  .nav-link{
-    font-size:clamp(11px, 3.1vw, 14px);
-    padding:clamp(6px, 1.8vw, 10px) clamp(8px, 2vw, 12px);
-
-    /* keeps text visually centered */
-    display:inline-flex;
     align-items:center;
   }
 
-  /* ✅ keep dividers visible on mobile */
-  .divider{
-    height:12px;
-    width:1px;
-    background:rgba(255,255,255,.40);
-    flex:0 0 1px;
-    opacity:1;
+  /* links shrink */
+  .nav-link{
+    font-size:clamp(11px, 3.1vw, 14px);
+    padding:clamp(6px, 1.8vw, 10px) clamp(8px, 2vw, 12px);
   }
 
-  /* ✅ ONLY if it STILL doesn't fit (your JS adds .is-compact) */
-  .navbar.is-compact .nav-home{ display:none; }
-
-  .navbar.is-compact .nav-inner{
-    justify-content:center;
+  /* ✅ LOGO SHRINKS PROPORTIONALLY (never squished) */
+  .nav-home{
+    display:flex;
+    align-items:center;
+    flex:0 0 auto;
   }
 
-  /* remove the useless first divider when logo is hidden */
-  .navbar.is-compact .nav-inner .divider:first-of-type{
-    display:none;
+  .nav-logo{
+    /* This makes it shrink smoothly on smaller screens */
+    height:clamp(14px, 3.6vw, 18px);
+
+    /* keeps proportions perfect */
+    width:auto;
+    object-fit:contain;
+
+    /* prevents flex from crushing it */
+    flex:0 0 auto;
+    flex-shrink:0;
+
+    display:block;
   }
+
+  /* dividers */
+  .divider{ height:12px; }
 
   /* hero */
   .hero-logo{ height:120px; width:auto; }
@@ -1773,7 +1748,10 @@ body{
     gap:12px;
     width:min(420px, calc(100vw - 40px));
   }
-  .cta{ width:100%; }
+  .cta{
+    width:100%;
+    white-space:nowrap; /* stops Get Started wrapping */
+  }
 
   /* mobile background crop window */
   body{
