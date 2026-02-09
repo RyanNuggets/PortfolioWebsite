@@ -366,43 +366,6 @@ p{
   opacity:.65;
 }
 
-/* ================= MOBILE FRIENDLY ================= */
-
-@media (max-width:800px){
-  .navbar{
-    padding:18px 26px;
-    border-radius:20px;
-  }
-  .nav-inner{ gap:16px; }
-  .nav-link{ font-size:14px; }
-  .divider{ height:16px; }
-}
-
-@media (max-width:520px){
-  /* Keep navbar usable instead of breaking */
-  .navbar{
-    left:12px;
-    translate:0 0;
-    max-width:calc(100vw - 24px);
-    overflow-x:auto;
-    -webkit-overflow-scrolling:touch;
-  }
-  .navbar::-webkit-scrollbar{ height:0; }
-
-  /* scale hero down a bit */
-  .hero-logo{ height:120px; }
-  h1{ font-size:38px; }
-  p{ font-size:14px; }
-
-  /* stack buttons */
-  .cta-group{
-    flex-direction:column;
-    gap:12px;
-    width:min(420px, calc(100vw - 40px));
-  }
-  .cta{ width:100%; }
-}
-
 /* ================= INNER PAGE LAYOUT ================= */
 
 .page-layout{
@@ -1683,4 +1646,98 @@ input:focus, select:focus, textarea:focus{
     0 18px 45px rgba(0,0,0,0.16),
     inset 0 1px 0 rgba(255,255,255,0.45),
     inset 0 -1px 0 rgba(255,255,255,0.12) !important;
+}
+
+/* ================= MOBILE FRIENDLY (NO NAV SCROLL) + BACKGROUND CROP ================= */
+
+/* mobile basics */
+*{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; }
+img{ max-width:100%; height:auto; display:block; }
+
+/* ---- GLOBAL BACKGROUND WEBP (no zoom-to-fit, just shows a crop/window) ---- */
+body{
+  /* CHANGE THIS PATH to your webp file */
+  background-image:url("../images/background.webp");
+  background-repeat:no-repeat;
+
+  /* KEY: don't scale to fit screen */
+  background-size:auto;
+
+  /* desktop crop area */
+  background-position:center top;
+
+  /* avoid weird white edges on some phones */
+  background-color:#000;
+}
+
+/* ---- NAVBAR responsive: shrink to fit, NO scrolling ---- */
+@media (max-width:800px){
+  .navbar{
+    padding:18px 26px;
+    border-radius:20px;
+  }
+  .nav-inner{ gap:16px; }
+  .nav-link{ font-size:14px; }
+  .divider{ height:16px; }
+}
+
+@media (max-width:520px){
+  /* Keep navbar inside screen */
+  .navbar{
+    left:12px;
+    translate:0 0;
+    max-width:calc(100vw - 24px);
+    overflow:visible; /* no scroll */
+  }
+
+  /* force single-line + shrink spacing */
+  .nav-inner{
+    flex-wrap:nowrap;
+    white-space:nowrap;
+    gap:clamp(6px, 2vw, 12px);
+  }
+
+  /* shrink links */
+  .nav-link{
+    font-size:clamp(11px, 3.1vw, 14px);
+    padding:clamp(6px, 1.8vw, 10px) clamp(8px, 2vw, 12px);
+  }
+
+  /* shrink logo */
+  .nav-logo{
+    height:clamp(18px, 5vw, 28px);
+    width:auto;
+  }
+
+  .divider{ height:12px; }
+
+  /* scale hero down */
+  .hero-logo{ height:120px; width:auto; }
+  h1{ font-size:38px; }
+  .hero p{ font-size:14px; }
+
+  /* stack buttons */
+  .cta-group{
+    flex-direction:column;
+    gap:12px;
+    width:min(420px, calc(100vw - 40px));
+  }
+  .cta{ width:100%; }
+
+  /* MOBILE BACKGROUND: choose which part shows */
+  body{
+    background-size:auto;          /* still no zoom-to-fit */
+    background-position:center 20%; /* change 20% to move crop */
+  }
+
+  /*
+    If your image looks way too big/small on phones, use a fixed size instead:
+    Uncomment and tweak the 900px value.
+
+  body{
+    background-size:900px auto;
+    background-position:center 15%;
+  }
+  */
 }
