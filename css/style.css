@@ -1648,46 +1648,41 @@ input:focus, select:focus, textarea:focus{
     inset 0 -1px 0 rgba(255,255,255,0.12) !important;
 }
 
-/* ================= MOBILE ONLY FIXES (DESKTOP UNCHANGED) ================= */
+/* ================= MOBILE FRIENDLY (NO NAV SCROLL) + BACKGROUND CROP ================= */
 
+/* basics */
+*{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; }
+img{ max-width:100%; height:auto; display:block; }
+
+/* ---- Background WEBP: no fit/zoom, just shows a cropped area ---- */
+body{
+  /* CHANGE to your real webp path */
+  background-image:url("../images/background.webp");
+  background-repeat:no-repeat;
+
+  /* KEY: no scaling to fit */
+  background-size:auto;
+
+  /* desktop crop */
+  background-position:center top;
+
+  background-color:#000;
+}
+
+/* ---- Navbar responsiveness ---- */
 @media (max-width:800px){
-  /* keep your current navbar shape */
   .navbar{
     padding:18px 26px;
     border-radius:20px;
   }
-
-  .nav-inner{
-    gap:16px;
-    align-items:center;
-    flex-wrap:nowrap;
-    white-space:nowrap;
-  }
-
+  .nav-inner{ gap:16px; }
   .nav-link{ font-size:14px; }
-
-  /* make sure dividers still show */
-  .divider{
-    display:inline-block;
-    width:1px;
-    height:16px;
-    background:rgba(255,255,255,.28);
-    flex:0 0 1px;
-    opacity:1;
-  }
-
-  /* stop logo stretching */
-  .nav-logo{
-    height:30px;
-    width:auto;
-    max-width:120px;
-    object-fit:contain;
-    flex:0 0 auto;
-  }
+  .divider{ height:16px; }
 }
 
 @media (max-width:520px){
-  /* Keep navbar inside screen (NO scroll, shrink instead) */
+  /* keep navbar inside screen - NO scrolling */
   .navbar{
     left:12px;
     translate:0 0;
@@ -1695,44 +1690,30 @@ input:focus, select:focus, textarea:focus{
     overflow:visible;
   }
 
+  /* shrink everything to fit */
   .nav-inner{
-    gap:clamp(6px, 2vw, 12px);
     flex-wrap:nowrap;
     white-space:nowrap;
+    gap:clamp(6px, 2vw, 12px);
     align-items:center;
   }
 
-  /* shrink links */
+  /* FULLY REMOVE NAV LOGO ON MOBILE */
+  .nav-home{ display:none; }
+
   .nav-link{
     font-size:clamp(11px, 3.1vw, 14px);
     padding:clamp(6px, 1.8vw, 10px) clamp(8px, 2vw, 12px);
   }
 
-  /* dividers visible on phone too */
-  .divider{
-    display:inline-block;
-    width:1px;
-    height:12px;
-    background:rgba(255,255,255,.28);
-    flex:0 0 1px;
-    opacity:1;
-  }
+  .divider{ height:12px; }
 
-  /* logo: correct proportions + not tiny */
-  .nav-logo{
-    height:clamp(22px, 5vw, 28px);
-    width:auto;
-    max-width:clamp(90px, 22vw, 120px);
-    object-fit:contain;
-    flex:0 0 auto;
-  }
-
-  /* hero scale */
+  /* hero */
   .hero-logo{ height:120px; width:auto; }
   h1{ font-size:38px; }
   .hero p{ font-size:14px; }
 
-  /* stack buttons */
+  /* buttons */
   .cta-group{
     flex-direction:column;
     gap:12px;
@@ -1745,4 +1726,12 @@ input:focus, select:focus, textarea:focus{
     background-size:auto;
     background-position:center 20%;
   }
+
+  /*
+    If the background looks way too big/small on phones, use fixed size:
+  body{
+    background-size:900px auto;
+    background-position:center 15%;
+  }
+  */
 }
