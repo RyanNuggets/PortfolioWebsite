@@ -1648,78 +1648,57 @@ input:focus, select:focus, textarea:focus{
     inset 0 -1px 0 rgba(255,255,255,0.12) !important;
 }
 
-/* ================= MOBILE FRIENDLY (NO NAV SCROLL) + BACKGROUND CROP ================= */
+/* ================= MOBILE ONLY FIXES (DESKTOP UNCHANGED) ================= */
 
-/* mobile basics */
-*{ box-sizing:border-box; }
-html{ -webkit-text-size-adjust:100%; }
-
-/* IMPORTANT:
-   Keep the global img rule, but don't let it mess with the navbar logo.
-*/
-img{ max-width:100%; height:auto; display:block; }
-
-/* ---- NAVBAR LOGO FIX (prevents stretching/squishing) ---- */
-.nav-logo{
-  height:34px;          /* desktop logo height */
-  width:auto !important; /* force correct proportion */
-  max-width:none;       /* stop max-width:100% from shrinking it weirdly */
-  object-fit:contain;
-  display:block;
-  flex:0 0 auto;
-}
-
-/* In case any rule targets .navbar img and forces width */
-.navbar img{
-  width:auto !important;
-  height:auto;
-  object-fit:contain;
-}
-
-/* ---- GLOBAL BACKGROUND WEBP (no zoom-to-fit, just shows a crop/window) ---- */
-body{
-  /* CHANGE THIS PATH to your webp file */
-  background-image:url("../images/background.webp");
-  background-repeat:no-repeat;
-
-  /* KEY: don't scale to fit screen */
-  background-size:auto;
-
-  /* desktop crop area */
-  background-position:center top;
-
-  /* avoid weird white edges on some phones */
-  background-color:#000;
-}
-
-/* ---- NAVBAR responsive: shrink to fit, NO scrolling ---- */
 @media (max-width:800px){
+  /* keep your current navbar shape */
   .navbar{
     padding:18px 26px;
     border-radius:20px;
   }
-  .nav-inner{ gap:16px; }
-  .nav-link{ font-size:14px; }
-  .divider{ height:16px; }
 
-  /* slightly smaller logo on tablets */
-  .nav-logo{ height:30px; }
+  .nav-inner{
+    gap:16px;
+    align-items:center;
+    flex-wrap:nowrap;
+    white-space:nowrap;
+  }
+
+  .nav-link{ font-size:14px; }
+
+  /* make sure dividers still show */
+  .divider{
+    display:inline-block;
+    width:1px;
+    height:16px;
+    background:rgba(255,255,255,.28);
+    flex:0 0 1px;
+    opacity:1;
+  }
+
+  /* stop logo stretching */
+  .nav-logo{
+    height:30px;
+    width:auto;
+    max-width:120px;
+    object-fit:contain;
+    flex:0 0 auto;
+  }
 }
 
 @media (max-width:520px){
-  /* Keep navbar inside screen */
+  /* Keep navbar inside screen (NO scroll, shrink instead) */
   .navbar{
     left:12px;
     translate:0 0;
     max-width:calc(100vw - 24px);
-    overflow:visible; /* no scroll */
+    overflow:visible;
   }
 
-  /* force single-line + shrink spacing */
   .nav-inner{
+    gap:clamp(6px, 2vw, 12px);
     flex-wrap:nowrap;
     white-space:nowrap;
-    gap:clamp(6px, 2vw, 12px);
     align-items:center;
   }
 
@@ -1729,18 +1708,26 @@ body{
     padding:clamp(6px, 1.8vw, 10px) clamp(8px, 2vw, 12px);
   }
 
-  /* shrink logo (still keeps perfect proportions) */
+  /* dividers visible on phone too */
+  .divider{
+    display:inline-block;
+    width:1px;
+    height:12px;
+    background:rgba(255,255,255,.28);
+    flex:0 0 1px;
+    opacity:1;
+  }
+
+  /* logo: correct proportions + not tiny */
   .nav-logo{
-    height:clamp(18px, 5vw, 28px);
-    width:auto !important;
-    max-width:none;
+    height:clamp(22px, 5vw, 28px);
+    width:auto;
+    max-width:clamp(90px, 22vw, 120px);
     object-fit:contain;
     flex:0 0 auto;
   }
 
-  .divider{ height:12px; }
-
-  /* scale hero down */
+  /* hero scale */
   .hero-logo{ height:120px; width:auto; }
   h1{ font-size:38px; }
   .hero p{ font-size:14px; }
@@ -1753,51 +1740,9 @@ body{
   }
   .cta{ width:100%; }
 
-  /* MOBILE BACKGROUND: choose which part shows */
+  /* mobile background crop window */
   body{
-    background-size:auto;           /* still no zoom-to-fit */
-    background-position:center 20%; /* change 20% to move crop */
-  }
-
-  /*
-    If your image looks way too big/small on phones, use a fixed size instead:
-    Uncomment and tweak the 900px value.
-
-  body{
-    background-size:900px auto;
-    background-position:center 15%;
-  }
-  */
-}
-
-/* ================= NAV LOGO HARD FIX ================= */
-
-/* STOP the navbar logo from ever scaling like a normal image */
-.nav-home{
-  display:flex;
-  align-items:center;
-  flex:0 0 auto;
-}
-
-.nav-logo{
-  height:34px;        /* normal desktop size */
-  width:auto;
-  max-width:34px;     /* IMPORTANT: prevents it becoming huge */
-  object-fit:contain;
-  display:block;
-}
-
-/* Responsive logo sizes */
-@media (max-width:800px){
-  .nav-logo{
-    height:30px;
-    max-width:30px;
-  }
-}
-
-@media (max-width:520px){
-  .nav-logo{
-    height:24px;
-    max-width:24px;
+    background-size:auto;
+    background-position:center 20%;
   }
 }
