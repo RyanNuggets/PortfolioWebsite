@@ -1769,3 +1769,35 @@ body{
   }
   */
 }
+
+/* ================= NAV LOGO HARD FIX ================= */
+
+/* STOP the navbar logo from ever scaling like a normal image */
+.nav-home{
+  display:flex;
+  align-items:center;
+  flex:0 0 auto;
+}
+
+.nav-logo{
+  height:34px;        /* normal desktop size */
+  width:auto;
+  max-width:34px;     /* IMPORTANT: prevents it becoming huge */
+  object-fit:contain;
+  display:block;
+}
+
+/* Responsive logo sizes */
+@media (max-width:800px){
+  .nav-logo{
+    height:30px;
+    max-width:30px;
+  }
+}
+
+@media (max-width:520px){
+  .nav-logo{
+    height:24px;
+    max-width:24px;
+  }
+}
