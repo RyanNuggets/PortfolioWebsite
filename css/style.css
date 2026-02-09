@@ -1653,7 +1653,28 @@ input:focus, select:focus, textarea:focus{
 /* mobile basics */
 *{ box-sizing:border-box; }
 html{ -webkit-text-size-adjust:100%; }
+
+/* IMPORTANT:
+   Keep the global img rule, but don't let it mess with the navbar logo.
+*/
 img{ max-width:100%; height:auto; display:block; }
+
+/* ---- NAVBAR LOGO FIX (prevents stretching/squishing) ---- */
+.nav-logo{
+  height:34px;          /* desktop logo height */
+  width:auto !important; /* force correct proportion */
+  max-width:none;       /* stop max-width:100% from shrinking it weirdly */
+  object-fit:contain;
+  display:block;
+  flex:0 0 auto;
+}
+
+/* In case any rule targets .navbar img and forces width */
+.navbar img{
+  width:auto !important;
+  height:auto;
+  object-fit:contain;
+}
 
 /* ---- GLOBAL BACKGROUND WEBP (no zoom-to-fit, just shows a crop/window) ---- */
 body{
@@ -1680,6 +1701,9 @@ body{
   .nav-inner{ gap:16px; }
   .nav-link{ font-size:14px; }
   .divider{ height:16px; }
+
+  /* slightly smaller logo on tablets */
+  .nav-logo{ height:30px; }
 }
 
 @media (max-width:520px){
@@ -1696,6 +1720,7 @@ body{
     flex-wrap:nowrap;
     white-space:nowrap;
     gap:clamp(6px, 2vw, 12px);
+    align-items:center;
   }
 
   /* shrink links */
@@ -1704,10 +1729,13 @@ body{
     padding:clamp(6px, 1.8vw, 10px) clamp(8px, 2vw, 12px);
   }
 
-  /* shrink logo */
+  /* shrink logo (still keeps perfect proportions) */
   .nav-logo{
     height:clamp(18px, 5vw, 28px);
-    width:auto;
+    width:auto !important;
+    max-width:none;
+    object-fit:contain;
+    flex:0 0 auto;
   }
 
   .divider{ height:12px; }
@@ -1727,7 +1755,7 @@ body{
 
   /* MOBILE BACKGROUND: choose which part shows */
   body{
-    background-size:auto;          /* still no zoom-to-fit */
+    background-size:auto;           /* still no zoom-to-fit */
     background-position:center 20%; /* change 20% to move crop */
   }
 
