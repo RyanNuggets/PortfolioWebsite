@@ -57,5 +57,29 @@
     </div>
   </footer>
 
+  <script>
+  (function () {
+    const navbar = document.querySelector(".navbar");
+    const inner = document.querySelector(".nav-inner");
+    if (!navbar || !inner) return;
+
+    function updateCompact() {
+      const isMobile = window.matchMedia("(max-width: 520px)").matches;
+      const overflows = inner.scrollWidth > navbar.clientWidth;
+      navbar.classList.toggle("is-compact", isMobile && overflows);
+    }
+
+    updateCompact();
+    window.addEventListener("resize", updateCompact);
+    window.addEventListener("load", updateCompact);
+
+    if ("ResizeObserver" in window) {
+      const ro = new ResizeObserver(updateCompact);
+      ro.observe(navbar);
+      ro.observe(inner);
+    }
+  })();
+</script>
+
 </body>
 </html>
