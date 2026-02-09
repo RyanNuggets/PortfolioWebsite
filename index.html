@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nugget Studios</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap" rel="stylesheet">
@@ -56,30 +56,6 @@
       </p>
     </div>
   </footer>
-
-  <script>
-  (function () {
-    const navbar = document.querySelector(".navbar");
-    const inner = document.querySelector(".nav-inner");
-    if (!navbar || !inner) return;
-
-    function updateCompact() {
-      const isMobile = window.matchMedia("(max-width: 520px)").matches;
-      const overflows = inner.scrollWidth > navbar.clientWidth;
-      navbar.classList.toggle("is-compact", isMobile && overflows);
-    }
-
-    updateCompact();
-    window.addEventListener("resize", updateCompact);
-    window.addEventListener("load", updateCompact);
-
-    if ("ResizeObserver" in window) {
-      const ro = new ResizeObserver(updateCompact);
-      ro.observe(navbar);
-      ro.observe(inner);
-    }
-  })();
-</script>
 
 </body>
 </html>
