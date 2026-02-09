@@ -1687,7 +1687,7 @@ body{
     left:12px;
     translate:0 0;
     max-width:calc(100vw - 24px);
-    overflow:visible;
+    overflow:hidden; /* keep glass clean */
   }
 
   /* shrink everything to fit */
@@ -1698,8 +1698,8 @@ body{
     align-items:center;
   }
 
-  /* FULLY REMOVE NAV LOGO ON MOBILE */
-  .nav-home{ display:none; }
+  /* DO NOT always hide logo anymore (JS will decide via .is-compact) */
+  /* .nav-home{ display:none; } */
 
   .nav-link{
     font-size:clamp(11px, 3.1vw, 14px);
@@ -1707,6 +1707,19 @@ body{
   }
 
   .divider{ height:12px; }
+
+  /* ✅ ONLY when overflow happens */
+  .navbar.is-compact .nav-home{ display:none; }
+
+  /* remove the useless first divider when logo is hidden */
+  .navbar.is-compact .nav-inner .divider:first-of-type{
+    display:none;
+  }
+
+  /* center links when logo is hidden */
+  .navbar.is-compact .nav-inner{
+    justify-content:center;
+  }
 
   /* hero */
   .hero-logo{ height:120px; width:auto; }
@@ -1735,3 +1748,4 @@ body{
   }
   */
 }
+
