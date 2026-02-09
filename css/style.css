@@ -1676,7 +1676,14 @@ body{
     padding:18px 26px;
     border-radius:20px;
   }
-  .nav-inner{ gap:16px; }
+
+  .nav-inner{
+    gap:16px;
+    align-items:center;
+    flex-wrap:nowrap;
+    white-space:nowrap;
+  }
+
   .nav-link{ font-size:14px; }
   .divider{ height:16px; }
 }
@@ -1687,7 +1694,7 @@ body{
     left:12px;
     translate:0 0;
     max-width:calc(100vw - 24px);
-    overflow:hidden; /* keep glass clean */
+    overflow:hidden; /* cleaner for glass */
   }
 
   /* shrink everything to fit */
@@ -1698,8 +1705,21 @@ body{
     align-items:center;
   }
 
-  /* DO NOT always hide logo anymore (JS will decide via .is-compact) */
-  /* .nav-home{ display:none; } */
+  /* ✅ Logo shrinks proportionally (height drives size, width stays auto) */
+  .nav-home{
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+  }
+  .nav-logo{
+    height:clamp(14px, 3.6vw, 18px);
+    width:auto;
+    object-fit:contain;
+    display:block;
+    flex:0 0 auto;
+    flex-shrink:0;
+    max-width:none;
+  }
 
   .nav-link{
     font-size:clamp(11px, 3.1vw, 14px);
@@ -1708,17 +1728,13 @@ body{
 
   .divider{ height:12px; }
 
-  /* ✅ ONLY when overflow happens */
+  /* ✅ ONLY if it STILL doesn't fit (your JS adds .is-compact) */
   .navbar.is-compact .nav-home{ display:none; }
-
-  /* remove the useless first divider when logo is hidden */
-  .navbar.is-compact .nav-inner .divider:first-of-type{
-    display:none;
-  }
-
-  /* center links when logo is hidden */
   .navbar.is-compact .nav-inner{
     justify-content:center;
+  }
+  .navbar.is-compact .nav-inner .divider:first-of-type{
+    display:none;
   }
 
   /* hero */
@@ -1748,4 +1764,3 @@ body{
   }
   */
 }
-
