@@ -1073,11 +1073,10 @@ input:focus, select:focus, textarea:focus{
 }
 
 .review-modal-logo{
-  width:80%;
-  height:80%;
-  object-fit:contain;
-  opacity:.92;
-  filter:drop-shadow(0 0 16px rgba(255,255,255,.10));
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center;
 }
 
 .review-modal-name{
