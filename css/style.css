@@ -42,30 +42,37 @@ body{
   z-index:9999;
   display:flex;
   justify-content:center;
-  padding: clamp(0.5rem,2vw,1rem) clamp(0.75rem,4vw,1rem);
-  pointer-events:none; /* let clicks fall through the empty area */
+  padding:14px 16px;
+  pointer-events:none;
 }
 
 .navbar{
   pointer-events:all;
-  position:relative;
-  display:flex;
-  width:100%;
-  max-width:min(64rem, calc(100vw - 1.5rem));
-  align-items:center;
-  justify-content:space-between;
-  gap: clamp(0.5rem,2vw,1rem);
 
-  border-radius:16px; /* rounded-2xl */
-  padding: clamp(0.45rem,1.2vw,0.7rem) clamp(0.75rem,3vw,1.25rem);
-  position:relative;
+  /* Self-contained fixed positioning (works even without .navbar-header) */
+  position:fixed;
+  top:14px;
+  left:50%;
+  transform:translateX(-50%);
+  width:calc(100% - 32px);
+  max-width:1024px;
+
+  /* 3-column grid: logo | links | cta */
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+
+  border-radius:16px;
+  padding:10px 16px;
 
   border:1px solid #292929;
-  background:rgba(10,10,10,0.65);
+  background:rgba(10,10,10,0.75);
   backdrop-filter:blur(20px) saturate(150%);
   -webkit-backdrop-filter:blur(20px) saturate(150%);
+  box-sizing:border-box;
+  z-index:9999;
 
-  transition:border-color 300ms, background-color 300ms, backdrop-filter 300ms;
+  transition:border-color 300ms, background-color 300ms;
 }
 
 /* Logo */
@@ -77,22 +84,20 @@ body{
   flex-shrink:0;
 }
 
-/* Centre link group — absolutely centered inside the navbar */
+/* Centre link group — sits in middle grid column, centered */
 .nav-links{
   display:flex;
   align-items:center;
   gap:2px;
-  position:absolute;
-  left:50%;
-  transform:translateX(-50%);
+  justify-content:center;
 }
 
-/* Right-side CTA wrapper */
+/* Right-side CTA wrapper — sits in right grid column, aligned right */
 .nav-cta-wrap{
   display:flex;
   align-items:center;
+  justify-content:flex-end;
   gap:6px;
-  margin-left:auto;
 }
 
 .divider{ display:none; }
