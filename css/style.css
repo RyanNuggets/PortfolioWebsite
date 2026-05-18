@@ -58,6 +58,7 @@ body{
 
   border-radius:16px; /* rounded-2xl */
   padding: clamp(0.45rem,1.2vw,0.7rem) clamp(0.75rem,3vw,1.25rem);
+  position:relative;
 
   border:1px solid #292929;
   background:rgba(10,10,10,0.65);
@@ -76,11 +77,14 @@ body{
   flex-shrink:0;
 }
 
-/* Centre link group */
+/* Centre link group — absolutely centered inside the navbar */
 .nav-links{
   display:flex;
   align-items:center;
-  gap:2px; /* links have their own px padding */
+  gap:2px;
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
 }
 
 /* Right-side CTA wrapper */
@@ -88,6 +92,7 @@ body{
   display:flex;
   align-items:center;
   gap:6px;
+  margin-left:auto;
 }
 
 .divider{ display:none; }
