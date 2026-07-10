@@ -217,12 +217,12 @@ function isAdmin(req) {
 app.post("/api/login", (req, res) => {
   const { password } = req.body || {};
 
-  if (password === "NuggetStudiosCLIENT") {
+  if (password === process.env.CLIENT_PASSWORD) {
     setCookie(res, "role", "client");
     return res.json({ ok: true, go: "/client-board" });
   }
 
-  if (password === "RyanWasHere") {
+  if (password === process.env.ADMIN_PASSWORD) {
     setCookie(res, "role", "admin");
     return res.json({ ok: true, go: ADMIN_PATH });
   }
