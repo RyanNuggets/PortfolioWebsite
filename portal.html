@@ -110,14 +110,14 @@
   <main class="page-content fade-in">
     <div class="portal-wrap">
       <div class="portal-card">
-        <h1 class="portal-title">Order portal</h1>
+        <h1 class="portal-title">Admin portal</h1>
         <p class="portal-sub">
-          Enter your password to view your order status.<br/>
-          (Admins can enter the admin password to manage orders.)
+          Enter the admin password to manage orders.<br/>
+          Looking for your order status? <a href="/client-board">View the client board</a> — no password needed.
         </p>
 
         <form id="portalForm" class="portal-row" autocomplete="off">
-          <input id="password" class="portal-input" type="password" placeholder="Enter password…" />
+          <input id="password" class="portal-input" type="password" placeholder="Enter admin password…" />
           <button class="portal-btn" type="submit">Continue</button>
         </form>
 
@@ -159,7 +159,7 @@
         }
 
         statusEl.textContent = "Success — redirecting…";
-        window.location.href = data.go || "/client-board";
+        window.location.href = data.go || "/";
       } catch (err) {
         statusEl.textContent = "Server error. Try again.";
       }
