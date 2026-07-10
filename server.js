@@ -60,11 +60,8 @@ app.get("/portal", (req, res) =>
   res.sendFile(path.join(__dirname, "portal.html"))
 );
 
-// Client board (must be logged in as client OR admin)
+// Client board (open to everyone — no password required)
 app.get("/client-board", (req, res) => {
-  const cookies = parseCookies(req);
-  const role = cookies.role || "";
-  if (role !== "client" && role !== "admin") return res.redirect("/portal");
   return res.sendFile(path.join(__dirname, "client-board.html"));
 });
 
@@ -203,11 +200,6 @@ function clearCookie(res, name) {
   );
 }
 
-function hasClientAccess(req) {
-  const role = (parseCookies(req).role || "");
-  return role === "client" || role === "admin";
-}
-
 function isAdmin(req) {
   const role = (parseCookies(req).role || "");
   return role === "admin";
@@ -216,11 +208,6 @@ function isAdmin(req) {
 // ---- Login / logout ----
 app.post("/api/login", (req, res) => {
   const { password } = req.body || {};
-
-  if (password === process.env.CLIENT_PASSWORD) {
-    setCookie(res, "role", "client");
-    return res.json({ ok: true, go: "/client-board" });
-  }
 
   if (password === process.env.ADMIN_PASSWORD) {
     setCookie(res, "role", "admin");
@@ -288,11 +275,8 @@ app.get("/api/debug/orders-path", (req, res) => {
   res.json({ ok: true, ORDERS_PATH });
 });
 
-// client + admin: READ
+// public: READ (client board has no password gate)
 app.get("/api/orders", (req, res) => {
-  if (!hasClientAccess(req)) {
-    return res.status(401).json({ ok: false, error: "Not authorized" });
-  }
   return res.json({ ok: true, items: readOrders() });
 });
 
