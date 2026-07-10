@@ -49,8 +49,8 @@
             <input id="title" placeholder="Order title (e.g. Banner pack)" required />
             <select id="status">
               <option>Queued</option>
+              <option>Paid</option>
               <option>In Progress</option>
-              <option>Waiting Client</option>
               <option>Delivered</option>
             </select>
             <button class="board-btn is-primary" type="submit">Add</button>
@@ -80,7 +80,7 @@
   </footer>
 
   <script>
-    const STATUSES = ["Queued", "In Progress", "Waiting Client", "Delivered"];
+    const STATUSES = ["Queued", "Paid", "In Progress", "Delivered"];
 
     const kanban = document.getElementById("kanban");
     const refreshBtn = document.getElementById("refreshBtn");
