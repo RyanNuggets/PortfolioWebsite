@@ -281,7 +281,7 @@ app.get("/api/orders", (req, res) => {
 });
 
 // admin: CREATE
-const VALID_STATUSES = ["Queued", "In Progress", "Delivered"];
+const VALID_STATUSES = ["Queued", "In Progress", "Awaiting Client", "Delivered"];
 
 app.post("/api/orders", (req, res) => {
   if (!isAdmin(req)) {

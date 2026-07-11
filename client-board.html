@@ -81,7 +81,7 @@
   </footer>
 
   <script>
-    const STATUSES = ["Queued", "In Progress", "Delivered"];
+    const STATUSES = ["Queued", "In Progress", "Awaiting Client", "Delivered"];
     const CHECK_SVG = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 12.5L9.5 18L20 6" stroke="#0a0a0a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
     const kanban = document.getElementById("kanban");
@@ -268,8 +268,7 @@
               ${paidBadge(o.paid)}
             </div>
             <div class="kcard-title">${esc(o.title)}</div>
-            ${buildStepper(o.status)}
-            ${queueText ? `<div class="kprogress-queue-note">${esc(queueText)}</div>` : ""}
+            ${queueText ? `<div class="kprogress-queue-note kprogress-queue-note-top">${esc(queueText)}</div>` : ""}
             <div class="kcard-foot">
               <span class="kmuted">${esc(fmtDate(o.updatedAt))}</span>
             </div>

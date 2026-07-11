@@ -50,6 +50,7 @@
             <select id="status">
               <option>Queued</option>
               <option>In Progress</option>
+              <option>Awaiting Client</option>
               <option>Delivered</option>
             </select>
             <label class="kmodal-toggle-row" style="margin:0; padding:10px 12px;">
@@ -96,6 +97,7 @@
               <select id="editStatus">
                 <option>Queued</option>
                 <option>In Progress</option>
+                <option>Awaiting Client</option>
                 <option>Delivered</option>
               </select>
             </div>
@@ -147,8 +149,7 @@
   </footer>
 
   <script>
-    const STATUSES = ["Queued", "In Progress", "Delivered"];
-    const CHECK_SVG = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 12.5L9.5 18L20 6" stroke="#0a0a0a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    const STATUSES = ["Queued", "In Progress", "Awaiting Client", "Delivered"];
 
     const kanban = document.getElementById("kanban");
     const refreshBtn = document.getElementById("refreshBtn");
@@ -211,38 +212,6 @@
       const label = paid ? "Paid" : "Not Paid";
       const toggleCls = toggle ? "is-toggle" : "";
       return `<span class="paid-badge ${cls} ${toggleCls}" data-act="toggle-paid" title="Click to toggle"><span class="paid-dot"></span>${label}</span>`;
-    }
-
-    function buildStepper(status){
-      const idx = Math.max(0, STATUSES.indexOf(status));
-
-      const steps = STATUSES.map((s, i) => {
-        let stateClass = "";
-        if (i < idx) stateClass = "is-done";
-        else if (i === idx) stateClass = "is-current";
-
-        const line = i < STATUSES.length - 1 ? `<div class="kprogress-line"></div>` : "";
-        const icon = i < idx ? CHECK_SVG : "";
-
-        return `
-          <div class="kprogress-step ${stateClass}">
-            <div class="kprogress-node">${icon}</div>
-            ${line}
-          </div>
-        `;
-      }).join("");
-
-      const labels = STATUSES.map((s, i) => {
-        let cls = "";
-        if (i < idx) cls = "is-done";
-        else if (i === idx) cls = "is-active";
-        return `<div class="kprogress-label ${cls}">${esc(s)}</div>`;
-      }).join("");
-
-      return `
-        <div class="kprogress">${steps}</div>
-        <div class="kprogress-labels">${labels}</div>
-      `;
     }
 
     function buildColumns(){
@@ -341,8 +310,7 @@
               </div>
             </div>
             <div class="kcard-title">${esc(o.title)}</div>
-            ${buildStepper(o.status)}
-            ${queueText ? `<div class="kprogress-queue-note">${esc(queueText)}</div>` : ""}
+            ${queueText ? `<div class="kprogress-queue-note kprogress-queue-note-top">${esc(queueText)}</div>` : ""}
             <div class="kcard-foot">
               <span class="kmuted">${esc(fmtDate(o.updatedAt))}</span>
             </div>
