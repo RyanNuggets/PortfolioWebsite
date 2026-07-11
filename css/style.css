@@ -1148,7 +1148,7 @@ input:focus, select:focus, textarea:focus{
 .admin-add{ margin-top:18px; }
 .admin-add-form{
   display:grid;
-  grid-template-columns: 1fr 1.2fr 220px 120px;
+  grid-template-columns: 1fr 1.2fr 190px 130px 110px;
   gap:10px;
   align-items:center;
 }
@@ -1166,7 +1166,7 @@ input:focus, select:focus, textarea:focus{
 .kanban{
   margin-top:20px;
   display:grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap:14px;
   position:relative;
   z-index:1;
@@ -1531,6 +1531,9 @@ input:focus, select:focus, textarea:focus{
   opacity:.65;
   margin:-4px 2px 12px;
   font-weight:600;
+}
+.kprogress-queue-note-top{
+  margin:6px 2px 10px;
 }
 
 /* larger stepper used in modal */
