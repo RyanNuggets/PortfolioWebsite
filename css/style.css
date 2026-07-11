@@ -1166,7 +1166,7 @@ input:focus, select:focus, textarea:focus{
 .kanban{
   margin-top:20px;
   display:grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap:14px;
   position:relative;
   z-index:1;
@@ -1253,8 +1253,16 @@ input:focus, select:focus, textarea:focus{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:10px;
+  gap:8px;
   margin-bottom:10px;
+  flex-wrap:wrap;
+}
+
+.kcard-top-left{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
 }
 
 .kbadge{
@@ -1386,6 +1394,307 @@ input:focus, select:focus, textarea:focus{
   text-shadow:0 0 14px rgba(255,255,255,.10);
 }
 
+/* ================= PAID BADGE ================= */
+
+.paid-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.3px;
+  text-transform:uppercase;
+  padding:6px 10px 6px 8px;
+  border-radius:999px;
+  border:1px solid rgba(41,41,41,0.5);
+  background:rgba(255,255,255,.04);
+  white-space:nowrap;
+}
+
+.paid-badge .paid-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  flex:none;
+  background:rgba(255,255,255,.3);
+}
+
+.paid-badge.is-paid{
+  color:#b9ffcc;
+  border-color:rgba(140,255,180,.28);
+  background:rgba(140,255,180,.06);
+}
+.paid-badge.is-paid .paid-dot{
+  background:#8cffb4;
+  box-shadow:0 0 10px rgba(140,255,180,.55);
+}
+
+.paid-badge.is-unpaid{
+  color:#ffb3b3;
+  border-color:rgba(255,140,140,.25);
+  background:rgba(255,140,140,.05);
+}
+.paid-badge.is-unpaid .paid-dot{
+  background:#ff9d9d;
+  box-shadow:0 0 10px rgba(255,140,140,.4);
+}
+
+.paid-badge.is-toggle{
+  cursor:pointer;
+  transition:opacity .15s ease, transform .15s ease;
+}
+.paid-badge.is-toggle:hover{ opacity:.8; }
+.paid-badge.is-toggle:active{ transform:scale(.96); }
+
+/* ================= PROGRESS STEPPER ================= */
+
+.kprogress{
+  display:flex;
+  align-items:center;
+  margin:2px 2px 12px;
+}
+
+.kprogress-step{
+  display:flex;
+  align-items:center;
+  flex:1;
+}
+.kprogress-step:last-child{ flex:none; }
+
+.kprogress-node{
+  width:16px;
+  height:16px;
+  border-radius:50%;
+  border:2px solid rgba(41,41,41,0.7);
+  background:rgba(0,0,0,.4);
+  flex:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:all .2s ease;
+}
+.kprogress-node svg{
+  width:9px;
+  height:9px;
+  opacity:0;
+}
+
+.kprogress-line{
+  height:2px;
+  flex:1;
+  background:rgba(41,41,41,0.6);
+  margin:0 2px;
+  border-radius:2px;
+  transition:background .2s ease;
+}
+
+.kprogress-step.is-done .kprogress-node{
+  border-color:#8cffb4;
+  background:#8cffb4;
+  box-shadow:0 0 10px rgba(140,255,180,.45);
+}
+.kprogress-step.is-done .kprogress-node svg{ opacity:1; }
+.kprogress-step.is-done .kprogress-line{ background:#8cffb4; opacity:.55; }
+
+.kprogress-step.is-current .kprogress-node{
+  border-color:#f5f5f5;
+  background:#f5f5f5;
+  box-shadow:0 0 0 4px rgba(245,245,245,.14), 0 0 14px rgba(245,245,245,.35);
+  animation:kpulse 1.8s ease-in-out infinite;
+}
+@keyframes kpulse{
+  0%,100%{ box-shadow:0 0 0 4px rgba(245,245,245,.14), 0 0 14px rgba(245,245,245,.35); }
+  50%{ box-shadow:0 0 0 7px rgba(245,245,245,.06), 0 0 18px rgba(245,245,245,.45); }
+}
+
+.kprogress-labels{
+  display:flex;
+  justify-content:space-between;
+  margin:0 2px 10px;
+}
+.kprogress-label{
+  font-size:9.5px;
+  letter-spacing:.3px;
+  text-transform:uppercase;
+  font-weight:800;
+  opacity:.4;
+  flex:1;
+  text-align:center;
+}
+.kprogress-label:first-child{ text-align:left; }
+.kprogress-label:last-child{ text-align:right; }
+.kprogress-label.is-active{ opacity:1; color:#f5f5f5; }
+.kprogress-label.is-done{ opacity:.75; color:#b9ffcc; }
+
+.kprogress-queue-note{
+  font-size:11px;
+  opacity:.65;
+  margin:-4px 2px 12px;
+  font-weight:600;
+}
+
+/* larger stepper used in modal */
+.kprogress-lg .kprogress-node{ width:22px; height:22px; }
+.kprogress-lg .kprogress-node svg{ width:12px; height:12px; }
+.kprogress-lg .kprogress-label{ font-size:11px; }
+
+/* ================= CARD DETAIL HINT / DESC ================= */
+
+.kcard-hint{
+  margin-top:8px;
+  font-size:10.5px;
+  opacity:.4;
+  text-align:right;
+  letter-spacing:.2px;
+}
+
+.kmodal-section-title{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.3px;
+  font-weight:800;
+  opacity:.55;
+  margin:16px 0 8px;
+}
+.kmodal-section-title:first-of-type{ margin-top:0; }
+
+.kmodal-desc{
+  font-size:13.5px;
+  line-height:1.7;
+  opacity:.9;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+.kmodal-desc.is-empty{ opacity:.45; font-style:italic; }
+
+.kmodal-link-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-size:13px;
+  font-weight:700;
+  text-decoration:none;
+  color:white;
+  border:1px solid rgba(114,137,218,.35);
+  background:rgba(114,137,218,.1);
+  padding:10px 14px;
+  border-radius:14px;
+  transition:opacity .15s ease;
+}
+.kmodal-link-btn:hover{ opacity:.85; }
+
+/* ================= ADMIN EDIT MODAL FORM ================= */
+
+.kmodal-form-row{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  margin-bottom:14px;
+}
+
+.kmodal-form-row label{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.3px;
+  font-weight:800;
+  opacity:.55;
+}
+
+.kmodal-form-row input[type="text"],
+.kmodal-form-row input[type="url"],
+.kmodal-form-row select,
+.kmodal-form-row textarea{
+  border-radius:14px;
+  padding:11px 13px;
+  border:1px solid rgba(41,41,41,0.5);
+  background:rgba(0,0,0,.55);
+  color:white;
+  outline:none;
+  font-family:inherit;
+  font-size:13.5px;
+  resize:vertical;
+}
+
+.kmodal-form-row textarea{
+  min-height:110px;
+  line-height:1.6;
+}
+
+.kmodal-form-two{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.kmodal-toggle-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  border-radius:14px;
+  border:1px solid rgba(41,41,41,0.5);
+  background:rgba(0,0,0,.35);
+  padding:12px 14px;
+  margin-bottom:14px;
+}
+.kmodal-toggle-row span{
+  font-size:13px;
+  font-weight:700;
+}
+
+.kswitch{
+  position:relative;
+  width:44px;
+  height:24px;
+  flex:none;
+}
+.kswitch input{
+  opacity:0;
+  width:0;
+  height:0;
+}
+.kswitch-track{
+  position:absolute;
+  inset:0;
+  background:rgba(255,140,140,.15);
+  border:1px solid rgba(255,140,140,.3);
+  border-radius:999px;
+  cursor:pointer;
+  transition:all .2s ease;
+}
+.kswitch-track::before{
+  content:"";
+  position:absolute;
+  width:16px;
+  height:16px;
+  left:3px;
+  top:2px;
+  background:#ff9d9d;
+  border-radius:50%;
+  transition:all .2s ease;
+  box-shadow:0 0 8px rgba(255,140,140,.4);
+}
+.kswitch input:checked + .kswitch-track{
+  background:rgba(140,255,180,.15);
+  border-color:rgba(140,255,180,.35);
+}
+.kswitch input:checked + .kswitch-track::before{
+  left:23px;
+  background:#8cffb4;
+  box-shadow:0 0 8px rgba(140,255,180,.5);
+}
+
+.kmodal-actions{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:20px;
+}
+.kmodal-actions-right{
+  display:flex;
+  gap:10px;
+}
+
 /* responsive */
 @media (max-width:1050px){
   .kanban{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -1394,4 +1703,7 @@ input:focus, select:focus, textarea:focus{
 @media (max-width:520px){
   .board-shell{ padding:34px 18px 22px; }
   .kanban{ grid-template-columns: 1fr; }
+  .kmodal-form-two{ grid-template-columns:1fr; }
+  .kmodal-actions{ flex-direction:column-reverse; }
+  .kmodal-actions-right{ flex-direction:column; }
 }
