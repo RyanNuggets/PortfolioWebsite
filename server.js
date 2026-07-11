@@ -281,12 +281,14 @@ app.get("/api/orders", (req, res) => {
 });
 
 // admin: CREATE
+const VALID_STATUSES = ["Queued", "In Progress", "Delivered"];
+
 app.post("/api/orders", (req, res) => {
   if (!isAdmin(req)) {
     return res.status(401).json({ ok: false, error: "Admin only" });
   }
 
-  const { client, title, status } = req.body || {};
+  const { client, title, status, paid, discordLink, notes } = req.body || {};
   if (!client || !title) {
     return res.status(400).json({ ok: false, error: "client and title required" });
   }
@@ -294,7 +296,7 @@ app.post("/api/orders", (req, res) => {
   const items = readOrders();
   const id = "order-" + Date.now();
   const now = new Date().toISOString();
-  const st = String(status || "Queued").trim();
+  const st = VALID_STATUSES.includes(status) ? status : "Queued";
 
   // ✅ queueRank: only for Queued; new queued orders go to end of queue
   let queueRank = null;
@@ -310,6 +312,9 @@ app.post("/api/orders", (req, res) => {
     client: String(client).trim(),
     title: String(title).trim(),
     status: st,
+    paid: Boolean(paid),
+    discordLink: String(discordLink || "").trim().slice(0, 500),
+    notes: String(notes || "").trim().slice(0, 4000),
     queueRank,
     updatedAt: now
   });
@@ -325,7 +330,7 @@ app.patch("/api/orders/:id", (req, res) => {
   }
 
   const { id } = req.params;
-  const { status, title } = req.body || {};
+  const { status, title, client, paid, discordLink, notes } = req.body || {};
 
   const items = readOrders();
   const idx = items.findIndex(o => o.id === id);
@@ -333,9 +338,13 @@ app.patch("/api/orders/:id", (req, res) => {
 
   const prevStatus = items[idx].status;
 
-  if (typeof title === "string") items[idx].title = title;
+  if (typeof title === "string") items[idx].title = title.trim();
+  if (typeof client === "string" && client.trim()) items[idx].client = client.trim();
+  if (typeof paid === "boolean") items[idx].paid = paid;
+  if (typeof discordLink === "string") items[idx].discordLink = discordLink.trim().slice(0, 500);
+  if (typeof notes === "string") items[idx].notes = notes.trim().slice(0, 4000);
 
-  if (typeof status === "string") {
+  if (typeof status === "string" && VALID_STATUSES.includes(status)) {
     const nextStatus = status;
     items[idx].status = nextStatus;
 

@@ -46,7 +46,7 @@
         <div class="kanban" id="kanban"></div>
 
         <p class="board-mini">
-          Tip: If you don’t see your order yet, it may still be getting queued.
+          Tip: If you don't see your order yet, it may still be getting queued. Click any card to see full details.
         </p>
       </div>
     </section>
@@ -59,7 +59,15 @@
         <div class="kmodal-title" id="kmodalTitle"></div>
         <div class="kmodal-meta" id="kmodalMeta"></div>
         <div class="kmodal-divider"></div>
-        <div class="kmodal-status" id="kmodalStatus"></div>
+
+        <div class="kmodal-section-title">Progress</div>
+        <div id="kmodalProgress"></div>
+
+        <div class="kmodal-section-title">Discord Ticket</div>
+        <div id="kmodalLink"></div>
+
+        <div class="kmodal-section-title">Additional Info</div>
+        <div id="kmodalNotes"></div>
       </div>
     </div>
   </main>
@@ -73,7 +81,8 @@
   </footer>
 
   <script>
-    const STATUSES = ["Queued", "Paid", "In Progress", "Delivered"];
+    const STATUSES = ["Queued", "In Progress", "Delivered"];
+    const CHECK_SVG = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 12.5L9.5 18L20 6" stroke="#0a0a0a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
     const kanban = document.getElementById("kanban");
     const refreshBtn = document.getElementById("refreshBtn");
@@ -83,7 +92,9 @@
     const kmodalClose = document.getElementById("kmodalClose");
     const kmodalTitle = document.getElementById("kmodalTitle");
     const kmodalMeta = document.getElementById("kmodalMeta");
-    const kmodalStatus = document.getElementById("kmodalStatus");
+    const kmodalProgress = document.getElementById("kmodalProgress");
+    const kmodalLink = document.getElementById("kmodalLink");
+    const kmodalNotes = document.getElementById("kmodalNotes");
 
     let lastFocus = null;
     let LATEST_ITEMS = [];
@@ -110,7 +121,46 @@
         .sort((a,b) => (a.queueRank ?? 9999) - (b.queueRank ?? 9999));
 
       const idx = queued.findIndex(o => o.id === orderId);
-      return idx === -1 ? "Queued" : `${ordinal(idx + 1)} in Queue`;
+      return idx === -1 ? "" : `${ordinal(idx + 1)} in Queue`;
+    }
+
+    function paidBadge(paid, extraClass=""){
+      const cls = paid ? "is-paid" : "is-unpaid";
+      const label = paid ? "Paid" : "Not Paid";
+      return `<span class="paid-badge ${cls} ${extraClass}"><span class="paid-dot"></span>${label}</span>`;
+    }
+
+    // Builds a progress stepper. size: "" (small, for card) or "kprogress-lg" (modal)
+    function buildStepper(status, size=""){
+      const idx = Math.max(0, STATUSES.indexOf(status));
+
+      const steps = STATUSES.map((s, i) => {
+        let stateClass = "";
+        if (i < idx) stateClass = "is-done";
+        else if (i === idx) stateClass = "is-current";
+
+        const line = i < STATUSES.length - 1 ? `<div class="kprogress-line"></div>` : "";
+        const icon = i < idx ? CHECK_SVG : "";
+
+        return `
+          <div class="kprogress-step ${stateClass}">
+            <div class="kprogress-node">${icon}</div>
+            ${line}
+          </div>
+        `;
+      }).join("");
+
+      const labels = STATUSES.map((s, i) => {
+        let cls = "";
+        if (i < idx) cls = "is-done";
+        else if (i === idx) cls = "is-active";
+        return `<div class="kprogress-label ${cls}">${esc(s)}</div>`;
+      }).join("");
+
+      return `
+        <div class="kprogress ${size}">${steps}</div>
+        <div class="kprogress-labels">${labels}</div>
+      `;
     }
 
     function openModal(order){
@@ -121,14 +171,27 @@
       kmodalTitle.innerHTML = esc(order.title);
       kmodalMeta.innerHTML = `
         <span class="kbadge">${esc(order.client)}</span>
+        ${paidBadge(order.paid)}
         <span class="kmuted">Updated: ${esc(fmtDate(order.updatedAt))}</span>
       `;
 
-      const statusText = order.status === "Queued"
-        ? getQueueText(order.id)
-        : order.status;
+      const queueText = order.status === "Queued" ? getQueueText(order.id) : "";
+      kmodalProgress.innerHTML = buildStepper(order.status, "kprogress-lg") +
+        (queueText ? `<div class="kprogress-queue-note">${esc(queueText)}</div>` : "");
 
-      kmodalStatus.innerHTML = `Status: <span class="kstatus">${esc(statusText)}</span>`;
+      if (order.discordLink) {
+        kmodalLink.innerHTML = `
+          <a class="kmodal-link-btn" href="${esc(order.discordLink)}" target="_blank" rel="noopener noreferrer">
+            Open Discord Ticket ↗
+          </a>
+        `;
+      } else {
+        kmodalLink.innerHTML = `<div class="kmodal-desc is-empty">No Discord ticket linked yet.</div>`;
+      }
+
+      kmodalNotes.innerHTML = order.notes
+        ? `<div class="kmodal-desc">${esc(order.notes)}</div>`
+        : `<div class="kmodal-desc is-empty">No additional info yet.</div>`;
 
       kmodal.classList.add("open");
       kmodal.setAttribute("aria-hidden", "false");
@@ -186,23 +249,40 @@
         const list = byStatus[st];
 
         count.textContent = list.length;
-        body.innerHTML = list.map(o => `
+        body.innerHTML = list.map(o => {
+          const queueText = o.status === "Queued" ? getQueueTextInline(o, byStatus["Queued"]) : "";
+          return `
           <article class="kcard" tabindex="0"
             data-id="${esc(o.id)}"
             data-client="${esc(o.client)}"
             data-title="${esc(o.title)}"
             data-status="${esc(o.status)}"
+            data-paid="${o.paid ? "1" : "0"}"
+            data-discord="${esc(o.discordLink || "")}"
+            data-notes="${esc(o.notes || "")}"
             data-updated="${esc(o.updatedAt)}">
             <div class="kcard-top">
-              <span class="kbadge">${esc(o.client)}</span>
+              <div class="kcard-top-left">
+                <span class="kbadge">${esc(o.client)}</span>
+              </div>
+              ${paidBadge(o.paid)}
             </div>
             <div class="kcard-title">${esc(o.title)}</div>
+            ${buildStepper(o.status)}
+            ${queueText ? `<div class="kprogress-queue-note">${esc(queueText)}</div>` : ""}
             <div class="kcard-foot">
               <span class="kmuted">${esc(fmtDate(o.updatedAt))}</span>
             </div>
+            <div class="kcard-hint">Click for details →</div>
           </article>
-        `).join("");
+        `;
+        }).join("");
       });
+    }
+
+    function getQueueTextInline(order, queuedList){
+      const idx = queuedList.findIndex(o => o.id === order.id);
+      return idx === -1 ? "" : `${ordinal(idx + 1)} in Queue`;
     }
 
     kanban.addEventListener("click", e => {
@@ -214,8 +294,19 @@
         client: card.dataset.client,
         title: card.dataset.title,
         status: card.dataset.status,
+        paid: card.dataset.paid === "1",
+        discordLink: card.dataset.discord,
+        notes: card.dataset.notes,
         updatedAt: card.dataset.updated
       });
+    });
+
+    kanban.addEventListener("keydown", e => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      const card = e.target.closest(".kcard");
+      if (!card) return;
+      e.preventDefault();
+      card.click();
     });
 
     refreshBtn.addEventListener("click", loadBoard);
