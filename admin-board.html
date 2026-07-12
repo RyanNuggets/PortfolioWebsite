@@ -337,13 +337,17 @@
 
       goalAdminList.innerHTML = entries.slice(0, 100).map(e => {
         const isSpend = e.kind === "spend";
+        const isCurrency = !isSpend && e.type === "currency";
+        const typeClass = isSpend ? "is-spend" : (isCurrency ? "is-currency" : "");
         const label = e.client && e.title ? `${e.client} — ${e.title}` : (e.notes || (isSpend ? "Redeemed Robux" : "Manual entry"));
         const detail = isSpend
           ? "Spent"
-          : (e.type === "currency" ? `${currencySymbolFor(e.currency)}${fmtGoalNum(e.amount)} ${e.currency}` : `${fmtGoalNum(e.amount)} R$ direct`);
+          : (isCurrency ? `${currencySymbolFor(e.currency)}${fmtGoalNum(e.amount)} ${e.currency}` : `${fmtGoalNum(e.amount)} R$ direct`);
         const amtText = (isSpend ? "-" : "+") + fmtGoalNum(e.robux) + " R$";
+        const iconContent = isSpend ? "&minus;" : (isCurrency ? esc(currencySymbolFor(e.currency).trim() || e.currency) : `<img src="images/icon-ball.svg" alt="">`);
         return `
-          <div class="goal-entry" data-entry-id="${esc(e.id)}">
+          <div class="goal-entry ${typeClass}" data-entry-id="${esc(e.id)}">
+            <div class="goal-entry-icon">${iconContent}</div>
             <div class="goal-entry-left">
               <div class="goal-entry-title">${esc(label)}</div>
               <div class="goal-entry-meta">${esc(fmtDate(e.date))} · ${esc(detail)}</div>

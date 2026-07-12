@@ -8,6 +8,9 @@
 </head>
 
 <body class="page-layout">
+  <!-- Ambient confetti rain, only ever populated while the goal is fully funded -->
+  <div class="goal-rain-layer" id="goalRain" aria-hidden="true"></div>
+
   <!-- NAVBAR -->
   <header class="navbar-header">
     <nav class="navbar fade-in">
@@ -100,6 +103,7 @@
 
     <div class="goal-celebration-overlay" id="goalCelebration" aria-hidden="true">
       <div class="goal-celebration-card">
+        <div class="goal-celebration-ring"></div>
         <img class="goal-celebration-icon" src="images/icon-ball.svg" alt="">
         <p class="goal-celebration-title">Goal Reached!</p>
         <p class="goal-celebration-sub" id="goalCelebrationSub"></p>
@@ -142,37 +146,117 @@
     const celebrationOverlay = document.getElementById("goalCelebration");
     const celebrationSub = document.getElementById("goalCelebrationSub");
     const celebrationClose = document.getElementById("goalCelebrationClose");
-    const CONFETTI_COLORS = ["#f5f5f5", "#8cffb4", "#8c8c8c", "#ffffff", "#3a3a3a"];
+    const rainLayer = document.getElementById("goalRain");
 
-    function spawnConfetti(){
+    const CONFETTI_COLORS = ["#8cffb4", "#7fc4ff", "#ffd479", "#ff8c8c", "#f5f5f5", "#ffffff"];
+    const BURST_EMOJI = ["⚽", "🎉", "✨", "🏆", "🎊"];
+    const reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function rand(min, max){ return Math.random() * (max - min) + min; }
+
+    // Big one-off burst inside the celebration card: confetti + emoji shrapnel + firework rings
+    function spawnBurst(){
       const card = celebrationOverlay.querySelector(".goal-celebration-card");
-      const count = 60;
-      for (let i = 0; i < count; i++) {
+      if (!card) return;
+
+      // Confetti shower falling from the top of the card
+      const confettiCount = reducedMotion ? 0 : 90;
+      for (let i = 0; i < confettiCount; i++) {
         const piece = document.createElement("span");
-        piece.className = "goal-confetti";
-        piece.style.left = Math.random() * 100 + "%";
-        piece.style.background = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
-        piece.style.animationDuration = (1.6 + Math.random() * 1.2) + "s";
-        piece.style.animationDelay = (Math.random() * 0.5) + "s";
+        const shapeRoll = Math.random();
+        piece.className = "goal-confetti" + (shapeRoll < 0.34 ? " is-circle" : shapeRoll < 0.6 ? " is-tri" : "");
+        const color = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+        piece.style.left = rand(0, 100) + "%";
+        piece.style.setProperty("--tri-color", color);
+        if (!piece.classList.contains("is-tri")) piece.style.background = color;
+        const size = rand(6, 12);
+        piece.style.width = size + "px";
+        piece.style.height = (size * 1.6) + "px";
+        piece.style.setProperty("--drift", rand(-70, 70) + "px");
+        piece.style.setProperty("--spin", rand(360, 900) + "deg");
+        piece.style.animationDuration = rand(1.4, 2.6) + "s";
+        piece.style.animationDelay = rand(0, 0.6) + "s";
         celebrationOverlay.appendChild(piece);
         piece.addEventListener("animationend", () => piece.remove());
       }
+
+      // Emoji shrapnel bursting outward from the ball icon
+      const emojiCount = reducedMotion ? 0 : 16;
+      for (let i = 0; i < emojiCount; i++) {
+        const bit = document.createElement("span");
+        bit.className = "goal-burst-emoji";
+        bit.textContent = BURST_EMOJI[Math.floor(Math.random() * BURST_EMOJI.length)];
+        const angle = rand(0, Math.PI * 2);
+        const dist = rand(90, 190);
+        bit.style.setProperty("--bx", Math.cos(angle) * dist + "px");
+        bit.style.setProperty("--by", Math.sin(angle) * dist + "px");
+        bit.style.setProperty("--br", rand(-180, 180) + "deg");
+        bit.style.animationDuration = rand(0.8, 1.3) + "s";
+        bit.style.animationDelay = rand(0, 0.25) + "s";
+        card.appendChild(bit);
+        bit.addEventListener("animationend", () => bit.remove());
+      }
+
+      // Expanding firework rings
+      if (!reducedMotion) {
+        [0, 0.25, 0.5].forEach((delay) => {
+          const ring = document.createElement("span");
+          ring.className = "goal-firework-ring";
+          ring.style.borderColor = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+          ring.style.animationDuration = "1.1s";
+          ring.style.animationDelay = delay + "s";
+          card.appendChild(ring);
+          ring.addEventListener("animationend", () => ring.remove());
+        });
+      }
     }
 
-    function maybeCelebrate(){
-      try {
-        if (sessionStorage.getItem("goalCelebrationShown") === "1") return;
-        sessionStorage.setItem("goalCelebrationShown", "1");
-      } catch {}
-      celebrationSub.textContent = "The savings goal is fully funded.";
+    // Gentle, continuous confetti rain across the whole page — runs the entire time
+    // the goal is complete and this tab is open, and restarts on every refresh too.
+    let rainTimer = null;
+    function spawnRainPiece(){
+      const piece = document.createElement("span");
+      const shapeRoll = Math.random();
+      piece.className = "goal-rain-piece" + (shapeRoll < 0.34 ? " is-circle" : shapeRoll < 0.6 ? " is-tri" : "");
+      const color = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+      piece.style.left = rand(0, 100) + "%";
+      piece.style.setProperty("--tri-color", color);
+      if (!piece.classList.contains("is-tri")) piece.style.background = color;
+      const size = rand(6, 11);
+      piece.style.width = size + "px";
+      piece.style.height = (size * 1.5) + "px";
+      piece.style.setProperty("--drift", rand(-120, 120) + "px");
+      piece.style.setProperty("--spin", rand(320, 760) + "deg");
+      const duration = rand(5, 9);
+      piece.style.animationDuration = duration + "s";
+      rainLayer.appendChild(piece);
+      setTimeout(() => piece.remove(), duration * 1000 + 200);
+    }
+
+    function startRain(){
+      if (rainTimer || reducedMotion) return;
+      // Seed a handful immediately so it doesn't feel empty on load
+      for (let i = 0; i < 10; i++) setTimeout(spawnRainPiece, i * 120);
+      rainTimer = setInterval(spawnRainPiece, 350);
+    }
+    function stopRain(){
+      if (rainTimer) { clearInterval(rainTimer); rainTimer = null; }
+      rainLayer.innerHTML = "";
+    }
+
+    function celebrate(){
+      celebrationSub.textContent = "The savings goal is fully funded — nothing but net.";
       celebrationOverlay.classList.add("is-visible");
       celebrationOverlay.setAttribute("aria-hidden", "false");
-      spawnConfetti();
+      spawnBurst();
+      startRain();
     }
 
     function closeCelebration(){
       celebrationOverlay.classList.remove("is-visible");
       celebrationOverlay.setAttribute("aria-hidden", "true");
+      // Ambient rain keeps going in the background even after the modal is dismissed —
+      // it only stops once the goal is no longer complete.
     }
     celebrationClose.addEventListener("click", closeCelebration);
     celebrationOverlay.addEventListener("click", (e) => {
@@ -209,7 +293,9 @@
       document.getElementById("fromMoneyBar").style.width = Math.min(100, (totals.fromMoney / maxSide) * 100) + "%";
 
       if (pct >= 100) {
-        maybeCelebrate();
+        celebrate();
+      } else {
+        stopRain();
       }
 
       const logEl = document.getElementById("goalLog");
@@ -220,13 +306,17 @@
 
       logEl.innerHTML = entries.slice(0, 40).map(e => {
         const isSpend = e.kind === "spend";
+        const isCurrency = !isSpend && e.type === "currency";
+        const typeClass = isSpend ? "is-spend" : (isCurrency ? "is-currency" : "");
         const label = e.client && e.title ? `${e.client} — ${e.title}` : (e.notes || (isSpend ? "Redeemed Robux" : "Manual entry"));
         const detail = isSpend
           ? "Spent"
-          : (e.type === "currency" ? `${currencySymbol(e.currency)}${fmtNum(e.amount)} ${e.currency}` : `${fmtNum(e.amount)} R$ direct`);
+          : (isCurrency ? `${currencySymbol(e.currency)}${fmtNum(e.amount)} ${e.currency}` : `${fmtNum(e.amount)} R$ direct`);
         const amtText = (isSpend ? "-" : "+") + fmtNum(e.robux) + " R$";
+        const iconContent = isSpend ? "&minus;" : (isCurrency ? esc(currencySymbol(e.currency).trim() || e.currency) : `<img src="images/icon-ball.svg" alt="">`);
         return `
-          <div class="goal-entry">
+          <div class="goal-entry ${typeClass}">
+            <div class="goal-entry-icon">${iconContent}</div>
             <div class="goal-entry-left">
               <div class="goal-entry-title">${esc(label)}</div>
               <div class="goal-entry-meta">${esc(fmtDate(e.date))} · ${esc(detail)}</div>
