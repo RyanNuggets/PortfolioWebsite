@@ -32,7 +32,7 @@
   <main class="page-content fade-in">
     <section class="goals-shell" id="goalsShell">
       <div class="goal-hero">
-        <span class="goal-eyebrow">⚽ Savings Goal · World Cup Season</span>
+        <span class="goal-eyebrow"><img class="icon-inline" src="images/icon-ball.svg" alt=""> Savings Goal</span>
 
         <div class="goal-title-row">
           <div>
@@ -48,11 +48,7 @@
         <div class="goal-pitch">
           <div class="goal-pitch-mid"></div>
           <div class="goal-pitch-fill" id="pitchFill"></div>
-          <svg class="goal-ball" id="goalBall" viewBox="0 0 24 24" fill="none" style="left:0%">
-            <circle cx="12" cy="12" r="11" fill="#ebebeb" stroke="#0a0a0a" stroke-width="1"/>
-            <path d="M12 6.5l4 2.9-1.5 4.6h-5L8 9.4z" fill="#0a0a0a"/>
-            <path d="M12 6.5V3M16 9.4l3.2-1M14.5 14l2 3M9.5 14l-2 3M8 9.4L4.8 8.4" stroke="#0a0a0a" stroke-width="1" stroke-linecap="round"/>
-          </svg>
+          <img class="goal-ball" id="goalBall" src="images/icon-ball.svg" style="left:0%" alt="">
         </div>
 
         <div class="goal-pitch-labels">
@@ -93,12 +89,21 @@
       </div>
 
       <div class="goal-log-head">
-        <div class="goal-log-title">🥅 Recent Contributions</div>
+        <div class="goal-log-title"><img class="icon-inline" src="images/icon-net.svg" alt=""> Recent Contributions</div>
       </div>
       <div class="goal-log-list" id="goalLog">
         <div class="goal-empty">Loading contributions…</div>
       </div>
     </section>
+
+    <div class="goal-celebration-overlay" id="goalCelebration" aria-hidden="true">
+      <div class="goal-celebration-card">
+        <img class="goal-celebration-icon" src="images/icon-ball.svg" alt="">
+        <p class="goal-celebration-title">Goal Reached!</p>
+        <p class="goal-celebration-sub" id="goalCelebrationSub"></p>
+        <button class="goal-celebration-close" id="goalCelebrationClose" type="button">Nice</button>
+      </div>
+    </div>
   </main>
 
   <footer class="footer-strip">
@@ -132,6 +137,46 @@
       return { USD: "$", EUR: "€", AED: "AED " }[cur] || "";
     }
 
+    const celebrationOverlay = document.getElementById("goalCelebration");
+    const celebrationSub = document.getElementById("goalCelebrationSub");
+    const celebrationClose = document.getElementById("goalCelebrationClose");
+    const CONFETTI_COLORS = ["#f5f5f5", "#8cffb4", "#8c8c8c", "#ffffff", "#3a3a3a"];
+
+    function spawnConfetti(){
+      const card = celebrationOverlay.querySelector(".goal-celebration-card");
+      const count = 60;
+      for (let i = 0; i < count; i++) {
+        const piece = document.createElement("span");
+        piece.className = "goal-confetti";
+        piece.style.left = Math.random() * 100 + "%";
+        piece.style.background = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+        piece.style.animationDuration = (1.6 + Math.random() * 1.2) + "s";
+        piece.style.animationDelay = (Math.random() * 0.5) + "s";
+        celebrationOverlay.appendChild(piece);
+        piece.addEventListener("animationend", () => piece.remove());
+      }
+    }
+
+    function maybeCelebrate(goalName){
+      try {
+        if (sessionStorage.getItem("goalCelebrationShown") === "1") return;
+        sessionStorage.setItem("goalCelebrationShown", "1");
+      } catch {}
+      celebrationSub.textContent = (goalName || "The goal") + " is fully funded.";
+      celebrationOverlay.classList.add("is-visible");
+      celebrationOverlay.setAttribute("aria-hidden", "false");
+      spawnConfetti();
+    }
+
+    function closeCelebration(){
+      celebrationOverlay.classList.remove("is-visible");
+      celebrationOverlay.setAttribute("aria-hidden", "true");
+    }
+    celebrationClose.addEventListener("click", closeCelebration);
+    celebrationOverlay.addEventListener("click", (e) => {
+      if (e.target === celebrationOverlay) closeCelebration();
+    });
+
     async function loadGoals(){
       const res = await fetch("/api/goals");
       const data = await res.json().catch(() => ({}));
@@ -164,9 +209,13 @@
       document.getElementById("fromRobuxBar").style.width = Math.min(100, (totals.fromRobux / maxSide) * 100) + "%";
       document.getElementById("fromMoneyBar").style.width = Math.min(100, (totals.fromMoney / maxSide) * 100) + "%";
 
+      if (pct >= 100) {
+        maybeCelebrate(goal.name);
+      }
+
       const logEl = document.getElementById("goalLog");
       if (!entries.length) {
-        logEl.innerHTML = `<div class="goal-empty">No contributions logged yet — deliver an order to kick things off ⚽</div>`;
+        logEl.innerHTML = `<div class="goal-empty">No contributions logged yet — deliver an order to kick things off <img class="icon-inline" src="images/icon-ball.svg" alt=""></div>`;
         return;
       }
 

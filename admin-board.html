@@ -83,7 +83,7 @@
       <div class="board-shell">
         <div class="board-head">
           <div>
-            <h1 class="board-title" style="font-size:1.2rem;">⚽ Goal Tracker</h1>
+            <h1 class="board-title" style="font-size:1.2rem;"><img class="icon-inline" src="images/icon-ball.svg" alt=""> Goal Tracker</h1>
             <p class="board-sub">Log Robux manually (gifts, corrections) or view the public page.</p>
           </div>
           <div class="board-actions">
@@ -111,6 +111,14 @@
             <button class="board-btn is-primary" type="submit" style="grid-column:1 / -1;">Add Entry</button>
           </form>
           <div class="board-msg" id="manualMsg"></div>
+        </div>
+
+        <div class="goal-admin-list-head">
+          <div class="goal-admin-list-title"><img class="icon-inline" src="images/icon-net.svg" alt=""> All Logged Entries</div>
+          <div class="goal-admin-summary" id="goalAdminSummary">Loading…</div>
+        </div>
+        <div class="goal-admin-list" id="goalAdminList">
+          <div class="goal-empty">Loading entries…</div>
         </div>
       </div>
     </section>
@@ -182,7 +190,7 @@
       <div class="kmodal-backdrop" id="earnModalBackdrop"></div>
       <div class="kmodal-card" role="dialog" aria-modal="true">
         <button class="kmodal-close" id="earnModalClose">×</button>
-        <div class="kmodal-title">⚽ Log Earnings</div>
+        <div class="kmodal-title"><img class="icon-inline" src="images/icon-ball.svg" alt=""> Log Earnings</div>
         <div class="kmodal-meta" id="earnOrderLabel"></div>
 
         <div class="kmodal-divider"></div>
@@ -290,9 +298,90 @@
     let earnType = "robux";
     let pendingOrder = null; // {orderId, client, title}
 
-    fetch("/api/goals").then(r => r.json()).then(d => {
-      if (d && d.goal && d.goal.rates) GOAL_RATES = d.goal.rates;
-    }).catch(() => {});
+    const goalAdminList = document.getElementById("goalAdminList");
+    const goalAdminSummary = document.getElementById("goalAdminSummary");
+
+    function fmtGoalNum(n){
+      return Math.round((Number(n) || 0) * 100) / 100 === Math.round(Number(n) || 0)
+        ? Math.round(Number(n) || 0).toLocaleString()
+        : (Number(n) || 0).toLocaleString(undefined, { maximumFractionDigits: 2 });
+    }
+
+    function currencySymbolFor(cur){
+      return { USD: "$", EUR: "€", AED: "AED " }[cur] || "";
+    }
+
+    async function loadGoalAdminPanel(){
+      let data;
+      try {
+        const res = await fetch("/api/goals");
+        data = await res.json();
+      } catch {
+        goalAdminList.innerHTML = `<div class="goal-empty">Couldn't load entries right now.</div>`;
+        return;
+      }
+      if (!data || !data.ok) {
+        goalAdminList.innerHTML = `<div class="goal-empty">Couldn't load entries right now.</div>`;
+        return;
+      }
+
+      if (data.goal && data.goal.rates) GOAL_RATES = data.goal.rates;
+
+      const { entries, totals, goal } = data;
+      goalAdminSummary.innerHTML = `<b>${fmtGoalNum(totals.currentRobux)}</b> / ${fmtGoalNum(goal.targetRobux)} R$ saved`;
+
+      if (!entries.length) {
+        goalAdminList.innerHTML = `<div class="goal-empty">No entries logged yet.</div>`;
+        return;
+      }
+
+      goalAdminList.innerHTML = entries.slice(0, 100).map(e => {
+        const isSpend = e.kind === "spend";
+        const label = e.client && e.title ? `${e.client} — ${e.title}` : (e.notes || (isSpend ? "Redeemed Robux" : "Manual entry"));
+        const detail = isSpend
+          ? "Spent"
+          : (e.type === "currency" ? `${currencySymbolFor(e.currency)}${fmtGoalNum(e.amount)} ${e.currency}` : `${fmtGoalNum(e.amount)} R$ direct`);
+        const amtText = (isSpend ? "-" : "+") + fmtGoalNum(e.robux) + " R$";
+        return `
+          <div class="goal-entry" data-entry-id="${esc(e.id)}">
+            <div class="goal-entry-left">
+              <div class="goal-entry-title">${esc(label)}</div>
+              <div class="goal-entry-meta">${esc(fmtDate(e.date))} · ${esc(detail)}</div>
+            </div>
+            <div class="goal-entry-amt ${isSpend ? "is-spend" : ""}">${esc(amtText)}</div>
+            <button type="button" class="goal-entry-del" data-del-id="${esc(e.id)}">Delete</button>
+          </div>
+        `;
+      }).join("");
+    }
+
+    goalAdminList.addEventListener("click", async (e) => {
+      const btn = e.target.closest("[data-del-id]");
+      if (!btn) return;
+      const id = btn.getAttribute("data-del-id");
+      if (!confirm("Delete this entry? This will fully reverse its effect on the goal total.")) return;
+
+      btn.disabled = true;
+      btn.textContent = "…";
+      try {
+        const res = await fetch(`/api/goals/entries/${encodeURIComponent(id)}`, { method: "DELETE" });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) {
+          setManualMsg(data.error || "Failed to delete entry.", false);
+          btn.disabled = false;
+          btn.textContent = "Delete";
+          return;
+        }
+        setManualMsg("Entry deleted — goal total updated.", true);
+        await loadGoalAdminPanel();
+      } catch {
+        setManualMsg("Failed to delete entry.", false);
+        btn.disabled = false;
+        btn.textContent = "Delete";
+      }
+    });
+
+    loadGoalAdminPanel();
 
     function setEarnMsg(text, ok = true){
       earnMsg.textContent = text || "";
@@ -384,6 +473,7 @@
 
       closeEarnModal();
       setMsg(`Logged ${data.entry.robux.toLocaleString()} R$ to the goal.`, true);
+      loadGoalAdminPanel();
     });
 
     // ---- Manual entry form ----
@@ -444,6 +534,7 @@
       manualEntryForm.reset();
       syncManualFieldVisibility();
       setManualMsg(`Added ${data.entry.robux.toLocaleString()} R$ (${data.entry.kind}) to the goal.`, true);
+      loadGoalAdminPanel();
     });
 
     function esc(s){
