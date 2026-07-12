@@ -442,7 +442,7 @@ function defaultGoals() {
       name: "Headless Horseman",
       emoji: "🎃",
       targetRobux: 31000,
-      rates: { USD: 80, EUR: 87, AED: 27.7778 }
+      rates: { USD: 80, EUR: 87, AED: 27.034334 }
     },
     entries: []
   };
@@ -496,10 +496,10 @@ function writeGoals(data) {
 
 function computeRobuxForEarn(rates, type, amount, currency) {
   const amt = Number(amount) || 0;
-  if (type === "robux") return Math.round(amt);
+  if (type === "robux") return Math.floor(amt);
   const rate = rates[currency];
   if (!rate) return 0;
-  return Math.round(amt * rate * 100) / 100;
+  return Math.floor(amt * rate);
 }
 
 function computeTotals(data) {
@@ -522,11 +522,11 @@ function computeTotals(data) {
   const remaining = Math.max(0, target - current);
   const pct = target > 0 ? Math.min(1, current / target) : 0;
   return {
-    currentRobux: Math.round(current * 100) / 100,
-    fromRobux: Math.round(fromRobux * 100) / 100,
-    fromMoney: Math.round(fromMoney * 100) / 100,
-    totalSpent: Math.round(spent * 100) / 100,
-    remaining: Math.round(remaining * 100) / 100,
+    currentRobux: Math.floor(current),
+    fromRobux: Math.floor(fromRobux),
+    fromMoney: Math.floor(fromMoney),
+    totalSpent: Math.floor(spent),
+    remaining: Math.floor(remaining),
     progressPct: pct
   };
 }
@@ -580,7 +580,7 @@ app.post("/api/goals/entries", (req, res) => {
   let cur = null;
 
   if (k === "spend") {
-    robux = Math.round(amt * 100) / 100;
+    robux = Math.floor(amt);
   } else {
     t = type === "currency" ? "currency" : "robux";
     cur = t === "currency" ? String(currency || "USD").toUpperCase() : null;

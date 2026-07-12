@@ -134,6 +134,11 @@
         : (Number(n) || 0).toLocaleString(undefined, { maximumFractionDigits: 2 });
     }
 
+    // Robux never has decimals — always round down, never up.
+    function fmtRobux(n){
+      return Math.floor(Number(n) || 0).toLocaleString();
+    }
+
     function fmtDate(iso){
       try {
         return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
@@ -280,17 +285,17 @@
       document.getElementById("pitchFill").style.width = Math.min(100, pct) + "%";
       document.getElementById("goalBall").style.left = Math.min(98, Math.max(2, pct)) + "%";
 
-      document.getElementById("pitchCurrent").textContent = fmtNum(totals.currentRobux);
-      document.getElementById("pitchTarget").textContent = fmtNum(goal.targetRobux);
+      document.getElementById("pitchCurrent").textContent = fmtRobux(totals.currentRobux);
+      document.getElementById("pitchTarget").textContent = fmtRobux(goal.targetRobux);
 
-      document.getElementById("statSaved").textContent = fmtNum(totals.currentRobux) + " R$";
-      document.getElementById("statRemaining").textContent = fmtNum(totals.remaining) + " R$";
-      document.getElementById("statTarget").textContent = fmtNum(goal.targetRobux) + " R$";
+      document.getElementById("statSaved").textContent = fmtRobux(totals.currentRobux) + " R$";
+      document.getElementById("statRemaining").textContent = fmtRobux(totals.remaining) + " R$";
+      document.getElementById("statTarget").textContent = fmtRobux(goal.targetRobux) + " R$";
       document.getElementById("statOrders").textContent = entries.filter(e => e.source === "order" && e.kind !== "spend").length;
 
       const maxSide = Math.max(totals.fromRobux, totals.fromMoney, 1);
-      document.getElementById("fromRobuxLabel").textContent = fmtNum(totals.fromRobux) + " R$";
-      document.getElementById("fromMoneyLabel").textContent = fmtNum(totals.fromMoney) + " R$";
+      document.getElementById("fromRobuxLabel").textContent = fmtRobux(totals.fromRobux) + " R$";
+      document.getElementById("fromMoneyLabel").textContent = fmtRobux(totals.fromMoney) + " R$";
       document.getElementById("fromRobuxBar").style.width = Math.min(100, (totals.fromRobux / maxSide) * 100) + "%";
       document.getElementById("fromMoneyBar").style.width = Math.min(100, (totals.fromMoney / maxSide) * 100) + "%";
 
@@ -313,8 +318,8 @@
         const label = e.client && e.title ? `${e.client} — ${e.title}` : (e.notes || (isSpend ? "Redeemed Robux" : "Manual entry"));
         const detail = isSpend
           ? "Spent"
-          : (isCurrency ? `${currencySymbol(e.currency)}${fmtNum(e.amount)} ${e.currency}` : `${fmtNum(e.amount)} R$ direct`);
-        const amtText = (isSpend ? "-" : "+") + fmtNum(e.robux) + " R$";
+          : (isCurrency ? `${currencySymbol(e.currency)}${fmtNum(e.amount)} ${e.currency}` : `${fmtRobux(e.amount)} R$ direct`);
+        const amtText = (isSpend ? "-" : "+") + fmtRobux(e.robux) + " R$";
         const iconContent = isSpend ? "&minus;" : (isCurrency ? esc(currencySymbol(e.currency).trim() || e.currency) : `<img src="images/icon-ball.svg" alt="">`);
         return `
           <div class="goal-entry ${typeClass}">

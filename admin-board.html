@@ -294,7 +294,7 @@
     const earnMsg = document.getElementById("earnMsg");
     const earnSkipBtn = document.getElementById("earnSkipBtn");
 
-    let GOAL_RATES = { USD: 80, EUR: 87, AED: 27.7778 };
+    let GOAL_RATES = { USD: 80, EUR: 87, AED: 27.034334 };
     let earnType = "robux";
     let pendingOrder = null; // {orderId, client, title}
 
@@ -305,6 +305,11 @@
       return Math.round((Number(n) || 0) * 100) / 100 === Math.round(Number(n) || 0)
         ? Math.round(Number(n) || 0).toLocaleString()
         : (Number(n) || 0).toLocaleString(undefined, { maximumFractionDigits: 2 });
+    }
+
+    // Robux never has decimals — always round down, never up.
+    function fmtRobux(n){
+      return Math.floor(Number(n) || 0).toLocaleString();
     }
 
     function currencySymbolFor(cur){
@@ -328,7 +333,7 @@
       if (data.goal && data.goal.rates) GOAL_RATES = data.goal.rates;
 
       const { entries, totals, goal } = data;
-      goalAdminSummary.innerHTML = `<b>${fmtGoalNum(totals.currentRobux)}</b> / ${fmtGoalNum(goal.targetRobux)} R$ saved`;
+      goalAdminSummary.innerHTML = `<b>${fmtRobux(totals.currentRobux)}</b> / ${fmtRobux(goal.targetRobux)} R$ saved`;
 
       if (!entries.length) {
         goalAdminList.innerHTML = `<div class="goal-empty">No entries logged yet.</div>`;
@@ -342,8 +347,8 @@
         const label = e.client && e.title ? `${e.client} — ${e.title}` : (e.notes || (isSpend ? "Redeemed Robux" : "Manual entry"));
         const detail = isSpend
           ? "Spent"
-          : (isCurrency ? `${currencySymbolFor(e.currency)}${fmtGoalNum(e.amount)} ${e.currency}` : `${fmtGoalNum(e.amount)} R$ direct`);
-        const amtText = (isSpend ? "-" : "+") + fmtGoalNum(e.robux) + " R$";
+          : (isCurrency ? `${currencySymbolFor(e.currency)}${fmtGoalNum(e.amount)} ${e.currency}` : `${fmtRobux(e.amount)} R$ direct`);
+        const amtText = (isSpend ? "-" : "+") + fmtRobux(e.robux) + " R$";
         const iconContent = isSpend ? "&minus;" : (isCurrency ? esc(currencySymbolFor(e.currency).trim() || e.currency) : `<img src="images/icon-ball.svg" alt="">`);
         return `
           <div class="goal-entry ${typeClass}" data-entry-id="${esc(e.id)}">
@@ -400,9 +405,10 @@
       }
       const amt = Number(earnAmount2.value) || 0;
       const rate = GOAL_RATES[earnCurrency.value] || 0;
-      const robux = Math.round(amt * rate * 100) / 100;
+      const robux = Math.floor(amt * rate);
+      const rateDisplay = Number(rate.toFixed(4));
       earnSummary.style.display = amt > 0 ? "block" : "none";
-      earnSummary.textContent = `≈ ${robux.toLocaleString()} R$ at ${rate} R$ per ${earnCurrency.value}`;
+      earnSummary.textContent = `≈ ${robux.toLocaleString()} R$ at ${rateDisplay} R$ per ${earnCurrency.value}`;
     }
 
     function setEarnType(t){
