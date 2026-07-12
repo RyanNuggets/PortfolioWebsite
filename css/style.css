@@ -2169,114 +2169,120 @@ input:focus, select:focus, textarea:focus{
   display:flex;
   align-items:center;
   justify-content:center;
-  background:radial-gradient(circle at 50% 40%, rgba(140,255,180,.14), rgba(0,0,0,.86) 65%);
+  background:rgba(0,0,0,.86);
   backdrop-filter:blur(6px);
   opacity:0;
   pointer-events:none;
-  transition:opacity .5s ease;
+  transition:opacity .5s ease, background 1.2s ease;
   overflow:hidden;
+  perspective:1200px;
 }
 .goal-celebration-overlay.is-visible{
   opacity:1;
   pointer-events:auto;
-  animation:goalOverlayPulse 3.2s ease-in-out infinite;
-}
-@keyframes goalOverlayPulse{
-  0%, 100%{ background:radial-gradient(circle at 50% 40%, rgba(140,255,180,.14), rgba(0,0,0,.86) 65%); }
-  50%{ background:radial-gradient(circle at 50% 40%, rgba(140,255,180,.24), rgba(0,0,0,.86) 65%); }
+  /* Steady glow while the card is open — no flashing, just holds until closed */
+  background:radial-gradient(circle at 50% 42%, rgba(140,255,180,.2), rgba(0,0,0,.86) 65%);
 }
 
 .goal-celebration-card{
   position:relative;
   text-align:center;
   padding:48px 42px 40px;
-  border-radius:24px;
-  border:1px solid rgba(140,255,180,.3);
-  background:linear-gradient(180deg, rgba(140,255,180,.07), rgba(0,0,0,0) 40%), #0d0d0d;
-  transform:scale(.8) translateY(10px);
-  transition:transform .55s cubic-bezier(.16,.84,.44,1);
-  max-width:min(440px, calc(100vw - 40px));
-  box-shadow:0 0 0 1px rgba(140,255,180,.08), 0 30px 60px -20px rgba(0,0,0,.7), 0 0 60px -10px rgba(140,255,180,.15);
-  overflow:visible;
+  border-radius:20px;
+  border:1px solid rgba(0,0,0,.3);
+  max-width:min(380px, calc(100vw - 40px));
+  width:100%;
+  box-shadow:0 30px 60px -20px rgba(0,0,0,.7);
+  overflow:hidden;
   z-index:2;
+  background:#d94b4b;
+  transform:rotateY(0deg) scale(.8);
+  transform-style:preserve-3d;
+  backface-visibility:visible;
 }
-.goal-celebration-overlay.is-visible .goal-celebration-card{ transform:scale(1) translateY(0); }
+.goal-celebration-overlay.is-visible .goal-celebration-card{
+  animation-name:goalCardFlip;
+  animation-duration:1.9s;
+  animation-timing-function:cubic-bezier(.45,.05,.25,1);
+  animation-fill-mode:forwards;
+}
 
-.goal-celebration-ring{
-  position:absolute;
-  inset:-2px;
-  border-radius:24px;
-  padding:1px;
-  background:conic-gradient(from 0deg, #8cffb4, #7fc4ff, #ffd479, #8cffb4);
-  -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite:xor;
-  mask-composite:exclude;
-  opacity:.55;
-  animation:goalRingSpin 4s linear infinite;
-  pointer-events:none;
+@keyframes goalCardFlip{
+  /* RED */
+  0%   { transform:rotateY(0deg)   scale(.8);  background:#d94b4b; box-shadow:0 0 50px -8px rgba(217,75,75,.65), 0 30px 60px -20px rgba(0,0,0,.7); }
+  15%  { transform:rotateY(88deg)  scale(.87); background:#d94b4b; }
+  /* flip conceals the swap to YELLOW right at the edge-on point */
+  15.5%{ transform:rotateY(92deg)  scale(.87); background:#e8c23c; }
+  32%  { transform:rotateY(180deg) scale(.93); background:#e8c23c; box-shadow:0 0 50px -8px rgba(232,194,60,.65), 0 30px 60px -20px rgba(0,0,0,.7); }
+  47%  { transform:rotateY(268deg) scale(.98); background:#e8c23c; }
+  /* flip conceals the swap to GREEN right at the edge-on point */
+  47.5%{ transform:rotateY(272deg) scale(.98); background:#4fcf87; }
+  64%  { transform:rotateY(360deg) scale(1);   background:#4fcf87; box-shadow:0 0 60px -6px rgba(79,207,135,.7), 0 30px 60px -20px rgba(0,0,0,.7); }
+  100% { transform:rotateY(360deg) scale(1);   background:#4fcf87; box-shadow:0 0 60px -6px rgba(79,207,135,.7), 0 30px 60px -20px rgba(0,0,0,.7); }
 }
-@keyframes goalRingSpin{ to{ transform:rotate(360deg); } }
+
+.goal-celebration-content{
+  opacity:0;
+  transform:translateY(10px);
+}
+.goal-celebration-overlay.is-visible .goal-celebration-content{
+  animation-name:goalContentReveal;
+  animation-duration:.6s;
+  animation-delay:1.55s;
+  animation-timing-function:ease;
+  animation-fill-mode:forwards;
+}
+@keyframes goalContentReveal{
+  to{ opacity:1; transform:translateY(0); }
+}
 
 .goal-celebration-icon{
-  width:72px;
-  height:72px;
-  margin:0 auto 20px;
+  width:64px;
+  height:64px;
+  margin:0 auto 18px;
   display:block;
-  filter:drop-shadow(0 0 18px rgba(140,255,180,.55));
-  animation:goalSpinPop 1s cubic-bezier(.16,.84,.44,1), goalIconFloat 2.4s ease-in-out 1s infinite;
+  filter:drop-shadow(0 0 14px rgba(0,0,0,.35));
+}
+.goal-celebration-overlay.is-visible .goal-celebration-icon{
+  animation:goalIconFloat 2.4s ease-in-out 2.2s infinite;
 }
 .goal-celebration-title{
   font-size:1.75rem;
   font-weight:800;
   letter-spacing:-.01em;
   margin:0 0 10px;
-  background:linear-gradient(90deg, #f5f5f5, #8cffb4, #f5f5f5);
-  background-size:200% auto;
-  -webkit-background-clip:text;
-  background-clip:text;
-  color:transparent;
-  animation:goalTitleShine 2.6s linear infinite;
+  color:#0d1f13;
 }
 .goal-celebration-sub{
   font-size:14.5px;
-  color:#b8ffd2;
+  color:rgba(13,31,19,.75);
+  font-weight:600;
   margin:0 0 4px;
 }
 .goal-celebration-close{
   margin-top:26px;
-  border:1px solid rgba(140,255,180,.3);
-  background:linear-gradient(180deg, rgba(140,255,180,.14), rgba(140,255,180,.05));
-  color:#f5f5f5;
+  border:1px solid rgba(13,31,19,.25);
+  background:rgba(13,31,19,.12);
+  color:#0d1f13;
   padding:11px 26px;
   border-radius:999px;
   cursor:pointer;
   font-size:13.5px;
-  font-weight:600;
+  font-weight:700;
   transition:transform .15s ease, background .15s ease, box-shadow .15s ease;
-  box-shadow:0 8px 20px -10px rgba(140,255,180,.4);
 }
 .goal-celebration-close:hover{
-  background:linear-gradient(180deg, rgba(140,255,180,.22), rgba(140,255,180,.08));
+  background:rgba(13,31,19,.2);
   transform:translateY(-1px) scale(1.03);
 }
 .goal-celebration-close:active{ transform:translateY(0) scale(.98); }
 
-@keyframes goalSpinPop{
-  0%{ transform:scale(0) rotate(-45deg); opacity:0; }
-  55%{ transform:scale(1.25) rotate(14deg); opacity:1; }
-  75%{ transform:scale(.95) rotate(-6deg); }
-  100%{ transform:scale(1) rotate(0deg); opacity:1; }
-}
 @keyframes goalIconFloat{
   0%, 100%{ transform:translateY(0) rotate(0deg); }
   50%{ transform:translateY(-6px) rotate(-4deg); }
 }
-@keyframes goalTitleShine{
-  0%{ background-position:0% center; }
-  100%{ background-position:200% center; }
-}
 
-/* Emoji / firework burst particles fired from the card on open */
+/* Emoji / firework burst particles fired from the card once it settles on green */
 .goal-burst-emoji{
   position:absolute;
   top:50%;
@@ -2300,7 +2306,7 @@ input:focus, select:focus, textarea:focus{
   width:10px; height:10px;
   margin:-5px 0 0 -5px;
   border-radius:50%;
-  border:2px solid #8cffb4;
+  border:2px solid #ffffff;
   opacity:0;
   animation-name:goalFireworkRing;
   animation-timing-function:cubic-bezier(.15,.7,.3,1);
@@ -2330,7 +2336,7 @@ input:focus, select:focus, textarea:focus{
   width:0; height:0; background:transparent !important;
   border-left:6px solid transparent;
   border-right:6px solid transparent;
-  border-bottom:11px solid var(--tri-color, #8cffb4);
+  border-bottom:11px solid var(--tri-color, #ffffff);
 }
 @keyframes goalConfettiFall{
   0%{ transform:translate(0,0) rotate(0deg); opacity:1; }
@@ -2370,8 +2376,11 @@ input:focus, select:focus, textarea:focus{
 
 @media (prefers-reduced-motion: reduce){
   .goal-rain-layer{ display:none; }
-  .goal-celebration-overlay.is-visible,
-  .goal-celebration-icon,
-  .goal-celebration-title,
-  .goal-celebration-ring{ animation:none !important; }
+  .goal-celebration-card{
+    animation:none !important;
+    background:#4fcf87 !important;
+    transform:none !important;
+  }
+  .goal-celebration-content{ animation:none !important; opacity:1 !important; transform:none !important; }
+  .goal-celebration-icon{ animation:none !important; }
 }
