@@ -2187,11 +2187,15 @@ input:focus, select:focus, textarea:focus{
 .goal-celebration-card{
   position:relative;
   text-align:center;
-  padding:48px 42px 40px;
-  border-radius:20px;
+  padding:34px 26px;
+  border-radius:18px;
   border:1px solid rgba(0,0,0,.3);
-  max-width:min(380px, calc(100vw - 40px));
-  width:100%;
+  width:min(260px, calc(100vw - 60px));
+  aspect-ratio:5 / 7;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
   box-shadow:0 30px 60px -20px rgba(0,0,0,.7);
   overflow:hidden;
   z-index:2;
@@ -2202,33 +2206,41 @@ input:focus, select:focus, textarea:focus{
 }
 .goal-celebration-overlay.is-visible .goal-celebration-card{
   animation-name:goalCardFlip;
-  animation-duration:1.9s;
-  animation-timing-function:cubic-bezier(.45,.05,.25,1);
+  animation-duration:2.2s;
+  animation-timing-function:cubic-bezier(.6,.04,.4,.96);
   animation-fill-mode:forwards;
 }
 
 @keyframes goalCardFlip{
-  /* RED */
-  0%   { transform:rotateY(0deg)   scale(.8);  background:#d94b4b; box-shadow:0 0 50px -8px rgba(217,75,75,.65), 0 30px 60px -20px rgba(0,0,0,.7); }
-  15%  { transform:rotateY(88deg)  scale(.87); background:#d94b4b; }
+  /* RED — fast flip in */
+  0%    { transform:rotateY(0deg)   scale(.76); background:#d94b4b; box-shadow:0 0 50px -8px rgba(217,75,75,.65), 0 30px 60px -20px rgba(0,0,0,.7); animation-timing-function:cubic-bezier(.5,0,.5,1); }
+  9%    { transform:rotateY(86deg)  scale(.86); background:#d94b4b; }
   /* flip conceals the swap to YELLOW right at the edge-on point */
-  15.5%{ transform:rotateY(92deg)  scale(.87); background:#e8c23c; }
-  32%  { transform:rotateY(180deg) scale(.93); background:#e8c23c; box-shadow:0 0 50px -8px rgba(232,194,60,.65), 0 30px 60px -20px rgba(0,0,0,.7); }
-  47%  { transform:rotateY(268deg) scale(.98); background:#e8c23c; }
+  9.5%  { transform:rotateY(94deg)  scale(.86); background:#e8c23c; }
+  18%   { transform:rotateY(180deg) scale(.92); background:#e8c23c; box-shadow:0 0 50px -8px rgba(232,194,60,.65), 0 30px 60px -20px rgba(0,0,0,.7); animation-timing-function:ease-in-out; }
+  /* SLOW hold on yellow, gentle breathing */
+  32%   { transform:rotateY(180deg) scale(.95); }
+  46%   { transform:rotateY(180deg) scale(.92); background:#e8c23c; animation-timing-function:cubic-bezier(.5,0,.5,1); }
+  /* GREEN — fast flip in */
+  55%   { transform:rotateY(266deg) scale(.97); background:#e8c23c; }
   /* flip conceals the swap to GREEN right at the edge-on point */
-  47.5%{ transform:rotateY(272deg) scale(.98); background:#4fcf87; }
-  64%  { transform:rotateY(360deg) scale(1);   background:#4fcf87; box-shadow:0 0 60px -6px rgba(79,207,135,.7), 0 30px 60px -20px rgba(0,0,0,.7); }
-  100% { transform:rotateY(360deg) scale(1);   background:#4fcf87; box-shadow:0 0 60px -6px rgba(79,207,135,.7), 0 30px 60px -20px rgba(0,0,0,.7); }
+  55.5% { transform:rotateY(274deg) scale(.97); background:#4fcf87; }
+  64%   { transform:rotateY(360deg) scale(1);   background:#4fcf87; box-shadow:0 0 60px -6px rgba(79,207,135,.7), 0 30px 60px -20px rgba(0,0,0,.7); animation-timing-function:ease-out; }
+  /* SLOW settle, comes to rest */
+  100%  { transform:rotateY(360deg) scale(1);   background:#4fcf87; box-shadow:0 0 60px -6px rgba(79,207,135,.7), 0 30px 60px -20px rgba(0,0,0,.7); }
 }
 
 .goal-celebration-content{
   opacity:0;
   transform:translateY(10px);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
 }
 .goal-celebration-overlay.is-visible .goal-celebration-content{
   animation-name:goalContentReveal;
   animation-duration:.6s;
-  animation-delay:1.55s;
+  animation-delay:1.7s;
   animation-timing-function:ease;
   animation-fill-mode:forwards;
 }
@@ -2237,37 +2249,39 @@ input:focus, select:focus, textarea:focus{
 }
 
 .goal-celebration-icon{
-  width:64px;
-  height:64px;
-  margin:0 auto 18px;
+  width:52px;
+  height:52px;
+  margin:0 0 14px;
   display:block;
   filter:drop-shadow(0 0 14px rgba(0,0,0,.35));
 }
 .goal-celebration-overlay.is-visible .goal-celebration-icon{
-  animation:goalIconFloat 2.4s ease-in-out 2.2s infinite;
+  animation:goalIconFloat 2.4s ease-in-out 2.3s infinite;
 }
 .goal-celebration-title{
-  font-size:1.75rem;
+  font-size:1.4rem;
   font-weight:800;
   letter-spacing:-.01em;
-  margin:0 0 10px;
+  margin:0 0 8px;
   color:#0d1f13;
+  line-height:1.15;
 }
 .goal-celebration-sub{
-  font-size:14.5px;
+  font-size:13px;
   color:rgba(13,31,19,.75);
   font-weight:600;
-  margin:0 0 4px;
+  margin:0;
+  line-height:1.4;
 }
 .goal-celebration-close{
-  margin-top:26px;
+  margin-top:22px;
   border:1px solid rgba(13,31,19,.25);
   background:rgba(13,31,19,.12);
   color:#0d1f13;
-  padding:11px 26px;
+  padding:10px 24px;
   border-radius:999px;
   cursor:pointer;
-  font-size:13.5px;
+  font-size:13px;
   font-weight:700;
   transition:transform .15s ease, background .15s ease, box-shadow .15s ease;
 }
