@@ -32,11 +32,11 @@
   <main class="page-content fade-in">
     <section class="goals-shell" id="goalsShell">
       <div class="goal-hero">
-        <span class="goal-eyebrow"><img class="icon-inline" src="images/icon-ball.svg" alt=""> Savings Goal</span>
+        <span class="goal-eyebrow"><img class="icon-inline" src="images/icon-ball.svg" alt=""> Progress Tracker</span>
 
         <div class="goal-title-row">
           <div>
-            <h1 class="goal-title"><span id="goalEmoji">🎃</span> <span id="goalName">Loading…</span></h1>
+            <h1 class="goal-title"><img class="icon-inline" src="images/icon-ball.svg" alt=""> <span id="goalName">Savings Goal</span></h1>
             <p class="goal-sub">Every delivered order kicks the ball a little closer to goal.</p>
           </div>
           <div class="goal-pct-badge">
@@ -47,6 +47,8 @@
 
         <div class="goal-pitch">
           <div class="goal-pitch-mid"></div>
+          <div class="goal-pitch-circle"></div>
+          <div class="goal-pitch-dot"></div>
           <div class="goal-pitch-fill" id="pitchFill"></div>
           <img class="goal-ball" id="goalBall" src="images/icon-ball.svg" style="left:0%" alt="">
         </div>
@@ -157,12 +159,12 @@
       }
     }
 
-    function maybeCelebrate(goalName){
+    function maybeCelebrate(){
       try {
         if (sessionStorage.getItem("goalCelebrationShown") === "1") return;
         sessionStorage.setItem("goalCelebrationShown", "1");
       } catch {}
-      celebrationSub.textContent = (goalName || "The goal") + " is fully funded.";
+      celebrationSub.textContent = "The savings goal is fully funded.";
       celebrationOverlay.classList.add("is-visible");
       celebrationOverlay.setAttribute("aria-hidden", "false");
       spawnConfetti();
@@ -187,9 +189,6 @@
 
       const { goal, entries, totals } = data;
 
-      document.getElementById("goalEmoji").textContent = goal.emoji || "🎯";
-      document.getElementById("goalName").textContent = goal.name || "Savings Goal";
-
       const pct = Math.round((totals.progressPct || 0) * 1000) / 10;
       document.getElementById("goalPct").textContent = pct + "%";
       document.getElementById("pitchFill").style.width = Math.min(100, pct) + "%";
@@ -210,7 +209,7 @@
       document.getElementById("fromMoneyBar").style.width = Math.min(100, (totals.fromMoney / maxSide) * 100) + "%";
 
       if (pct >= 100) {
-        maybeCelebrate(goal.name);
+        maybeCelebrate();
       }
 
       const logEl = document.getElementById("goalLog");
