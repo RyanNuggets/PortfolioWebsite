@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Goals – Nugget Studios</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="page-layout">
+  <!-- NAVBAR -->
+  <header class="navbar-header">
+    <nav class="navbar fade-in">
+      <a href="/" class="nav-home" aria-label="Home">
+        <img src="images/logo2.png" alt="Logo" class="nav-logo">
+      </a>
+
+      <div class="nav-links">
+        <a href="/about" class="nav-link">About</a>
+        <a href="/clients" class="nav-link">Clients</a>
+        <a href="/past-work" class="nav-link">Past Work</a>
+        <a href="/goals" class="nav-link">Goals</a>
+        <a href="/contact" class="nav-link">Contact</a>
+      </div>
+
+      <div class="nav-cta-wrap">
+        <a href="/contact" class="nav-cta">Order Now</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="page-content fade-in">
+    <section class="goals-shell" id="goalsShell">
+      <div class="goal-hero">
+        <span class="goal-eyebrow">⚽ Savings Goal · World Cup Season</span>
+
+        <div class="goal-title-row">
+          <div>
+            <h1 class="goal-title"><span id="goalEmoji">🎃</span> <span id="goalName">Loading…</span></h1>
+            <p class="goal-sub">Every delivered order kicks the ball a little closer to goal.</p>
+          </div>
+          <div class="goal-pct-badge">
+            <span id="goalPct">0%</span>
+            <span>complete</span>
+          </div>
+        </div>
+
+        <div class="goal-pitch">
+          <div class="goal-pitch-mid"></div>
+          <div class="goal-pitch-fill" id="pitchFill"></div>
+          <svg class="goal-ball" id="goalBall" viewBox="0 0 24 24" fill="none" style="left:0%">
+            <circle cx="12" cy="12" r="11" fill="#ebebeb" stroke="#0a0a0a" stroke-width="1"/>
+            <path d="M12 6.5l4 2.9-1.5 4.6h-5L8 9.4z" fill="#0a0a0a"/>
+            <path d="M12 6.5V3M16 9.4l3.2-1M14.5 14l2 3M9.5 14l-2 3M8 9.4L4.8 8.4" stroke="#0a0a0a" stroke-width="1" stroke-linecap="round"/>
+          </svg>
+        </div>
+
+        <div class="goal-pitch-labels">
+          <span>0 R$</span>
+          <span><b id="pitchCurrent">0</b> / <span id="pitchTarget">0</span> R$</span>
+        </div>
+      </div>
+
+      <div class="goal-stats-grid">
+        <div class="goal-stat">
+          <div class="goal-stat-label">Saved</div>
+          <div class="goal-stat-value is-accent" id="statSaved">0</div>
+        </div>
+        <div class="goal-stat">
+          <div class="goal-stat-label">Remaining</div>
+          <div class="goal-stat-value" id="statRemaining">0</div>
+        </div>
+        <div class="goal-stat">
+          <div class="goal-stat-label">Target</div>
+          <div class="goal-stat-value" id="statTarget">0</div>
+        </div>
+        <div class="goal-stat">
+          <div class="goal-stat-label">Orders Logged</div>
+          <div class="goal-stat-value" id="statOrders">0</div>
+        </div>
+      </div>
+
+      <div class="goal-breakdown">
+        <div class="goal-breakdown-title">Where the Robux came from</div>
+        <div class="goal-bar-row">
+          <div class="goal-bar-top"><span>Direct Robux payments</span><span id="fromRobuxLabel">0 R$</span></div>
+          <div class="goal-bar-track"><div class="goal-bar-fill" id="fromRobuxBar"></div></div>
+        </div>
+        <div class="goal-bar-row">
+          <div class="goal-bar-top"><span>Converted from money (USD/EUR/AED)</span><span id="fromMoneyLabel">0 R$</span></div>
+          <div class="goal-bar-track"><div class="goal-bar-fill is-money" id="fromMoneyBar"></div></div>
+        </div>
+      </div>
+
+      <div class="goal-log-head">
+        <div class="goal-log-title">🥅 Recent Contributions</div>
+      </div>
+      <div class="goal-log-list" id="goalLog">
+        <div class="goal-empty">Loading contributions…</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer-strip">
+    <div class="footer-divider"></div>
+    <div class="footer-inner">
+      <img src="images/logo2.png" class="footer-logo" alt="Footer Logo">
+      <p class="footer-text">Copyright © 2026 Nugget Studios. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    function esc(s){
+      return String(s ?? "").replace(/[&<>"']/g, (m) => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[m]));
+    }
+
+    function fmtNum(n){
+      return Math.round((Number(n) || 0) * 100) / 100 === Math.round(Number(n) || 0)
+        ? Math.round(Number(n) || 0).toLocaleString()
+        : (Number(n) || 0).toLocaleString(undefined, { maximumFractionDigits: 2 });
+    }
+
+    function fmtDate(iso){
+      try {
+        return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+      } catch { return ""; }
+    }
+
+    function currencySymbol(cur){
+      return { USD: "$", EUR: "€", AED: "AED " }[cur] || "";
+    }
+
+    async function loadGoals(){
+      const res = await fetch("/api/goals");
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) {
+        document.getElementById("goalLog").innerHTML = `<div class="goal-empty">Couldn't load the goal tracker right now.</div>`;
+        return;
+      }
+
+      const { goal, entries, totals } = data;
+
+      document.getElementById("goalEmoji").textContent = goal.emoji || "🎯";
+      document.getElementById("goalName").textContent = goal.name || "Savings Goal";
+
+      const pct = Math.round((totals.progressPct || 0) * 1000) / 10;
+      document.getElementById("goalPct").textContent = pct + "%";
+      document.getElementById("pitchFill").style.width = Math.min(100, pct) + "%";
+      document.getElementById("goalBall").style.left = Math.min(98, Math.max(2, pct)) + "%";
+
+      document.getElementById("pitchCurrent").textContent = fmtNum(totals.currentRobux);
+      document.getElementById("pitchTarget").textContent = fmtNum(goal.targetRobux);
+
+      document.getElementById("statSaved").textContent = fmtNum(totals.currentRobux) + " R$";
+      document.getElementById("statRemaining").textContent = fmtNum(totals.remaining) + " R$";
+      document.getElementById("statTarget").textContent = fmtNum(goal.targetRobux) + " R$";
+      document.getElementById("statOrders").textContent = entries.filter(e => e.source === "order" && e.kind !== "spend").length;
+
+      const maxSide = Math.max(totals.fromRobux, totals.fromMoney, 1);
+      document.getElementById("fromRobuxLabel").textContent = fmtNum(totals.fromRobux) + " R$";
+      document.getElementById("fromMoneyLabel").textContent = fmtNum(totals.fromMoney) + " R$";
+      document.getElementById("fromRobuxBar").style.width = Math.min(100, (totals.fromRobux / maxSide) * 100) + "%";
+      document.getElementById("fromMoneyBar").style.width = Math.min(100, (totals.fromMoney / maxSide) * 100) + "%";
+
+      const logEl = document.getElementById("goalLog");
+      if (!entries.length) {
+        logEl.innerHTML = `<div class="goal-empty">No contributions logged yet — deliver an order to kick things off ⚽</div>`;
+        return;
+      }
+
+      logEl.innerHTML = entries.slice(0, 40).map(e => {
+        const isSpend = e.kind === "spend";
+        const label = e.client && e.title ? `${e.client} — ${e.title}` : (e.notes || (isSpend ? "Redeemed Robux" : "Manual entry"));
+        const detail = isSpend
+          ? "Spent"
+          : (e.type === "currency" ? `${currencySymbol(e.currency)}${fmtNum(e.amount)} ${e.currency}` : `${fmtNum(e.amount)} R$ direct`);
+        const amtText = (isSpend ? "-" : "+") + fmtNum(e.robux) + " R$";
+        return `
+          <div class="goal-entry">
+            <div class="goal-entry-left">
+              <div class="goal-entry-title">${esc(label)}</div>
+              <div class="goal-entry-meta">${esc(fmtDate(e.date))} · ${esc(detail)}</div>
+            </div>
+            <div class="goal-entry-amt ${isSpend ? "is-spend" : ""}">${esc(amtText)}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    loadGoals();
+  </script>
+</body>
+</html>

@@ -19,6 +19,7 @@
         <a href="/about" class="nav-link">About</a>
         <a href="/clients" class="nav-link">Clients</a>
         <a href="/past-work" class="nav-link">Past Work</a>
+        <a href="/goals" class="nav-link">Goals</a>
         <a href="/contact" class="nav-link">Contact</a>
       </div>
 
@@ -72,8 +73,45 @@
         <p class="board-mini">
           Drag & drop cards to change status instantly. Click the Paid badge to toggle payment. Click anywhere else on a card to edit full details (Discord link, notes, etc).
           <br>
-          Tip: In <b>Queued</b>, drag cards up/down to change priority.
+          Tip: In <b>Queued</b>, drag cards up/down to change priority. Marking an order <b>Delivered</b> will ask what you earned so it's added to <a href="/goals" style="color:#8cffb4;">/goals</a> automatically.
         </p>
+      </div>
+    </section>
+
+    <!-- GOAL QUICK PANEL -->
+    <section class="board" style="padding-top:0;">
+      <div class="board-shell">
+        <div class="board-head">
+          <div>
+            <h1 class="board-title" style="font-size:1.2rem;">⚽ Goal Tracker</h1>
+            <p class="board-sub">Log Robux manually (gifts, corrections) or view the public page.</p>
+          </div>
+          <div class="board-actions">
+            <a class="board-btn" href="/goals" target="_blank" rel="noopener">View /goals</a>
+          </div>
+        </div>
+
+        <div class="admin-add">
+          <form class="admin-add-form" id="manualEntryForm" style="grid-template-columns:repeat(5,1fr);">
+            <select id="manualKind">
+              <option value="earn">Earned</option>
+              <option value="spend">Spent / Redeemed</option>
+            </select>
+            <select id="manualType">
+              <option value="robux">Robux</option>
+              <option value="currency">Currency</option>
+            </select>
+            <select id="manualCurrency">
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+              <option value="AED">AED</option>
+            </select>
+            <input id="manualAmount" type="number" min="0" step="0.01" placeholder="Amount" required />
+            <input id="manualNotes" placeholder="Notes (optional)" />
+            <button class="board-btn is-primary" type="submit" style="grid-column:1 / -1;">Add Entry</button>
+          </form>
+          <div class="board-msg" id="manualMsg"></div>
+        </div>
       </div>
     </section>
 
@@ -138,6 +176,62 @@
         </form>
       </div>
     </div>
+
+    <!-- EARNINGS MODAL (shown when an order moves to Delivered) -->
+    <div class="kmodal" id="earnModal" aria-hidden="true">
+      <div class="kmodal-backdrop" id="earnModalBackdrop"></div>
+      <div class="kmodal-card" role="dialog" aria-modal="true">
+        <button class="kmodal-close" id="earnModalClose">×</button>
+        <div class="kmodal-title">⚽ Log Earnings</div>
+        <div class="kmodal-meta" id="earnOrderLabel"></div>
+
+        <div class="kmodal-divider"></div>
+
+        <form id="earnForm">
+          <label style="font-size:12px;color:#8c8c8c;">Paid in</label>
+          <div class="kmodal-typerow">
+            <button type="button" class="ktype-btn is-active" id="earnTypeRobux" data-type="robux">Robux</button>
+            <button type="button" class="ktype-btn" id="earnTypeCurrency" data-type="currency">Currency</button>
+          </div>
+
+          <div class="kmodal-form-row kmodal-form-two" id="earnCurrencyRow" style="display:none;">
+            <div>
+              <label for="earnCurrency">Currency</label>
+              <select id="earnCurrency">
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="AED">AED</option>
+              </select>
+            </div>
+            <div>
+              <label for="earnAmount2">Amount</label>
+              <input type="number" id="earnAmount2" min="0" step="0.01" />
+            </div>
+          </div>
+
+          <div class="kmodal-form-row" id="earnRobuxRow">
+            <label for="earnAmount">Robux Earned</label>
+            <input type="number" id="earnAmount" min="0" step="1" />
+          </div>
+
+          <div class="kearn-summary" id="earnSummary" style="display:none;"></div>
+
+          <div class="kmodal-form-row">
+            <label for="earnNotes">Notes (optional)</label>
+            <input type="text" id="earnNotes" placeholder="Anything worth remembering..." />
+          </div>
+
+          <div class="board-msg" id="earnMsg"></div>
+
+          <div class="kmodal-actions">
+            <button type="button" class="kmini" id="earnSkipBtn">Skip — don't log</button>
+            <div class="kmodal-actions-right">
+              <button type="submit" class="board-btn is-primary">Save to Goal</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
   </main>
 
   <footer class="footer-strip">
@@ -173,6 +267,184 @@
     let lastFocus = null;
     let LATEST_ITEMS = [];
     let editingId = null;
+
+    // ---- Goal tracker wiring ----
+    const earnModal = document.getElementById("earnModal");
+    const earnModalBackdrop = document.getElementById("earnModalBackdrop");
+    const earnModalClose = document.getElementById("earnModalClose");
+    const earnForm = document.getElementById("earnForm");
+    const earnOrderLabel = document.getElementById("earnOrderLabel");
+    const earnTypeRobux = document.getElementById("earnTypeRobux");
+    const earnTypeCurrency = document.getElementById("earnTypeCurrency");
+    const earnCurrencyRow = document.getElementById("earnCurrencyRow");
+    const earnRobuxRow = document.getElementById("earnRobuxRow");
+    const earnAmount = document.getElementById("earnAmount");
+    const earnAmount2 = document.getElementById("earnAmount2");
+    const earnCurrency = document.getElementById("earnCurrency");
+    const earnSummary = document.getElementById("earnSummary");
+    const earnNotes = document.getElementById("earnNotes");
+    const earnMsg = document.getElementById("earnMsg");
+    const earnSkipBtn = document.getElementById("earnSkipBtn");
+
+    let GOAL_RATES = { USD: 80, EUR: 87, AED: 27.7778 };
+    let earnType = "robux";
+    let pendingOrder = null; // {orderId, client, title}
+
+    fetch("/api/goals").then(r => r.json()).then(d => {
+      if (d && d.goal && d.goal.rates) GOAL_RATES = d.goal.rates;
+    }).catch(() => {});
+
+    function setEarnMsg(text, ok = true){
+      earnMsg.textContent = text || "";
+      earnMsg.className = "board-msg " + (ok ? "is-ok" : "is-err");
+      if (!text) earnMsg.className = "board-msg";
+    }
+
+    function updateEarnSummary(){
+      if (earnType === "robux") {
+        earnSummary.style.display = "none";
+        return;
+      }
+      const amt = Number(earnAmount2.value) || 0;
+      const rate = GOAL_RATES[earnCurrency.value] || 0;
+      const robux = Math.round(amt * rate * 100) / 100;
+      earnSummary.style.display = amt > 0 ? "block" : "none";
+      earnSummary.textContent = `≈ ${robux.toLocaleString()} R$ at ${rate} R$ per ${earnCurrency.value}`;
+    }
+
+    function setEarnType(t){
+      earnType = t;
+      earnTypeRobux.classList.toggle("is-active", t === "robux");
+      earnTypeCurrency.classList.toggle("is-active", t === "currency");
+      earnRobuxRow.style.display = t === "robux" ? "block" : "none";
+      earnCurrencyRow.style.display = t === "currency" ? "grid" : "none";
+      updateEarnSummary();
+    }
+
+    earnTypeRobux.addEventListener("click", () => setEarnType("robux"));
+    earnTypeCurrency.addEventListener("click", () => setEarnType("currency"));
+    earnAmount2.addEventListener("input", updateEarnSummary);
+    earnCurrency.addEventListener("change", updateEarnSummary);
+
+    function openEarnModal(order){
+      pendingOrder = order;
+      earnOrderLabel.textContent = `${order.client} — ${order.title}`;
+      earnAmount.value = "";
+      earnAmount2.value = "";
+      earnNotes.value = "";
+      setEarnType("robux");
+      setEarnMsg("");
+      earnModal.classList.add("open");
+      earnModal.setAttribute("aria-hidden", "false");
+      earnAmount.focus();
+    }
+
+    function closeEarnModal(){
+      earnModal.classList.remove("open");
+      earnModal.setAttribute("aria-hidden", "true");
+      pendingOrder = null;
+    }
+
+    earnModalClose.addEventListener("click", closeEarnModal);
+    earnModalBackdrop.addEventListener("click", closeEarnModal);
+    earnSkipBtn.addEventListener("click", closeEarnModal);
+
+    earnForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!pendingOrder) return;
+
+      const amount = earnType === "robux" ? Number(earnAmount.value) : Number(earnAmount2.value);
+      if (!amount || amount <= 0) {
+        setEarnMsg("Enter a valid amount.", false);
+        return;
+      }
+
+      const body = {
+        kind: "earn",
+        source: "order",
+        orderId: pendingOrder.orderId,
+        client: pendingOrder.client,
+        title: pendingOrder.title,
+        type: earnType,
+        amount,
+        currency: earnType === "currency" ? earnCurrency.value : undefined,
+        notes: earnNotes.value.trim()
+      };
+
+      const res = await fetch("/api/goals/entries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) {
+        setEarnMsg(data.error || "Failed to log earnings.", false);
+        return;
+      }
+
+      closeEarnModal();
+      setMsg(`Logged ${data.entry.robux.toLocaleString()} R$ to the goal.`, true);
+    });
+
+    // ---- Manual entry form ----
+    const manualEntryForm = document.getElementById("manualEntryForm");
+    const manualMsg = document.getElementById("manualMsg");
+    const manualKind = document.getElementById("manualKind");
+    const manualType = document.getElementById("manualType");
+    const manualCurrency = document.getElementById("manualCurrency");
+    const manualAmount = document.getElementById("manualAmount");
+    const manualNotes = document.getElementById("manualNotes");
+
+    function setManualMsg(text, ok = true){
+      manualMsg.textContent = text || "";
+      manualMsg.className = "board-msg " + (ok ? "is-ok" : "is-err");
+      if (!text) manualMsg.className = "board-msg";
+    }
+
+    function syncManualFieldVisibility(){
+      const isSpend = manualKind.value === "spend";
+      manualType.style.display = isSpend ? "none" : "block";
+      manualCurrency.style.display = (!isSpend && manualType.value === "currency") ? "block" : "none";
+    }
+    manualKind.addEventListener("change", syncManualFieldVisibility);
+    manualType.addEventListener("change", syncManualFieldVisibility);
+    syncManualFieldVisibility();
+
+    manualEntryForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      setManualMsg("");
+
+      const amount = Number(manualAmount.value);
+      if (!amount || amount <= 0) {
+        setManualMsg("Enter a valid amount.", false);
+        return;
+      }
+
+      const isSpend = manualKind.value === "spend";
+      const body = {
+        kind: isSpend ? "spend" : "earn",
+        source: "manual",
+        type: isSpend ? undefined : manualType.value,
+        currency: (!isSpend && manualType.value === "currency") ? manualCurrency.value : undefined,
+        amount,
+        notes: manualNotes.value.trim()
+      };
+
+      const res = await fetch("/api/goals/entries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) {
+        setManualMsg(data.error || "Failed to add entry.", false);
+        return;
+      }
+
+      manualEntryForm.reset();
+      syncManualFieldVisibility();
+      setManualMsg(`Added ${data.entry.robux.toLocaleString()} R$ (${data.entry.kind}) to the goal.`, true);
+    });
 
     function esc(s){
       return String(s ?? "").replace(/[&<>"']/g, (m) => ({
@@ -322,9 +594,12 @@
     }
 
     // ---------- Edit modal ----------
+    let editingPrevStatus = null;
+
     function openEditModal(order){
       lastFocus = document.activeElement;
       editingId = order.id;
+      editingPrevStatus = order.status;
 
       editClient.value = order.client || "";
       editTitle.value = order.title || "";
@@ -379,9 +654,16 @@
         return;
       }
 
+      const shouldPromptEarnings = body.status === "Delivered" && editingPrevStatus !== "Delivered";
+      const savedOrder = { orderId: editingId, client: body.client, title: body.title };
+
       closeEditModal();
       setMsg("Order updated.", true);
       loadBoard();
+
+      if (shouldPromptEarnings) {
+        openEarnModal(savedOrder);
+      }
     });
 
     editDeleteBtn.addEventListener("click", async () => {
@@ -483,6 +765,8 @@
       e.preventDefault();
 
       const newStatus = col.getAttribute("data-status");
+      const draggedOrder = LATEST_ITEMS.find(o => o.id === draggingId);
+      const prevStatus = draggedOrder ? draggedOrder.status : null;
 
       if (newStatus === "Queued") {
         const ok = await saveQueueOrder();
@@ -505,6 +789,10 @@
 
       setMsg("Status updated.", true);
       loadBoard();
+
+      if (newStatus === "Delivered" && prevStatus !== "Delivered" && draggedOrder) {
+        openEarnModal({ orderId: draggedOrder.id, client: draggedOrder.client, title: draggedOrder.title });
+      }
     });
 
     // Card clicks: paid toggle, delete, or open edit modal

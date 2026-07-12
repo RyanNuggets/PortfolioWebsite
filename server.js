@@ -53,6 +53,10 @@ app.get("/contact", (req, res) =>
   res.sendFile(path.join(__dirname, "contact.html"))
 );
 
+app.get("/goals", (req, res) =>
+  res.sendFile(path.join(__dirname, "goals.html"))
+);
+
 // ================= PORTAL / BOARD PAGES (ADDED) =================
 
 // Portal (password entry)
@@ -426,6 +430,198 @@ app.delete("/api/orders/:id", (req, res) => {
 
   writeOrders(next);
   return res.json({ ok: true });
+});
+
+// ================= GOALS API (ADDED) =================
+
+const GOALS_PATH = path.join(DATA_DIR, "goals.json");
+
+function defaultGoals() {
+  return {
+    goal: {
+      name: "Headless Horseman",
+      emoji: "🎃",
+      targetRobux: 31000,
+      rates: { USD: 80, EUR: 87, AED: 27.7778 }
+    },
+    entries: []
+  };
+}
+
+function ensureGoalsFile() {
+  try {
+    if (!fs.existsSync(GOALS_PATH)) {
+      fs.mkdirSync(path.dirname(GOALS_PATH), { recursive: true });
+      fs.writeFileSync(GOALS_PATH, JSON.stringify(defaultGoals(), null, 2), "utf8");
+    }
+  } catch (e) {
+    console.error("❌ Failed to ensure goals file:", e);
+  }
+}
+ensureGoalsFile();
+
+function readGoals() {
+  try {
+    const raw = fs.readFileSync(GOALS_PATH, "utf8");
+    const json = JSON.parse(raw);
+    const d = defaultGoals();
+    return {
+      goal: {
+        name: json?.goal?.name || d.goal.name,
+        emoji: json?.goal?.emoji || d.goal.emoji,
+        targetRobux: Number.isFinite(json?.goal?.targetRobux) ? json.goal.targetRobux : d.goal.targetRobux,
+        rates: {
+          USD: Number(json?.goal?.rates?.USD) || d.goal.rates.USD,
+          EUR: Number(json?.goal?.rates?.EUR) || d.goal.rates.EUR,
+          AED: Number(json?.goal?.rates?.AED) || d.goal.rates.AED
+        }
+      },
+      entries: Array.isArray(json.entries) ? json.entries : []
+    };
+  } catch (e) {
+    console.error("❌ readGoals error:", e);
+    return defaultGoals();
+  }
+}
+
+function writeGoals(data) {
+  try {
+    fs.mkdirSync(path.dirname(GOALS_PATH), { recursive: true });
+    fs.writeFileSync(GOALS_PATH, JSON.stringify(data, null, 2), "utf8");
+  } catch (e) {
+    console.error("❌ writeGoals error:", e);
+    throw e;
+  }
+}
+
+function computeRobuxForEarn(rates, type, amount, currency) {
+  const amt = Number(amount) || 0;
+  if (type === "robux") return Math.round(amt);
+  const rate = rates[currency];
+  if (!rate) return 0;
+  return Math.round(amt * rate * 100) / 100;
+}
+
+function computeTotals(data) {
+  let earned = 0;
+  let spent = 0;
+  let fromRobux = 0;
+  let fromMoney = 0;
+  for (const e of data.entries) {
+    if (e.kind === "spend") {
+      spent += Number(e.robux) || 0;
+    } else {
+      const rx = Number(e.robux) || 0;
+      earned += rx;
+      if (e.type === "robux") fromRobux += rx;
+      else fromMoney += rx;
+    }
+  }
+  const current = Math.max(0, earned - spent);
+  const target = data.goal.targetRobux || 0;
+  const remaining = Math.max(0, target - current);
+  const pct = target > 0 ? Math.min(1, current / target) : 0;
+  return {
+    currentRobux: Math.round(current * 100) / 100,
+    fromRobux: Math.round(fromRobux * 100) / 100,
+    fromMoney: Math.round(fromMoney * 100) / 100,
+    totalSpent: Math.round(spent * 100) / 100,
+    remaining: Math.round(remaining * 100) / 100,
+    progressPct: pct
+  };
+}
+
+// public: READ (goals page has no password gate)
+app.get("/api/goals", (req, res) => {
+  const data = readGoals();
+  const entries = [...data.entries].sort((a, b) => new Date(b.date) - new Date(a.date));
+  return res.json({ ok: true, goal: data.goal, entries, totals: computeTotals(data) });
+});
+
+// admin: update goal settings (name/target/rates)
+app.patch("/api/goals/settings", (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ ok: false, error: "Admin only" });
+
+  const data = readGoals();
+  const { name, emoji, targetRobux, rates } = req.body || {};
+
+  if (typeof name === "string" && name.trim()) data.goal.name = name.trim().slice(0, 120);
+  if (typeof emoji === "string") data.goal.emoji = emoji.trim().slice(0, 8);
+  if (Number.isFinite(Number(targetRobux)) && Number(targetRobux) > 0) {
+    data.goal.targetRobux = Number(targetRobux);
+  }
+  if (rates && typeof rates === "object") {
+    for (const k of ["USD", "EUR", "AED"]) {
+      if (Number.isFinite(Number(rates[k])) && Number(rates[k]) > 0) {
+        data.goal.rates[k] = Number(rates[k]);
+      }
+    }
+  }
+
+  writeGoals(data);
+  return res.json({ ok: true, goal: data.goal });
+});
+
+// admin: add an entry (earn from an order, manual earn, or manual spend)
+app.post("/api/goals/entries", (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ ok: false, error: "Admin only" });
+
+  const { kind, source, orderId, client, title, type, amount, currency, notes } = req.body || {};
+
+  const data = readGoals();
+  const k = kind === "spend" ? "spend" : "earn";
+  const amt = Number(amount);
+  if (!Number.isFinite(amt) || amt <= 0) {
+    return res.status(400).json({ ok: false, error: "A valid amount is required" });
+  }
+
+  let robux = 0;
+  let t = null;
+  let cur = null;
+
+  if (k === "spend") {
+    robux = Math.round(amt * 100) / 100;
+  } else {
+    t = type === "currency" ? "currency" : "robux";
+    cur = t === "currency" ? String(currency || "USD").toUpperCase() : null;
+    if (t === "currency" && !["USD", "EUR", "AED"].includes(cur)) {
+      return res.status(400).json({ ok: false, error: "Currency must be USD, EUR, or AED" });
+    }
+    robux = computeRobuxForEarn(data.goal.rates, t, amt, cur);
+  }
+
+  const entry = {
+    id: "goal-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7),
+    date: new Date().toISOString(),
+    kind: k,
+    source: source === "order" ? "order" : "manual",
+    orderId: orderId || null,
+    client: client ? String(client).trim().slice(0, 120) : null,
+    title: title ? String(title).trim().slice(0, 200) : null,
+    type: t,
+    amount: amt,
+    currency: cur,
+    robux,
+    notes: notes ? String(notes).trim().slice(0, 500) : ""
+  };
+
+  data.entries.push(entry);
+  writeGoals(data);
+  return res.json({ ok: true, entry, totals: computeTotals(data) });
+});
+
+// admin: delete an entry (fix mistakes)
+app.delete("/api/goals/entries/:id", (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ ok: false, error: "Admin only" });
+
+  const data = readGoals();
+  const next = data.entries.filter(e => e.id !== req.params.id);
+  if (next.length === data.entries.length) {
+    return res.status(404).json({ ok: false, error: "Not found" });
+  }
+  data.entries = next;
+  writeGoals(data);
+  return res.json({ ok: true, totals: computeTotals(data) });
 });
 
 // ================= START SERVER =================
