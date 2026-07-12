@@ -102,12 +102,13 @@
     </section>
 
     <div class="goal-celebration-overlay" id="goalCelebration" aria-hidden="true">
-      <div class="goal-celebration-card">
-        <div class="goal-celebration-ring"></div>
-        <img class="goal-celebration-icon" src="images/icon-ball.svg" alt="">
-        <p class="goal-celebration-title">Goal Reached!</p>
-        <p class="goal-celebration-sub" id="goalCelebrationSub"></p>
-        <button class="goal-celebration-close" id="goalCelebrationClose" type="button">Nice</button>
+      <div class="goal-celebration-card" id="goalCelebrationCard">
+        <div class="goal-celebration-content">
+          <img class="goal-celebration-icon" src="images/icon-ball.svg" alt="">
+          <p class="goal-celebration-title">Goal Reached!</p>
+          <p class="goal-celebration-sub" id="goalCelebrationSub"></p>
+          <button class="goal-celebration-close" id="goalCelebrationClose" type="button">Nice</button>
+        </div>
       </div>
     </div>
   </main>
@@ -248,7 +249,8 @@
       celebrationSub.textContent = "The savings goal is fully funded — nothing but net.";
       celebrationOverlay.classList.add("is-visible");
       celebrationOverlay.setAttribute("aria-hidden", "false");
-      spawnBurst();
+      // Card flips red -> yellow -> green (~1.9s); fire the burst once it settles.
+      setTimeout(spawnBurst, reducedMotion ? 0 : 1750);
       startRain();
     }
 
