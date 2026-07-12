@@ -1710,3 +1710,322 @@ input:focus, select:focus, textarea:focus{
   .kmodal-actions{ flex-direction:column-reverse; }
   .kmodal-actions-right{ flex-direction:column; }
 }
+
+/* ================= GOALS PAGE ================= */
+
+.goals-shell{
+  position:relative;
+  max-width:980px;
+  margin:0 auto;
+  padding:120px 20px 60px;
+  z-index:1;
+}
+
+.goal-hero{
+  position:relative;
+  border:1px solid #292929;
+  background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,0)), #0d0d0d;
+  border-radius:20px;
+  padding:34px 30px 30px;
+  overflow:hidden;
+  margin-bottom:26px;
+}
+
+/* faint corner-kick arcs — subtle football nod, stays monochrome */
+.goal-hero::before,
+.goal-hero::after{
+  content:"";
+  position:absolute;
+  width:120px;
+  height:120px;
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:50%;
+  pointer-events:none;
+}
+.goal-hero::before{ top:-60px; right:-60px; }
+.goal-hero::after{ bottom:-70px; left:-40px; width:160px; height:160px; }
+
+.goal-eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-size:12px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:#8c8c8c;
+  border:1px solid #292929;
+  background:#141414;
+  padding:6px 12px;
+  border-radius:999px;
+  margin-bottom:16px;
+}
+
+.goal-title-row{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  flex-wrap:wrap;
+  justify-content:space-between;
+}
+
+.goal-title{
+  font-size:clamp(1.5rem, 3vw, 2.1rem);
+  font-weight:600;
+  color:#f5f5f5;
+  margin:0;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.goal-sub{
+  color:#8c8c8c;
+  font-size:14px;
+  margin:6px 0 0;
+}
+
+.goal-pct-badge{
+  font-size:clamp(1.6rem, 4vw, 2.4rem);
+  font-weight:700;
+  color:#f5f5f5;
+  line-height:1;
+}
+.goal-pct-badge span{
+  display:block;
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:#8c8c8c;
+  margin-top:4px;
+  text-align:right;
+}
+
+/* ---- Pitch progress bar ---- */
+.goal-pitch{
+  position:relative;
+  margin-top:26px;
+  height:26px;
+  border-radius:999px;
+  background:
+    repeating-linear-gradient(90deg,
+      rgba(255,255,255,.045) 0 40px,
+      rgba(255,255,255,.02) 40px 80px);
+  border:1px solid #292929;
+  overflow:visible;
+}
+
+.goal-pitch-fill{
+  position:absolute;
+  inset:0 auto 0 0;
+  height:100%;
+  width:0%;
+  border-radius:999px;
+  background:linear-gradient(90deg, #3a3a3a, #f5f5f5);
+  transition:width 900ms cubic-bezier(.16,.84,.44,1);
+}
+
+.goal-pitch-mid{
+  position:absolute;
+  left:50%;
+  top:-6px;
+  bottom:-6px;
+  width:1px;
+  background:rgba(255,255,255,.12);
+}
+
+.goal-ball{
+  position:absolute;
+  top:50%;
+  width:22px;
+  height:22px;
+  transform:translate(-50%,-50%);
+  transition:left 900ms cubic-bezier(.16,.84,.44,1);
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.5));
+}
+
+.goal-pitch-labels{
+  display:flex;
+  justify-content:space-between;
+  margin-top:10px;
+  font-size:12px;
+  color:#8c8c8c;
+}
+.goal-pitch-labels b{ color:#f5f5f5; font-weight:600; }
+
+/* ---- Stats grid ---- */
+.goal-stats-grid{
+  display:grid;
+  grid-template-columns:repeat(4, minmax(0,1fr));
+  gap:12px;
+  margin-bottom:26px;
+}
+.goal-stat{
+  border:1px solid #292929;
+  background:#0d0d0d;
+  border-radius:14px;
+  padding:16px 16px;
+}
+.goal-stat-label{
+  font-size:11px;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+  color:#8c8c8c;
+  margin-bottom:6px;
+}
+.goal-stat-value{
+  font-size:1.35rem;
+  font-weight:600;
+  color:#f5f5f5;
+}
+.goal-stat-value.is-accent{ color:#8cffb4; }
+
+/* ---- Breakdown mini bars ---- */
+.goal-breakdown{
+  border:1px solid #292929;
+  background:#0d0d0d;
+  border-radius:14px;
+  padding:18px 18px 16px;
+  margin-bottom:26px;
+}
+.goal-breakdown-title{
+  font-size:13px;
+  color:#8c8c8c;
+  margin-bottom:14px;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
+.goal-bar-row{ margin-bottom:14px; }
+.goal-bar-row:last-child{ margin-bottom:0; }
+.goal-bar-top{
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+  margin-bottom:6px;
+  color:#ebebeb;
+}
+.goal-bar-track{
+  height:8px;
+  border-radius:999px;
+  background:#1a1a1a;
+  overflow:hidden;
+}
+.goal-bar-fill{
+  height:100%;
+  border-radius:999px;
+  background:#f5f5f5;
+  width:0%;
+  transition:width 700ms ease;
+}
+.goal-bar-fill.is-money{ background:#8cffb4; }
+
+/* ---- Log ---- */
+.goal-log-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:12px;
+}
+.goal-log-title{
+  font-size:16px;
+  font-weight:600;
+  color:#f5f5f5;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.goal-log-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.goal-entry{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  border:1px solid #292929;
+  background:#0d0d0d;
+  border-radius:12px;
+  padding:12px 14px;
+}
+.goal-entry-left{ min-width:0; }
+.goal-entry-title{
+  font-size:13.5px;
+  color:#ebebeb;
+  font-weight:500;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.goal-entry-meta{
+  font-size:11.5px;
+  color:#8c8c8c;
+  margin-top:2px;
+}
+.goal-entry-amt{
+  flex-shrink:0;
+  font-size:13.5px;
+  font-weight:600;
+  color:#8cffb4;
+  white-space:nowrap;
+}
+.goal-entry-amt.is-spend{ color:#ffb3b3; }
+.goal-entry-del{
+  flex-shrink:0;
+  border:1px solid rgba(255,140,140,.25);
+  background:transparent;
+  color:#ffb3b3;
+  font-size:11px;
+  border-radius:8px;
+  padding:5px 8px;
+  cursor:pointer;
+  opacity:.7;
+}
+.goal-entry-del:hover{ opacity:1; }
+
+.goal-empty{
+  color:#8c8c8c;
+  font-size:13.5px;
+  text-align:center;
+  padding:26px 0;
+  border:1px dashed #292929;
+  border-radius:14px;
+}
+
+@media (max-width:720px){
+  .goal-stats-grid{ grid-template-columns:repeat(2, minmax(0,1fr)); }
+}
+
+/* ================= EARNINGS MODAL (admin) ================= */
+
+.kmodal-typerow{
+  display:flex;
+  gap:8px;
+  margin:4px 0 2px;
+}
+.ktype-btn{
+  flex:1;
+  border:1px solid #292929;
+  background:#141414;
+  color:#8c8c8c;
+  border-radius:10px;
+  padding:10px 12px;
+  font-size:13px;
+  cursor:pointer;
+  transition:.15s;
+}
+.ktype-btn.is-active{
+  border-color:#f5f5f5;
+  color:#f5f5f5;
+  background:#1f1f1f;
+}
+
+.kearn-summary{
+  border:1px dashed #292929;
+  border-radius:10px;
+  padding:10px 12px;
+  font-size:13px;
+  color:#8cffb4;
+  margin-top:8px;
+}
