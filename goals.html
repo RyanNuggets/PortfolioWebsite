@@ -249,8 +249,8 @@
       celebrationSub.textContent = "The savings goal is fully funded — nothing but net.";
       celebrationOverlay.classList.add("is-visible");
       celebrationOverlay.setAttribute("aria-hidden", "false");
-      // Card flips red -> yellow -> green (~1.9s); fire the burst once it settles.
-      setTimeout(spawnBurst, reducedMotion ? 0 : 1750);
+      // Card flips red -> yellow -> green (~2.2s); fire the burst once it settles.
+      setTimeout(spawnBurst, reducedMotion ? 0 : 2000);
       startRain();
     }
 
